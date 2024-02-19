@@ -21,6 +21,13 @@ set).
 
 We also prove lemmas specific to `ℝⁿ`. Those are helpful to prove that order-connected sets in `ℝⁿ`
 are measurable.
+
+## TODO
+
+Is there a way to generalise `IsClosed.upperClosure_pi`/`IsClosed.lowerClosure_pi` so that they also
+apply to `ℝ`, `ℝ × ℝ`, `EuclideanSpace ι ℝ`? `_pi` has been prepended to their names to disambiguate
+from the other possible lemmas, but we will want there to be a single set of lemmas for all
+situations.
 -/
 
 open Bornology Function Metric Set
@@ -210,19 +217,19 @@ of the open segments from `(0, 2)` to `(1, 1)` and from `(2, 1)` to `(3, 0)`. `(
 are comparable and both in the closure/frontier.
 -/
 
-protected lemma IsClosed.upperClosure (hs : IsClosed s) (hs' : BddBelow s) :
+protected lemma IsClosed.upperClosure_pi (hs : IsClosed s) (hs' : BddBelow s) :
     IsClosed (upperClosure s : Set (ι → ℝ)) := by
   cases nonempty_fintype ι
   refine' IsSeqClosed.isClosed fun f x hf hx ↦ _
   choose g hg hgf using hf
   obtain ⟨a, ha⟩ := hx.bddAbove_range
   obtain ⟨b, hb, φ, hφ, hbf⟩ := tendsto_subseq_of_bounded (hs'.isBounded_inter bddAbove_Iic) fun n ↦
-    ⟨hg n, (hgf _).trans $ ha $ mem_range_self _⟩
+    ⟨hg n, (hgf _).trans <| ha <| mem_range_self _⟩
   exact ⟨b, closure_minimal (inter_subset_left _ _) hs hb,
     le_of_tendsto_of_tendsto' hbf (hx.comp hφ.tendsto_atTop) fun _ ↦ hgf _⟩
-#align is_closed.upper_closure IsClosed.upperClosure
+#align is_closed.upper_closure IsClosed.upperClosure_pi
 
-protected lemma IsClosed.lowerClosure (hs : IsClosed s) (hs' : BddAbove s) :
+protected lemma IsClosed.lowerClosure_pi (hs : IsClosed s) (hs' : BddAbove s) :
     IsClosed (lowerClosure s : Set (ι → ℝ)) := by
   cases nonempty_fintype ι
   refine IsSeqClosed.isClosed fun f x hf hx ↦ ?_
@@ -233,28 +240,28 @@ protected lemma IsClosed.lowerClosure (hs : IsClosed s) (hs' : BddAbove s) :
     ⟨hg n, (ha $ mem_range_self _).trans $ hfg _⟩
   exact ⟨b, closure_minimal (inter_subset_left _ _) hs hb,
     le_of_tendsto_of_tendsto' (hx.comp hφ.tendsto_atTop) hbf fun _ ↦ hfg _⟩
-#align is_closed.lower_closure IsClosed.lowerClosure
+#align is_closed.lower_closure IsClosed.lowerClosure_pi
 
-protected lemma IsClopen.upperClosure (hs : IsClopen s) (hs' : BddBelow s) :
-    IsClopen (upperClosure s : Set (ι → ℝ)) := ⟨hs.1.upperClosure hs', hs.2.upperClosure⟩
-#align is_clopen.upper_closure IsClopen.upperClosure
+protected lemma IsClopen.upperClosure_pi (hs : IsClopen s) (hs' : BddBelow s) :
+    IsClopen (upperClosure s : Set (ι → ℝ)) := ⟨hs.1.upperClosure_pi hs', hs.2.upperClosure⟩
+#align is_clopen.upper_closure IsClopen.upperClosure_pi
 
-protected lemma IsClopen.lowerClosure (hs : IsClopen s) (hs' : BddAbove s) :
-    IsClopen (lowerClosure s : Set (ι → ℝ)) := ⟨hs.1.lowerClosure hs', hs.2.lowerClosure⟩
-#align is_clopen.lower_closure IsClopen.lowerClosure
+protected lemma IsClopen.lowerClosure_pi (hs : IsClopen s) (hs' : BddAbove s) :
+    IsClopen (lowerClosure s : Set (ι → ℝ)) := ⟨hs.1.lowerClosure_pi hs', hs.2.lowerClosure⟩
+#align is_clopen.lower_closure IsClopen.lowerClosure_pi
 
-lemma closure_upperClosure_comm (hs : BddBelow s) :
+lemma closure_upperClosure_comm_pi (hs : BddBelow s) :
     closure (upperClosure s : Set (ι → ℝ)) = upperClosure (closure s) :=
   (closure_minimal (upperClosure_anti subset_closure) $
-      isClosed_closure.upperClosure hs.closure).antisymm $
+      isClosed_closure.upperClosure_pi hs.closure).antisymm $
     upperClosure_min (closure_mono subset_upperClosure) (upperClosure s).upper.closure
-#align closure_upper_closure_comm closure_upperClosure_comm
+#align closure_upper_closure_comm closure_upperClosure_comm_pi
 
-lemma closure_lowerClosure_comm (hs : BddAbove s) :
+lemma closure_lowerClosure_comm_pi (hs : BddAbove s) :
     closure (lowerClosure s : Set (ι → ℝ)) = lowerClosure (closure s) :=
   (closure_minimal (lowerClosure_mono subset_closure) $
-        isClosed_closure.lowerClosure hs.closure).antisymm $
+        isClosed_closure.lowerClosure_pi hs.closure).antisymm $
     lowerClosure_min (closure_mono subset_lowerClosure) (lowerClosure s).lower.closure
-#align closure_lower_closure_comm closure_lowerClosure_comm
+#align closure_lower_closure_comm closure_lowerClosure_comm_pi
 
 end Finite
