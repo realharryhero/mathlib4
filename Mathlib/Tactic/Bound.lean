@@ -66,8 +66,8 @@ lemma le_sqr_add {c z : ℂ} (cz : abs c ≤ abs z) (z3 : 3 ≤ abs z) :
 
 ### Guessing apply rules
 
-There are several cases where there are two standard ways to recurse down an inequality, and it is not
-obvious which is correct without more information.  For example, `a ≤ min b c` is registered as a
+There are several cases where there are two standard ways to recurse down an inequality, and it is
+not obvious which is correct without more information.  For example, `a ≤ min b c` is registered as
 a `safe apply 4` rule, since we always need to prove `a ≤ b ∧ a ≤ c`.  But if we see `min a b ≤ c`,
 either `a ≤ b` and `a ≤ c` suffices, and we don't know which.
 
