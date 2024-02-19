@@ -23,12 +23,12 @@ The functionality of `bound` overlaps with `positivity` and `gcongr`, but can ju
 between `0 ≤ x` and `x ≤ y`-type inequalities.  For example, `bound` proves
   `0 ≤ c → b ≤ a → 0 ≤ a * c - b * c`
 By turning the goal into `b * c ≤ a * c`, then using `mul_le_mul_of_nonneg_right`.  `bound` also
-has used specialized lemmas for goals of the form `1 ≤ x, 1 < x, x ≤ 1, x < 1`.
+uses specialized lemmas for goals of the form `1 ≤ x, 1 < x, x ≤ 1, x < 1`.
 
 Additional hypotheses can be passed as `bound [h0, h1 n, ...]`.  This is equivalent to declaring
 them via `have` before calling `bound`.
 
-See `Ray.Tactic.BoundTests` for tests.
+See `test/Bound.lean` for tests.
 
 ### Calc usage
 
@@ -52,7 +52,7 @@ lemma le_sqr_add {c z : ℂ} (cz : abs c ≤ abs z) (z3 : 3 ≤ abs z) :
 
 #### High-confidence apply rules
 
-1. `norm apply`: Lemmas which close inequalities immediately, such as `le_refl, Real.exp_pos`,
+1. `norm apply`: Lemmas which close inequalities immediately, such as `le_refl`, `Real.exp_pos`,
     triangle inequalities, etc.
 2. `safe 2 apply`: High-confidence lemmas which produce one new goal, such as `inv_le_one`.  Here by
     high-confidence we mean roughly "are how one would naively prove the inequality, assuming
@@ -68,12 +68,12 @@ lemma le_sqr_add {c z : ℂ} (cz : abs c ≤ abs z) (z3 : 3 ≤ abs z) :
 
 ### Guessing apply rules
 
-There are several cases where there two standard ways to recurse down an inequality, and it is not
+There are several cases where there are two standard ways to recurse down an inequality, and it is not
 obvious which is correct without more information.  For example, `a ≤ min b c` is registered as a
 a `safe apply 4` rule, since we always need to prove `a ≤ b ∧ a ≤ c`.  But if we see `min a b ≤ c`,
 either `a ≤ b` and `a ≤ c` suffices, and we don't know which.
 
-In these cases we declare a new loop with an `∨` hypotheses that covers the two cases, and register
+In these cases we declare a new loop with a `∨` hypothesis that covers the two cases, and register
 it as `safe apply 5`.  Aesop will then try both ways by splitting on the resulting `∨` hypothesis.
 
 Currently the two types of guessing rules are
@@ -253,7 +253,7 @@ lemma min_lt_of_left_lt_or_right_lt : a < c ∨ b < c → min a b < c := min_lt_
 /-- Branch on `1 ≤ a ∨ a ≤ 1` for `a^n` -/
 lemma pow_le_pow_right_of_le_one_or_one_le {R : Type} [OrderedSemiring R] {a : R} {n m : ℕ}
     (h : 1 ≤ a ∧ n ≤ m ∨ 0 ≤ a ∧ a ≤ 1 ∧ m ≤ n) : a ^ n ≤ a ^ m := by
-  rcases h with ⟨a1,nm⟩ | ⟨a0,a1,mn⟩
+  rcases h with ⟨a1, nm⟩ | ⟨a0, a1, mn⟩
   · exact pow_le_pow_right a1 nm
   · exact pow_le_pow_of_le_one a0 a1 mn
 
@@ -331,7 +331,7 @@ elab "bound" lemmas:(("[" term,* "]")?) : tactic => do
   let tac ← `(tactic| aesop (rule_sets [Bound, -default]) (config := Bound.boundConfig))
   liftMetaTactic fun g ↦ do return (← Lean.Elab.runTactic g tac.raw).1
 
-/-- `bound?`, but return a proof script -/
+/-- `bound`, but return a proof script -/
 elab "bound?" lemmas:(("[" term,* "]")?) : tactic => do
   Bound.addHyps (Bound.maybeTerms lemmas)
   let tac ← `(tactic| aesop? (rule_sets [Bound, -default]) (config := Bound.boundConfig))
