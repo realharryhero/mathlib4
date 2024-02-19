@@ -101,17 +101,14 @@ namespace Bound
 
 /-!
 ### Extra lemmas for `bound`
-
-Some of these should be moved to the appropriate general location.
 -/
 
-/-- `mul_inv` version of `div_le_one_of_le` -/
+/-- `mul_inv` version of `div_le_one_of_le`.
+
+TODO: Will disappear once https://github.com/leanprover-community/mathlib4/pull/10597 is in. -/
 lemma mul_inv_le_one_of_nonneg_of_le {α : Type} [LinearOrderedSemifield α] {a b : α}
     (ab : a ≤ b) (b0 : 0 ≤ b) : a * b⁻¹ ≤ 1 := by
   rw [← div_eq_mul_inv]; exact div_le_one_of_le ab b0
-
-lemma Real.pi_nonneg : 0 ≤ (Real.pi : ℝ) :=
-  Real.pi_pos.le
 
 /-- Possibly this one should be deleted, but we'd need to add support for `ℕ ≠ 0` goals -/
 lemma le_self_pow_of_pos {R : Type} [OrderedSemiring R] {a : R} {m : ℕ} (ha : 1 ≤ a) (h : 0 < m) :
