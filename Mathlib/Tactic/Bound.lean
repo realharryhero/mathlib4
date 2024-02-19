@@ -36,13 +36,13 @@ Since `bound` requires the inequality proof to exactly match the structure of th
 often useful to iterate between `bound` and `rw / simp` using `calc`.  Here is an example:
 
 ```
--- Calc example: A weak lower bound for `z ← z^2 + c`
+-- Calc example: A weak lower bound for `z ↦ z^2 + c`
 lemma le_sqr_add {c z : ℂ} (cz : abs c ≤ abs z) (z3 : 3 ≤ abs z) :
-    2 * abs z ≤ Complex.abs (z^2 + c) := by
-  calc Complex.abs (z^2 + c)
-    _ ≥ Complex.abs (z^2) - abs c := by bound
-    _ ≥ Complex.abs (z^2) - abs z := by bound
-    _ ≥ (abs z - 1) * abs z := by rw [mul_comm, mul_sub_one, ←pow_two, ←Complex.abs.map_pow]
+    2 * abs z ≤ abs (z^2 + c) := by
+  calc abs (z^2 + c)
+    _ ≥ abs (z^2) - abs c := by bound
+    _ ≥ abs (z^2) - abs z := by bound
+    _ ≥ (abs z - 1) * abs z := by rw [mul_comm, mul_sub_one, ← pow_two, ← abs.map_pow]
     _ ≥ 2 * abs z := by bound
 ```
 
@@ -56,9 +56,7 @@ lemma le_sqr_add {c z : ℂ} (cz : abs c ≤ abs z) (z3 : 3 ≤ abs z) :
     triangle inequalities, etc.
 2. `safe 2 apply`: High-confidence lemmas which produce one new goal, such as `inv_le_one`.  Here by
     high-confidence we mean roughly "are how one would naively prove the inequality, assuming
-    intermediate terms are nonnegative or positive when necessary".  It is important that these are
-    `safe 2`, not `safe 1`, so that `assumption` can fire early in case the naive proof is wrong
-    and we have an assumption that can close the goal immediately.
+    intermediate terms are nonnegative or positive when necessary".
 3. `safe 3 apply`; High-confidence lemmas which produce one new general inequality goal, but
     possibly additional nonnegativity goals.  The standard example is `mul_le_mul_of_nonneg_left`.
 4. `safe 4 apply`: High-confidence lemmas which produce multiple general inequality goals, such as
@@ -73,7 +71,7 @@ obvious which is correct without more information.  For example, `a ≤ min b c`
 a `safe apply 4` rule, since we always need to prove `a ≤ b ∧ a ≤ c`.  But if we see `min a b ≤ c`,
 either `a ≤ b` and `a ≤ c` suffices, and we don't know which.
 
-In these cases we declare a new loop with a `∨` hypothesis that covers the two cases, and register
+In these cases we declare a new lemma with an `∨` hypotheses that covers the two cases, and register
 it as `safe apply 5`.  Aesop will then try both ways by splitting on the resulting `∨` hypothesis.
 
 Currently the two types of guessing rules are
@@ -260,7 +258,7 @@ lemma pow_le_pow_right_of_le_one_or_one_le {R : Type} [OrderedSemiring R] {a : R
 /-- Branch on `1 ≤ x ∨ x ≤ 1` for `x^y` -/
 lemma Real.rpow_le_rpow_of_exponent_le_or_ge {x y z : ℝ}
     (h : 1 ≤ x ∧ y ≤ z ∨ 0 < x ∧ x ≤ 1 ∧ z ≤ y) : x ^ y ≤ x ^ z := by
-  rcases h with ⟨x1,yz⟩ | ⟨x0,x1,zy⟩
+  rcases h with ⟨x1, yz⟩ | ⟨x0, x1, zy⟩
   · exact Real.rpow_le_rpow_of_exponent_le x1 yz
   · exact Real.rpow_le_rpow_of_exponent_ge x0 x1 zy
 
