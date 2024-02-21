@@ -312,8 +312,10 @@ elab "bound" lemmas:(("[" term,* "]")?) : tactic => do
   let tac ← `(tactic| aesop (rule_sets [Bound, -default]) (config := Bound.boundConfig))
   liftMetaTactic fun g ↦ do return (← Lean.Elab.runTactic g tac.raw).1
 
-/-- `bound`, but return a proof script -/
-elab "bound?" lemmas:(("[" term,* "]")?) : tactic => do
-  Bound.addHyps (Bound.maybeTerms lemmas)
+/-- `bound`, but return a proof script.
+
+TODO: Add support for additional hypotheses via `bound? [h0, ...]`.  Currently these are not yet
+linked into Aesop's proof script generation. -/
+elab "bound?" : tactic => do
   let tac ← `(tactic| aesop? (rule_sets [Bound, -default]) (config := Bound.boundConfig))
   liftMetaTactic fun g ↦ do return (← Lean.Elab.runTactic g tac.raw).1
