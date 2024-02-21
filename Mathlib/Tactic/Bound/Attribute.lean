@@ -19,6 +19,17 @@ namespace Bound
 
 initialize Lean.registerTraceClass `bound.attribute
 
+/-- Check if an expression is zero -/
+def isZero : Lean.Expr → Bool
+  | .lit (.natVal 0) => true
+  | .const `Zero.zero _ => true
+  | .app (.app (.app (.const `OfNat.ofNat _) _) z) _ => isZero z
+  | _ => false
+
+/-- Map the arguments of an inequality expression to a score -/
+def ineqPriority (a b : Lean.Expr) : Nat :=
+  if isZero a || isZero b then 1 else 10
+
 /-- Map a hypothesis type to a score -/
 partial def hypPriority (decl name : Lean.Name) (hyp : Lean.Expr) : Lean.MetaM Nat := do
   match hyp.getAppFnArgs with
@@ -27,19 +38,12 @@ partial def hypPriority (decl name : Lean.Name) (hyp : Lean.Expr) : Lean.MetaM N
     -- Guessing (disjunction) gets a big penalty
     | (`Or, #[a, b]) => pure <| 100 + (← hypPriority decl name a) + (← hypPriority decl name b)
     -- Inequalities get score 1 if they contain zero, 10 otherwise
-    | (`LE.le, #[_, _, a, b]) => pure <| ineq a b
-    | (`LT.lt, #[_, _, a, b]) => pure <| ineq a b
-    | (`GE.ge, #[_, _, a, b]) => pure <| ineq a b
-    | (`GT.gt, #[_, _, a, b]) => pure <| ineq a b
+    | (`LE.le, #[_, _, a, b]) => pure <| ineqPriority a b
+    | (`LT.lt, #[_, _, a, b]) => pure <| ineqPriority a b
+    | (`GE.ge, #[_, _, a, b]) => pure <| ineqPriority a b
+    | (`GT.gt, #[_, _, a, b]) => pure <| ineqPriority a b
     -- Assume anything else is non-relevant
     | _ => pure 0
-    where
-    ineq (a b : Lean.Expr) : Nat := if isZero a || isZero b then 1 else 10
-    isZero : Lean.Expr → Bool
-      | .lit (.natVal 0) => true
-      | .const `Zero.zero _ => true
-      | .app (.app (.app (.const `OfNat.ofNat _) _) z) _ => isZero z
-      | _ => false
 
 /-- Map a type to a score -/
 def typePriority (decl : Lean.Name) (type : Lean.Expr) : Lean.MetaM Nat := do
@@ -91,6 +95,9 @@ initialize Lean.registerBuiltinAttribute {
       (Aesop.RuleNameFilter.ofIdent $ .const decl) (checkExists := true)
 }
 
--- Attribute for `forward` rules for the `bound` tactic
+/-- Attribute for `forward` rules for the `bound` tactic.
+
+A typical example is exposing an inequality field of a structure, such as
+`HasPowerSeriesOnBall.r_pos`. -/
 macro "bound_forward" : attr =>
   `(attr|aesop safe forward (rule_sets [$(Lean.mkIdent `Bound):ident]))
