@@ -1626,7 +1626,7 @@ theorem _root_.MeasurableEmbedding.integral_map {β} {_ : MeasurableSpace β} {f
   by_cases hgm : AEStronglyMeasurable g (Measure.map f μ)
   · exact MeasureTheory.integral_map hf.measurable.aemeasurable hgm
   · rw [integral_non_aestronglyMeasurable hgm, integral_non_aestronglyMeasurable]
-    refine' fun hgf => hgm (hf.aestronglyMeasurable_map_iff.2 hgf)
+    exact fun hgf => hgm (hf.aestronglyMeasurable_map_iff.2 hgf)
 #align measurable_embedding.integral_map MeasurableEmbedding.integral_map
 
 theorem _root_.ClosedEmbedding.integral_map {β} [TopologicalSpace α] [BorelSpace α]
@@ -1715,7 +1715,7 @@ theorem mul_meas_ge_le_integral_of_nonneg {f : α → ℝ} (hf_nonneg : 0 ≤ᵐ
 norms of functions is bounded by the product of their `ℒp` and `ℒq` seminorms when `p` and `q` are
 conjugate exponents. -/
 theorem integral_mul_norm_le_Lp_mul_Lq {E} [NormedAddCommGroup E] {f g : α → E} {p q : ℝ}
-    (hpq : p.IsConjugateExponent q) (hf : Memℒp f (ENNReal.ofReal p) μ)
+    (hpq : p.IsConjExponent q) (hf : Memℒp f (ENNReal.ofReal p) μ)
     (hg : Memℒp g (ENNReal.ofReal q) μ) :
     ∫ a, ‖f a‖ * ‖g a‖ ∂μ ≤ (∫ a, ‖f a‖ ^ p ∂μ) ^ (1 / p) * (∫ a, ‖g a‖ ^ q ∂μ) ^ (1 / q) := by
   -- translate the Bochner integrals into Lebesgue integrals.
@@ -1763,7 +1763,7 @@ set_option linter.uppercaseLean3 false in
 /-- Hölder's inequality for functions `α → ℝ`. The integral of the product of two nonnegative
 functions is bounded by the product of their `ℒp` and `ℒq` seminorms when `p` and `q` are conjugate
 exponents. -/
-theorem integral_mul_le_Lp_mul_Lq_of_nonneg {p q : ℝ} (hpq : p.IsConjugateExponent q) {f g : α → ℝ}
+theorem integral_mul_le_Lp_mul_Lq_of_nonneg {p q : ℝ} (hpq : p.IsConjExponent q) {f g : α → ℝ}
     (hf_nonneg : 0 ≤ᵐ[μ] f) (hg_nonneg : 0 ≤ᵐ[μ] g) (hf : Memℒp f (ENNReal.ofReal p) μ)
     (hg : Memℒp g (ENNReal.ofReal q) μ) :
     ∫ a, f a * g a ∂μ ≤ (∫ a, f a ^ p ∂μ) ^ (1 / p) * (∫ a, g a ^ q ∂μ) ^ (1 / q) := by
