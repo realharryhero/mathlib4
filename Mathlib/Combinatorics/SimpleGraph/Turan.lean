@@ -511,8 +511,8 @@ open Classical in
 lemma sum_card_filter_adj_le_sub_mul {m} (H : SimpleGraph (Fin (m + r)))
     (cf : H.CliqueFree (r + 1)) (K : Finset (Fin (m + r))) (Kp : H.IsNClique r K) :
     ∑ b in Kᶜ, card (filter (fun x ↦ Adj H x b) K) ≤ (r - 1) * m := by
-  suffices : ∀ b ∈ Kᶜ, ∃ a ∈ K, ¬H.Adj a b
-  · have lt : ∀ b ∈ Kᶜ, (K.filter (H.Adj · b)).card ≤ r - 1 := by
+  suffices ∀ b ∈ Kᶜ, ∃ a ∈ K, ¬H.Adj a b by
+    have lt : ∀ b ∈ Kᶜ, (K.filter (H.Adj · b)).card ≤ r - 1 := by
       intro b mb
       simp_rw [← Nat.lt_add_one_iff, Nat.sub_add_cancel hr, ← Kp.2]
       conv_rhs => rw [← filter_card_add_filter_neg_card_eq_card (H.Adj · b)]
@@ -538,14 +538,13 @@ lemma card_edgeFinset_le_card_turanGraph_calc {m} (H : SimpleGraph (Fin (m + r))
   rw [add_right_comm (r.choose 2)]; gcongr
   · convert card_edgeFinset_le_card_choose_two
     · rw [Fintype.card_coe, Kc]
-    · infer_instance
   · convert H.restrictSubtype_compl_edgeFinset_card (by convert itm) K Kc ih
   · exact H.sum_card_filter_adj_le_sub_mul hr itm.1 K Kp
 
 /-- `turanGraph n r` is Turán-maximal *per se* (if `0 < r`). -/
 theorem isTuranMaximal_turanGraph : (turanGraph n r).IsTuranMaximal r := by
-  suffices : r = 0 ∨ (turanGraph n r).IsTuranMaximal r
-  · exact this.resolve_left (by intro a; exact absurd a hr.ne')
+  suffices r = 0 ∨ (turanGraph n r).IsTuranMaximal r by
+    exact this.resolve_left (by intro a; exact absurd a hr.ne')
   apply Nat.mod.inductionOn (motive := fun n r ↦ r = 0 ∨ (turanGraph n r).IsTuranMaximal r)
   · intro n r ⟨hr, b⟩ ih
     rw [Nat.eq_add_of_sub_eq b rfl]
