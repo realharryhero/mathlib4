@@ -162,7 +162,7 @@ def cokernelCocone {X Y : SemiNormedGrp.{u}} (f : X ⟶ Y) : Cofork f 0 :=
         (inferInstance : SeminormedAddCommGroup Y)
       -- porting note: again simp doesn't seem to be firing in the below line
       -- This used to be `rw`, but we need `erw` after leanprover/lean4#2644
-      erw [ ←NormedAddGroupHom.mem_ker, f.range.ker_normedMk, f.mem_range]
+      erw [← NormedAddGroupHom.mem_ker, f.range.ker_normedMk, f.mem_range]
     -- This used to be `simp only [exists_apply_eq_apply]` before leanprover/lean4#2644
       convert exists_apply_eq_apply f a)
 set_option linter.uppercaseLean3 false in
@@ -305,7 +305,7 @@ theorem explicitCokernel_hom_ext {X Y Z : SemiNormedGrp.{u}} {f : X ⟶ Y}
     (e₁ e₂ : explicitCokernel f ⟶ Z) (h : explicitCokernelπ f ≫ e₁ = explicitCokernelπ f ≫ e₂) :
     e₁ = e₂ := by
   let g : Y ⟶ Z := explicitCokernelπ f ≫ e₂
-  have w : f ≫ g = 0 := by simp
+  have w : f ≫ g = 0 := by simp [g]
   have : e₂ = explicitCokernelDesc w := by apply explicitCokernelDesc_unique; rfl
   rw [this]
   apply explicitCokernelDesc_unique

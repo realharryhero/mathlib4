@@ -146,14 +146,14 @@ def colimitCoconeIsColimit : IsColimit (colimitCocone.{v, u} F) where
     MonCat.FilteredColimits.colimitDesc.{v, u} (F ⋙ forget₂ Grp MonCat.{max v u})
       ((forget₂ Grp MonCat).mapCocone t)
   fac t j :=
-    FunLike.coe_injective <|
+    DFunLike.coe_injective <|
       (Types.colimitCoconeIsColimit.{v, u} (F ⋙ forget Grp)).fac
       ((forget Grp).mapCocone t) j
   uniq t _ h :=
-    FunLike.coe_injective' <|
+    DFunLike.coe_injective' <|
       (Types.colimitCoconeIsColimit.{v, u} (F ⋙ forget Grp)).uniq
       ((forget Grp).mapCocone t) _
-        fun j => funext fun x => FunLike.congr_fun (h j) x
+        fun j => funext fun x => DFunLike.congr_fun (h j) x
 #align Group.filtered_colimits.colimit_cocone_is_colimit Grp.FilteredColimits.colimitCoconeIsColimit
 #align AddGroup.filtered_colimits.colimit_cocone_is_colimit AddGrp.FilteredColimits.colimitCoconeIsColimit
 
@@ -230,13 +230,13 @@ def colimitCoconeIsColimit : IsColimit (colimitCocone.{v, u} F) where
           (F ⋙ forget₂ CommGrp Grp.{max v u})).desc
       ((forget₂ CommGrp Grp.{max v u}).mapCocone t)
   fac t j :=
-    FunLike.coe_injective <|
+    DFunLike.coe_injective <|
       (Types.colimitCoconeIsColimit.{v, u} (F ⋙ forget CommGrp)).fac
         ((forget CommGrp).mapCocone t) j
   uniq t _ h :=
-    FunLike.coe_injective <|
+    DFunLike.coe_injective <|
       (Types.colimitCoconeIsColimit.{v, u} (F ⋙ forget CommGrp)).uniq
-        ((forget CommGrp).mapCocone t) _ fun j => funext fun x => FunLike.congr_fun (h j) x
+        ((forget CommGrp).mapCocone t) _ fun j => funext fun x => DFunLike.congr_fun (h j) x
 #align CommGroup.filtered_colimits.colimit_cocone_is_colimit CommGrp.FilteredColimits.colimitCoconeIsColimit
 #align AddCommGroup.filtered_colimits.colimit_cocone_is_colimit AddCommGrp.FilteredColimits.colimitCoconeIsColimit
 

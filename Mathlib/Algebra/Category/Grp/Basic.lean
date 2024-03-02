@@ -59,27 +59,27 @@ instance : CoeSort Grp (Type*) where
 @[to_additive]
 instance (X : Grp) : Group X := X.str
 
--- porting note: this instance was not necessary in mathlib
+-- porting note (#10670): this instance was not necessary in mathlib
 @[to_additive]
 instance {X Y : Grp} : CoeFun (X ⟶ Y) fun _ => X → Y where
   coe (f : X →* Y) := f
 
 @[to_additive]
-instance FunLike_instance (X Y : Grp) : FunLike (X ⟶ Y) X (fun _ => Y) :=
-  show FunLike (X →* Y) X (fun _ => Y) from inferInstance
+instance instFunLike (X Y : Grp) : FunLike (X ⟶ Y) X Y :=
+  show FunLike (X →* Y) X Y from inferInstance
 
--- porting note: added
+-- porting note (#10756): added lemma
 @[to_additive (attr := simp)]
 lemma coe_id {X : Grp} : (𝟙 X : X → X) = id := rfl
 
--- porting note: added
+-- porting note (#10756): added lemma
 @[to_additive (attr := simp)]
 lemma coe_comp {X Y Z : Grp} {f : X ⟶ Y} {g : Y ⟶ Z} : (f ≫ g : X → Z) = g ∘ f := rfl
 
 @[to_additive]
 lemma comp_def {X Y Z : Grp} {f : X ⟶ Y} {g : Y ⟶ Z} : f ≫ g = g.comp f := rfl
 
--- porting note: added
+-- porting note (#10756): added lemma
 @[simp] lemma forget_map (f : X ⟶ Y) : (forget Grp).map f = (f : X → Y) := rfl
 
 @[to_additive (attr := ext)]
@@ -121,7 +121,7 @@ set_option linter.uppercaseLean3 false in
 @[to_additive]
 instance : Coe Grp.{u} MonCat.{u} where coe := (forget₂ Grp MonCat).obj
 
--- porting note: this instance was not necessary in mathlib
+-- porting note (#10670): this instance was not necessary in mathlib
 @[to_additive]
 instance (G H : Grp) : One (G ⟶ H) := (inferInstance : One (MonoidHom G H))
 
@@ -208,27 +208,27 @@ set_option linter.uppercaseLean3 false in
 set_option linter.uppercaseLean3 false in
 #align AddCommGroup.add_comm_group_instance AddCommGrp.addCommGroupInstance
 
--- porting note: this instance was not necessary in mathlib
+-- porting note (#10670): this instance was not necessary in mathlib
 @[to_additive]
 instance {X Y : CommGrp} : CoeFun (X ⟶ Y) fun _ => X → Y where
   coe (f : X →* Y) := f
 
 @[to_additive]
-instance FunLike_instance (X Y : CommGrp) : FunLike (X ⟶ Y) X (fun _ => Y) :=
-  show FunLike (X →* Y) X (fun _ => Y) from inferInstance
+instance instFunLike (X Y : CommGrp) : FunLike (X ⟶ Y) X Y :=
+  show FunLike (X →* Y) X Y from inferInstance
 
--- porting note: added
+-- porting note (#10756): added lemma
 @[to_additive (attr := simp)]
 lemma coe_id {X : CommGrp} : (𝟙 X : X → X) = id := rfl
 
--- porting note: added
+-- porting note (#10756): added lemma
 @[to_additive (attr := simp)]
 lemma coe_comp {X Y Z : CommGrp} {f : X ⟶ Y} {g : Y ⟶ Z} : (f ≫ g : X → Z) = g ∘ f := rfl
 
 @[to_additive]
 lemma comp_def {X Y Z : CommGrp} {f : X ⟶ Y} {g : Y ⟶ Z} : f ≫ g = g.comp f := rfl
 
--- porting note: added
+-- porting note (#10756): added lemma
 @[to_additive (attr := simp)]
 lemma forget_map {X Y : CommGrp} (f : X ⟶ Y) :
     (forget CommGrp).map f = (f : X → Y) :=
@@ -295,7 +295,7 @@ set_option linter.uppercaseLean3 false in
 @[to_additive]
 instance : Coe CommGrp.{u} CommMonCat.{u} where coe := (forget₂ CommGrp CommMonCat).obj
 
--- porting note: this instance was not necessary in mathlib
+-- porting note (#10670): this instance was not necessary in mathlib
 @[to_additive]
 instance (G H : CommGrp) : One (G ⟶ H) := (inferInstance : One (MonoidHom G H))
 
@@ -491,7 +491,7 @@ end CategoryTheory.Aut
 instance Grp.forget_reflects_isos : ReflectsIsomorphisms (forget Grp.{u}) where
   reflects {X Y} f _ := by
     let i := asIso ((forget Grp).map f)
-    let e : X ≃* Y := { i.toEquiv with map_mul' := by aesop }
+    let e : X ≃* Y := { i.toEquiv with map_mul' := map_mul _ }
     exact IsIso.of_iso e.toGrpIso
 set_option linter.uppercaseLean3 false in
 #align Group.forget_reflects_isos Grp.forget_reflects_isos
@@ -502,7 +502,7 @@ set_option linter.uppercaseLean3 false in
 instance CommGrp.forget_reflects_isos : ReflectsIsomorphisms (forget CommGrp.{u}) where
   reflects {X Y} f _ := by
     let i := asIso ((forget CommGrp).map f)
-    let e : X ≃* Y := { i.toEquiv with map_mul' := by aesop }
+    let e : X ≃* Y := { i.toEquiv with map_mul' := map_mul _}
     exact IsIso.of_iso e.toCommGrpIso
 set_option linter.uppercaseLean3 false in
 #align CommGroup.forget_reflects_isos CommGrp.forget_reflects_isos
