@@ -53,7 +53,7 @@ import Mathlib.Algebra.Category.Grp.Biproducts
 import Mathlib.Algebra.Category.Grp.Colimits
 import Mathlib.Algebra.Category.Grp.EnoughInjectives
 import Mathlib.Algebra.Category.Grp.EpiMono
-import Mathlib.Algebra.Category.Grp.EquivalenceGroupAddGroup
+import Mathlib.Algebra.Category.Grp.EquivalenceGrpAddGrp
 import Mathlib.Algebra.Category.Grp.FilteredColimits
 import Mathlib.Algebra.Category.Grp.Images
 import Mathlib.Algebra.Category.Grp.Injective
@@ -63,7 +63,7 @@ import Mathlib.Algebra.Category.Grp.Preadditive
 import Mathlib.Algebra.Category.Grp.Subobject
 import Mathlib.Algebra.Category.Grp.ZModuleEquivalence
 import Mathlib.Algebra.Category.Grp.Zero
-import Mathlib.Algebra.Category.GroupWithZeroCat
+import Mathlib.Algebra.Category.GrpWithZero
 import Mathlib.Algebra.Category.ModuleCat.Abelian
 import Mathlib.Algebra.Category.ModuleCat.Adjunctions
 import Mathlib.Algebra.Category.ModuleCat.Algebra
