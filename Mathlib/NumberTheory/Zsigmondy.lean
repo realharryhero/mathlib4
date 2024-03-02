@@ -47,11 +47,13 @@ theorem monomial_minus_one_double_root_mod_prime
     have h₂ := Polynomial.monomial_mul_monomial 1 1 (1 : ZMod p) (1 : ZMod p)
     simp only [Nat.reduceAdd, mul_one] at h₂
     rw [← h₂, ← mul_assoc] at h₁
-    have := @helpful_lemma2 (ZMod p) _ _ (Polynomial.monomial n 1) (f * (Polynomial.monomial 1 1)) (p - 1)
-      (by simp only [CharP.cast_eq_zero, zero_sub, ne_eq, neg_eq_zero, one_ne_zero,
+    apply @helpful_lemma2 (ZMod p) _ _ (Polynomial.monomial n 1) (f * (Polynomial.monomial 1 1) * (Polynomial.monomial 1 1))
+      (p - 1) (by simp only [CharP.cast_eq_zero, zero_sub, ne_eq, neg_eq_zero, one_ne_zero,
         not_false_eq_true])
-    apply this
-    rw [← Polynomial.monomial_one_one_eq_X]
+    rw [← Polynomial.monomial_one_one_eq_X, ← h₁]
+    simp only [Polynomial.monomial_mul_monomial, mul_one, CharP.cast_eq_zero, zero_sub, map_neg,
+      map_one]
+
     sorry
   by_cases h₀ : a ≡ 0 [ZMOD p]
   · simp only [Int.ModEq, EuclideanDomain.zero_mod, EuclideanDomain.mod_eq_zero] at h₀
