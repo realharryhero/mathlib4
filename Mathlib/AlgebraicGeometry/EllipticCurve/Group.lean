@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: David Kurniadi Angdinata
 -/
 import Mathlib.AlgebraicGeometry.EllipticCurve.Jacobian
+import Mathlib.AlgebraicGeometry.EllipticCurve.Projective
 import Mathlib.LinearAlgebra.FreeModule.Norm
 import Mathlib.RingTheory.ClassGroup
 
@@ -11,8 +12,9 @@ import Mathlib.RingTheory.ClassGroup
 # Group law on Weierstrass curves
 
 This file proves that the nonsingular rational points on a Weierstrass curve forms an abelian group
-under the geometric group law defined in `Mathlib.AlgebraicGeometry.EllipticCurve.Affine` and in
-`Mathlib.AlgebraicGeometry.EllipticCurve.Jacobian`.
+under the geometric group law defined in `Mathlib.AlgebraicGeometry.EllipticCurve.Affine`, in
+`Mathlib.AlgebraicGeometry.EllipticCurve.Jacobian`, and in
+`Mathlib.AlgebraicGeometry.EllipticCurve.Projective`.
 
 ## Mathematical background
 
@@ -35,6 +37,9 @@ auxiliary lemmas in the proof of `WeierstrassCurve.Affine.Point.instAddCommGroup
 When `W` is given in Jacobian coordinates, `WeierstrassCurve.Jacobian.Point.toAffine_addEquiv`
 pulls back the group law on `WeierstrassCurve.Affine.Point` to `WeierstrassCurve.Jacobian.Point`.
 
+When `W` is given in projective coordinates, `WeierstrassCurve.Projective.Point.toAffine_addEquiv`
+pulls back the group law on `WeierstrassCurve.Affine.Point` to `WeierstrassCurve.Projective.Point`.
+
 ## Main definitions
 
  * `WeierstrassCurve.Affine.CoordinateRing`: the coordinate ring `F[W]` of a Weierstrass curve `W`.
@@ -50,6 +55,8 @@ pulls back the group law on `WeierstrassCurve.Affine.Point` to `WeierstrassCurve
     an affine Weierstrass curve forms an abelian group under addition.
  * `WeierstrassCurve.Jacobian.Point.instAddCommGroupPoint`: the type of nonsingular rational
     points on a Jacobian Weierstrass curve forms an abelian group under addition.
+ * `WeierstrassCurve.Projective.Point.instAddCommGroupPoint`: the type of nonsingular rational
+    points on a projective Weierstrass curve forms an abelian group under addition.
 
 ## References
 
@@ -673,6 +680,33 @@ noncomputable instance instAddCommGroupPoint : AddCommGroup W.Point where
   add_assoc := add_assoc
 
 end WeierstrassCurve.Jacobian.Point
+
+namespace WeierstrassCurve.Projective.Point
+
+/-! ## Weierstrass curves in projective coordinates -/
+
+variable {F : Type u} [Field F] {W : Projective F}
+
+lemma add_left_neg (P : W.Point) : -P + P = 0 :=
+  toAffine_addEquiv.injective <| by
+    rcases P with @⟨⟨_⟩, _⟩
+    simp only [map_add, toAffine_addEquiv_apply, toAffine_lift_neg, Affine.Point.add_left_neg,
+      toAffine_lift_zero]
+
+lemma add_comm (P Q : W.Point) : P + Q = Q + P :=
+  toAffine_addEquiv.injective <| by simp_rw [map_add, Affine.Point.add_comm]
+
+lemma add_assoc (P Q R : W.Point) : P + Q + R = P + (Q + R) :=
+  toAffine_addEquiv.injective <| by simp only [map_add, Affine.Point.add_assoc]
+
+noncomputable instance instAddCommGroupPoint : AddCommGroup W.Point where
+  zero_add := zero_add
+  add_zero := add_zero
+  add_left_neg := add_left_neg
+  add_comm := add_comm
+  add_assoc := add_assoc
+
+end WeierstrassCurve.Projective.Point
 
 namespace EllipticCurve.Affine.Point
 
