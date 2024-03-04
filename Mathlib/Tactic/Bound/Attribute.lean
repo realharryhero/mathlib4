@@ -10,9 +10,6 @@ import Mathlib.Init.ZeroOne
 import Mathlib.Tactic.Bound.Init
 import Qq
 
-open Lean (MetaM)
-open Qq
-
 /-!
 # The `bound` attribute
 
@@ -20,6 +17,9 @@ Any lemma tagged with `@[bound]` is registered as an apply rule for the `bound` 
 converting it to either `norm apply` or `safe apply <priority>`.  The classification is based
 on the number and types of the lemmas hypotheses.
 -/
+
+open Lean (MetaM)
+open Qq
 
 namespace Bound
 
