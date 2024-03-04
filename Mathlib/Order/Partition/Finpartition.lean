@@ -64,7 +64,7 @@ variable {α : Type*}
 `a`. We forbid `⊥` as a part. -/
 @[ext]
 structure Finpartition [Lattice α] [OrderBot α] (a : α) where
-  -- porting note: Docstrings added
+  -- Porting note: Docstrings added
   /-- The elements of the finite partition of `a` -/
   parts : Finset α
   /-- The partition is supremum-independent -/
