@@ -5,7 +5,13 @@ Authors: Geoffrey Irving
 -/
 
 import Aesop.Frontend.Attribute
+import Mathlib.Init.Order.Defs
+import Mathlib.Init.ZeroOne
 import Mathlib.Tactic.Bound.Init
+import Qq
+
+open Lean (MetaM)
+open Qq
 
 /-!
 # The `bound` attribute
@@ -19,61 +25,62 @@ namespace Bound
 
 initialize Lean.registerTraceClass `bound.attribute
 
+variable {u : Lean.Level} {α : Q(Type u)}
+
 /-- Check if an expression is zero -/
-def isZero : Lean.Expr → Bool
-  | .lit (.natVal 0) => true
-  | .const `Zero.zero _ => true
-  | .app (.app (.app (.const `OfNat.ofNat _) _) z) _ => isZero z
-  | _ => false
+def isZero (e : Q($α)) : MetaM Bool :=
+  match e with
+  | ~q(@OfNat.ofNat.{u} _ 0 $i) => return true
+  | ~q(@Zero.zero.{u} _ $i) => return true
+  | _ => return false
 
 /-- Map the arguments of an inequality expression to a score -/
-def ineqPriority (a b : Lean.Expr) : Nat :=
-  if isZero a || isZero b then 1 else 10
+def ineqPriority (a b : Q($α)) : MetaM ℕ := do
+  return if (← isZero a) || (← isZero b) then 1 else 10
 
 /-- Map a hypothesis type to a score -/
-partial def hypPriority (decl name : Lean.Name) (hyp : Lean.Expr) : Lean.MetaM Nat := do
-  match hyp.getAppFnArgs with
+partial def hypPriority (hyp : Q(Prop)) : MetaM ℕ := do
+  match hyp with
     -- Conjections add scores
-    | (`And, #[a, b]) => pure <| (← hypPriority decl name a) + (← hypPriority decl name b)
+    | ~q($a ∧ $b) => pure <| (← hypPriority a) + (← hypPriority b)
     -- Guessing (disjunction) gets a big penalty
-    | (`Or, #[a, b]) => pure <| 100 + (← hypPriority decl name a) + (← hypPriority decl name b)
+    | ~q($a ∨ $b) => pure <| 100 + (← hypPriority a) + (← hypPriority b)
     -- Inequalities get score 1 if they contain zero, 10 otherwise
-    | (`LE.le, #[_, _, a, b]) => pure <| ineqPriority a b
-    | (`LT.lt, #[_, _, a, b]) => pure <| ineqPriority a b
-    | (`GE.ge, #[_, _, a, b]) => pure <| ineqPriority a b
-    | (`GT.gt, #[_, _, a, b]) => pure <| ineqPriority a b
+    | ~q(@LE.le _ $i $a $b) => ineqPriority a b
+    | ~q(@LT.lt _ $i $a $b) => ineqPriority a b
+    | ~q(@GE.ge _ $i $b $a) => ineqPriority a b
+    | ~q(@GT.gt _ $i $b $a) => ineqPriority a b
     -- Assume anything else is non-relevant
     | _ => pure 0
 
 /-- Map a type to a score -/
-def typePriority (decl : Lean.Name) (type : Lean.Expr) : Lean.MetaM Nat := do
-  match type with
-    | .forallE a h t i => do
-      pure <| (← typePriority decl t) +
-        (← bif i == .default then do
-          let p ← hypPriority decl a h
-          pure p
-        else pure 0)
-    | _ => match type.getAppFnArgs.1 with
-      | `LE.le => return 0
-      | `LT.lt => return 0
-      | `GE.ge => return 0
-      | `GT.gt => return 0
-      | _ => throwError (f!"`{decl}` has invalid type `{type}` as a bound lemma")
+def typePriority (decl : Lean.Name) (type : Lean.Expr) : MetaM ℕ :=
+  Lean.Meta.forallTelescope type fun xs t ↦ do
+    checkResult t
+    xs.foldlM (fun (t : ℕ) x ↦ do return t + (← argPriority x)) 0
+  where
+  argPriority (x : Lean.Expr) : MetaM ℕ := do
+    hypPriority (← Lean.Meta.inferType x)
+  checkResult (t : Q(Prop)) : MetaM Unit := do match t with
+    | ~q(@LE.le _ $i $a $b) => return ()
+    | ~q(@LT.lt _ $i $a $b) => return ()
+    | ~q(@GE.ge _ $i $b $a) => return ()
+    | ~q(@GT.gt _ $i $b $a) => return ()
+    | _ => throwError (f!"`{decl}` has invalid type `{type}` as a bound lemma")
 
 /-- Map a theorem decl to a score (0 means `norm apply`, `0 <` means `safe apply`) -/
-def declPriority (decl : Lean.Name) : Lean.MetaM Nat := do
+def declPriority (decl : Lean.Name) : Lean.MetaM ℕ := do
   match (← Lean.getEnv).find? decl with
     | some info => do
         typePriority decl info.type
     | none => throwError "unknown declaration {decl}"
 
 /-- Map a score to either `norm apply` or `safe apply <priority>` -/
-def scoreToConfig (decl : Lean.Name) (score : Nat) : Aesop.Frontend.RuleConfig :=
+def scoreToConfig (decl : Lean.Name) (score : ℕ) : Aesop.Frontend.RuleConfig :=
   let (phase, priority) := match score with
     | 0 => (Aesop.PhaseName.norm, 0)  -- No hypotheses: this rule closes the goal immediately
     | s => (Aesop.PhaseName.safe, s)
-  { ident? := some (.const decl)
+  { term? := some (Lean.mkIdent decl)
     phase? := phase
     priority? := some (Aesop.Frontend.Priority.int priority)
     builder? := some (.regular .apply)
@@ -87,12 +94,14 @@ initialize Lean.registerBuiltinAttribute {
   add := fun decl stx attrKind => Lean.withRef stx do
     let score ← Aesop.runTermElabMAsCoreM <| declPriority decl
     trace[bound.attribute] "{decl} has score {score}"
-    let (rule, ruleSets) ← Aesop.runTermElabMAsCoreM <| (scoreToConfig decl score).buildGlobalRule
+    let context ← Aesop.runMetaMAsCoreM Aesop.ElabM.Context.forAdditionalGlobalRules
+    let (rule, ruleSets) ← Aesop.runTermElabMAsCoreM <|
+      (scoreToConfig decl score).buildGlobalRule.run context
     for ruleSet in ruleSets do
       Aesop.Frontend.addGlobalRule ruleSet rule attrKind (checkNotExists := true)
   erase := fun decl =>
-    Aesop.Frontend.eraseGlobalRules Aesop.RuleSetNameFilter.all
-      (Aesop.RuleNameFilter.ofIdent $ .const decl) (checkExists := true)
+    let ruleFilter := { name := decl, scope := .global, builders := #[], phases := #[] }
+    Aesop.Frontend.eraseGlobalRules Aesop.RuleSetNameFilter.all ruleFilter (checkExists := true)
 }
 
 /-- Attribute for `forward` rules for the `bound` tactic.
@@ -100,4 +109,4 @@ initialize Lean.registerBuiltinAttribute {
 A typical example is exposing an inequality field of a structure, such as
 `HasPowerSeriesOnBall.r_pos`. -/
 macro "bound_forward" : attr =>
-  `(attr|aesop safe forward (rule_sets [$(Lean.mkIdent `Bound):ident]))
+  `(attr|aesop safe forward (rule_sets := [$(Lean.mkIdent `Bound):ident]))
