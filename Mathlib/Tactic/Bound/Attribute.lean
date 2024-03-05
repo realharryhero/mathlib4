@@ -58,8 +58,10 @@ def typePriority (decl : Lean.Name) (type : Lean.Expr) : MetaM ℕ :=
     checkResult t
     xs.foldlM (fun (t : ℕ) x ↦ do return t + (← argPriority x)) 0
   where
+  /-- Score the type of argument `x` -/
   argPriority (x : Lean.Expr) : MetaM ℕ := do
     hypPriority (← Lean.Meta.inferType x)
+  /-- Insist that our conclusion is an inequality -/
   checkResult (t : Q(Prop)) : MetaM Unit := do match t with
     | ~q(@LE.le _ $i $a $b) => return ()
     | ~q(@LT.lt _ $i $a $b) => return ()
