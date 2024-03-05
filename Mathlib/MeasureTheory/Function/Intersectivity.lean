@@ -5,7 +5,6 @@ Authors: Yaël Dillies
 -/
 import Mathlib.MeasureTheory.Function.LpSpace
 import Mathlib.MeasureTheory.Integral.Average
-import Mathlib.Order.UpperLower.LocallyFinite
 
 /-!
 # Bergelson's intersectivity lemma
@@ -55,7 +54,7 @@ lemma strong_bergelson {s : ℕ → Set α} (hs : ∀ n, MeasurableSet (s n)) (h
     rintro ⟨x, hx⟩ hu
     refine hx.2 (mem_iUnion.2 ⟨u, ?_⟩)
     rw [mem_setOf, indicator_of_mem hx.1, snormEssSup_eq_zero_iff.2]
-    simp
+    · simp
     · rwa [indicator_ae_eq_zero, Function.support_one, inter_univ]
   -- Define `f n` to be the average of the first `n + 1` indicators of the `s k`.
   let f (n : ℕ) : α → ℝ≥0∞ := (↑(n + 1) : ℝ≥0∞)⁻¹ • ∑ k in Finset.range (n + 1), (s k).indicator 1
