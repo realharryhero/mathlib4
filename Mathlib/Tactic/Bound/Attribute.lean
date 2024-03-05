@@ -5,7 +5,6 @@ Authors: Geoffrey Irving
 -/
 
 import Aesop.Frontend.Attribute
-import Mathlib.Init.Order.Defs
 import Mathlib.Init.ZeroOne
 import Mathlib.Tactic.Bound.Init
 import Qq
