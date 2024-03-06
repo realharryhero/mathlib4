@@ -35,31 +35,51 @@ theorem helpful_lemma2
 
 theorem monomial_minus_one_double_root_mod_prime
     {p : ℕ} [Fact p.Prime]
-    {n : ℕ} (h₀ : n ≠ 0)
-    {a : ℤ} {f : Polynomial (ZMod p)}
+    {n : ℕ} {a : ℤ} {f : Polynomial (ZMod p)}
     (h₁ : Polynomial.monomial n (1 : ZMod p) - 1 =
           f * ((Polynomial.monomial 1 (1 : ZMod p)) - a) ^ 2) :
     p ∣ n := by
-  have h₀ : ¬ ↑p ∣ a := by
-    rintro ⟨x, h'⟩
-    simp only [h', Int.cast_mul, Int.cast_ofNat, CharP.cast_eq_zero, zero_mul, sub_zero,
-      Polynomial.monomial_pow, one_mul, one_pow] at h₁
-    have h₂ := Polynomial.monomial_mul_monomial 1 1 (1 : ZMod p) (1 : ZMod p)
-    simp only [Nat.reduceAdd, mul_one] at h₂
-    rw [← h₂, ← mul_assoc] at h₁
-    apply @helpful_lemma2 (ZMod p) _ _ (Polynomial.monomial n 1) (f * (Polynomial.monomial 1 1) * (Polynomial.monomial 1 1))
-      (p - 1) (by simp only [CharP.cast_eq_zero, zero_sub, ne_eq, neg_eq_zero, one_ne_zero,
-        not_false_eq_true])
-    rw [← Polynomial.monomial_one_one_eq_X, ← h₁]
-    simp only [Polynomial.monomial_mul_monomial, mul_one, CharP.cast_eq_zero, zero_sub, map_neg,
-      map_one]
-
-    sorry
-  by_cases h₀ : a ≡ 0 [ZMOD p]
-  · simp only [Int.ModEq, EuclideanDomain.zero_mod, EuclideanDomain.mod_eq_zero] at h₀
-
-    sorry
-  · sorry
+  by_cases h₂ : ↑p ∣ a
+  · have ⟨_, h₂⟩ := h₂
+    simp [h₂, Int.cast_zero, sub_zero, Polynomial.monomial_pow, one_mul, one_pow] at h₁
+    have h₃ : n = 0 := by
+      by_contra h'
+      have h₃ := @helpful_lemma2 _ _ _ (Polynomial.monomial (n - 1) 1) (f * Polynomial.monomial 1 1)
+        (p - 1 : ZMod p) (by simp only [CharP.cast_eq_zero, zero_sub, ne_eq, neg_eq_zero,
+          one_ne_zero, not_false_eq_true])
+      apply h₃
+      simp only [← Polynomial.monomial_one_one_eq_X, Polynomial.monomial_mul_monomial, mul_one,
+        CharP.cast_eq_zero, zero_sub, map_neg, map_one, mul_assoc f, Nat.reduceAdd, ← h₁]
+      simp only [Nat.sub_add_cancel (Nat.one_le_iff_ne_zero.mpr h')]
+      rfl
+    rw [h₃]
+    exact Nat.dvd_zero p
+  · have h₃ : (a : ZMod p) ^ n = 1 := by
+      sorry
+    by_cases h₄ : n = 0
+    · rw [h₄]
+      exact Nat.dvd_zero p
+    · have h₅ : n * (a : ZMod p) ^ (n - 1) = 0 := by
+        sorry
+      have h₆ : (a : ZMod p) ^ (n - 1) ≠ 0 := by
+        intro h₆
+        have h₇ : (1 : ZMod p) ≠ 0 := by
+          sorry
+        simp_all only [mul_zero, pow_eq_zero_iff', ne_eq, one_ne_zero, not_false_eq_true, zero_pow,
+          zero_ne_one]
+      have h₇ : (a : ZMod p) ≠ 0 := by
+        intro h
+        apply h₂; clear h₂
+        simp_all only [ne_eq, not_false_eq_true, zero_pow, zero_ne_one]
+      simp_all only [mul_eq_zero, or_false, ne_eq, pow_eq_zero_iff', false_and, not_false_eq_true]
+      have h₈:= (ZMod.int_cast_eq_int_cast_iff_dvd_sub 0 ↑n p).mp (by simp only [Int.cast_zero,
+        Int.cast_ofNat, h₅])
+      rw [sub_zero] at h₈
+      let ⟨m, hm⟩ := h₈
+      have ⟨m', hm'⟩ : ∃ m' : ℕ, ↑m' = m := by
+        sorry
+      exists m'
+      sorry
 
 theorem zsigmondy_theorem
     {a b : ℕ} (h₁ : a > b) (h₂ : Nat.Coprime a b) {n : ℕ} (h₃ : 1 ≤ n)
