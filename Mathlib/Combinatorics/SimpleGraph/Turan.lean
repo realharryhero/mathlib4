@@ -465,27 +465,20 @@ theorem card_edgeFinset_turanGraph_add : (turanGraph (n + r) r).edgeFinset.card 
   rw [mul_assoc, mul_comm, Nat.mul_div_left _ zero_lt_two, mul_comm]
 
 open Classical in
-lemma exists_IsTuranMaximal_of_not_IsTuranMaximal (cf : G.CliqueFree (r + 1))
-    (itm : ¬G.IsTuranMaximal r) : ∃ J : SimpleGraph V, J.IsTuranMaximal r := by
-  rw [IsTuranMaximal, not_and] at itm
-  replace itm := itm cf
-  push_neg at itm
-  obtain ⟨H', iH', cf', cl⟩ := itm
-  let se := {J : SimpleGraph V |
-    J.CliqueFree (r + 1) ∧ G.edgeFinset.card < J.edgeFinset.card}
-  haveI sef : Fintype se := Fintype.ofFinite ↑se
-  have sefn : se.toFinset.Nonempty := by
-    rw [Set.toFinset_nonempty]; use H'; rw [Set.mem_setOf_eq]; exact ⟨cf', by convert cl⟩
-  obtain ⟨S, Sm, Sl⟩ := exists_max_image se.toFinset (·.edgeFinset.card) sefn
+lemma exists_IsTuranMaximal : ∃ H : SimpleGraph V, H.IsTuranMaximal r := by
+  let c := {H : SimpleGraph V | H.CliqueFree (r + 1)}
+  have cn : c.toFinset.Nonempty := ⟨⊥, by
+    simp only [Set.toFinset_setOf, mem_filter, mem_univ, true_and, c]
+    exact cliqueFree_bot (by omega)⟩
+  obtain ⟨S, Sm, Sl⟩ := exists_max_image c.toFinset (·.edgeFinset.card) cn
   use S
-  rw [Set.mem_toFinset, Set.mem_setOf_eq] at Sm
-  rw [IsTuranMaximal]
-  refine' ⟨Sm.1, _⟩
+  rw [Set.mem_toFinset] at Sm
+  refine' ⟨Sm, _⟩
   intro I _ cf
-  by_cases Im : I ∈ se.toFinset
+  by_cases Im : I ∈ c.toFinset
   · convert Sl I Im
-  · simp only [Set.mem_toFinset, se, Set.mem_setOf_eq, not_and, not_lt] at Im
-    convert ((Im cf).trans_lt Sm.2).le
+  · rw [Set.mem_toFinset] at Im
+    contradiction
 
 lemma restrictSubtype_cliqueFree (hmax : G.IsTuranMaximal r) (K : Finset V) :
     (G.restrictSubtype Kᶜ).CliqueFree (r + 1) := by
@@ -553,7 +546,7 @@ theorem isTuranMaximal_turanGraph : (turanGraph n r).IsTuranMaximal r := by
     refine' ⟨turanGraph_cliqueFree hr, _⟩
     intro H _ cf
     wlog itm : H.IsTuranMaximal r generalizing H
-    · obtain ⟨S, Z⟩ := exists_IsTuranMaximal_of_not_IsTuranMaximal cf itm
+    · obtain ⟨S, Z⟩ := exists_IsTuranMaximal (V := Fin _) hr
       classical exact (Z.2 H cf).trans (this S Z.1 Z)
     have ncf := H.not_cliqueFree_of_isTuranMaximal (r := r) (by simp) itm
     convert card_edgeFinset_le_card_turanGraph_calc hr H (by convert itm) ncf ih
