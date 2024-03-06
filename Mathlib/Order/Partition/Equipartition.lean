@@ -247,7 +247,7 @@ theorem IsEquipartition.equivProduct_lt_card_partsEquiv (hP : P.IsEquipartition)
     rw [← mul_le_mul_left y] at q'
     have r' := ((hP.card_part_eq_average_iff p.2).trans
       (hP.large_part_iff_partsEquiv_lt p.2).not).mp h
-    simp_rw [Subtype.coe_eta, Equiv.apply_symm_apply, not_lt] at r'
+    simp_rw [Subtype.coe_eta, p, Equiv.apply_symm_apply, not_lt] at r'
     have g := add_le_add r' q'
     simp_rw [Nat.mod_add_div, ← not_lt] at g
     exact absurd b g

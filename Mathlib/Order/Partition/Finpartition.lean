@@ -525,7 +525,7 @@ noncomputable def equivProduct : s ≃ { t : Finset α × ℕ // t.1 ∈ P.parts
     have ξ : x.1 ∈ s := mem_of_subset ((le_sup m).trans P.sup_parts.le) x.2
     have ξ' : P.part ξ = p := P.eq_of_mem_parts (P.part_mem _) m (P.mem_part _) x.2
     simp only [ξ', Subtype.mk.injEq, Prod.mk.injEq, true_and]
-    have : p.equivFin x = i := by simp
+    have : p.equivFin x = i := by simp [x]
     convert this
 
 theorem equivProduct_part_eq_part {b} (ha : a ∈ s) (hb : b ∈ s) : P.part ha = P.part hb ↔
@@ -628,7 +628,6 @@ lemma card_mod_card_parts_le : s.card % P.parts.card ≤ P.parts.card := by
   · have h' := h
     rw [Finset.card_eq_zero, parts_eq_empty_iff, bot_eq_empty, ← Finset.card_eq_zero] at h'
     rw [h, h']
-    exact Nat.mod_le _ _
   · exact (Nat.mod_lt _ h).le
 
 variable [Fintype α]

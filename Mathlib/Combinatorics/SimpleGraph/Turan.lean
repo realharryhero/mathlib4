@@ -484,7 +484,7 @@ lemma exists_IsTuranMaximal_of_not_IsTuranMaximal (cf : G.CliqueFree (r + 1))
   intro I _ cf
   by_cases Im : I ∈ se.toFinset
   · convert Sl I Im
-  · simp only [Set.mem_toFinset, Set.mem_setOf_eq, not_and, not_lt] at Im
+  · simp only [Set.mem_toFinset, se, Set.mem_setOf_eq, not_and, not_lt] at Im
     convert ((Im cf).trans_lt Sm.2).le
 
 lemma restrictSubtype_cliqueFree (hmax : G.IsTuranMaximal r) (K : Finset V) :
