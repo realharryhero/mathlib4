@@ -3,8 +3,8 @@ Copyright (c) 2015 Microsoft Corporation. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura, Johannes Hölzl, Mario Carneiro
 -/
-
-import Mathlib.Data.Nat.Size
+import Mathlib.Algebra.GroupWithZero.Basic
+import Mathlib.Data.Nat.Order.Basic
 import Mathlib.Tactic.Common
 
 /-!
@@ -17,7 +17,7 @@ namespace Nat
 
 section Misc
 
--- porting note: Miscellaneous lemmas that should be integrated with `Mathlib` in the future
+-- Porting note: Miscellaneous lemmas that should be integrated with `Mathlib` in the future
 
 protected lemma mul_le_of_le_div (k x y : ℕ) (h : x ≤ y / k) : x * k ≤ y := by
   if hk : k = 0 then
@@ -58,7 +58,7 @@ end Misc
 
 section Std
 
--- porting note: These two lemmas seem like they belong to `Std.Data.Nat.Basic`.
+-- Porting note: These two lemmas seem like they belong to `Std.Data.Nat.Basic`.
 
 lemma sqrt.iter_sq_le (n guess : ℕ) : sqrt.iter n guess * sqrt.iter n guess ≤ n := by
   unfold sqrt.iter

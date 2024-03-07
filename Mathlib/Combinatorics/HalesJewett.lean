@@ -91,8 +91,8 @@ structure Subspace (η α ι : Type*) where
   /-- The word representing a combinatorial subspace. `l.idxfun i = Sum.inr e` means that
   `l x i = x e` for all `x` and `l.idxfun i = some a` means that `l x i = a` for all `x`. -/
   idxFun : ι → α ⊕ η
-  /-- We require combinatorial subspaces to be nontrivial in the sense that `fun x ↦ l x i` is
-  `fun x ↦ x e` for at least one coordinate `i`. -/
+  /-- We require combinatorial subspaces to be nontrivial in the sense that, for all directions
+  `e : η`, `fun x ↦ x e` is `fun x ↦ l x i` is for at least one coordinate `i`. -/
   proper : ∀ e, ∃ i, idxFun i = Sum.inr e
 
 namespace Subspace
@@ -109,6 +109,9 @@ instance instCoeFun : CoeFun (Subspace η α ι) (fun _ ↦ (η → α) → ι �
 lemma coe_apply (l : Subspace η α ι) (x : η → α) (i : ι) : l x i = (l.idxFun i).elim id x := rfl
 
 -- Note: This is not made a `FunLike` instance to avoid having two syntactically different coercions
+-- (the coercion from a `FunLike` instance is always syntactically `FunLike.coe` while
+-- `Combinatorics.Subspace.instCoeFun` gives a coercion that is syntactically
+-- `Combinatorics.Subspace.toFun`)
 lemma coe_injective [Nontrivial α] : Injective ((⇑) : Subspace η α ι → (η → α) → ι → α) := by
   rintro l m hlm
   ext i
