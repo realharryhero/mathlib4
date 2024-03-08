@@ -19,7 +19,8 @@ import Mathlib.Topology.Order.Bornology
 
 noncomputable section
 
-open Classical Filter Int Metric Set TopologicalSpace Bornology
+open scoped Classical
+open Filter Int Metric Set TopologicalSpace Bornology
 open scoped Topology Uniformity Interval
 
 universe u v w
@@ -136,7 +137,7 @@ theorem Real.uniformContinuous_mul (s : Set (ℝ × ℝ)) {r₁ r₂ : ℝ}
 protected theorem Real.continuous_mul : Continuous fun p : ℝ × ℝ => p.1 * p.2 := continuous_mul
 #align real.continuous_mul Real.continuous_mul
 
--- porting note: moved `TopologicalRing` instance up
+-- Porting note: moved `TopologicalRing` instance up
 
 instance : CompleteSpace ℝ := by
   apply complete_of_cauchySeq_tendsto
