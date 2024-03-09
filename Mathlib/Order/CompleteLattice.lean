@@ -1687,16 +1687,16 @@ end CompleteLinearOrder
 -/
 
 
-instance Prop.completeLattice : CompleteLattice Prop where
-  __ := Prop.boundedOrder
-  __ := Prop.distribLattice
+instance Prop.instCompleteLattice : CompleteLattice Prop where
+  __ := Prop.instBoundedOrder
+  __ := Prop.instDistribLattice
   sSup s := ∃ a ∈ s, a
   le_sSup _ a h p := ⟨a, h, p⟩
   sSup_le _ _ h := fun ⟨b, h', p⟩ => h b h' p
   sInf s := ∀ a, a ∈ s → a
   sInf_le _ a h p := p a h
   le_sInf _ _ h p b hb := h b hb p
-#align Prop.complete_lattice Prop.completeLattice
+#align Prop.complete_lattice Prop.instCompleteLattice
 
 noncomputable instance Prop.completeLinearOrder : CompleteLinearOrder Prop :=
   { Prop.completeLattice, Prop.linearOrder, BooleanAlgebra.toBiheytingAlgebra with }
@@ -1984,7 +1984,7 @@ theorem down_iInf [InfSet α] (f : ι → ULift.{v} α) : (⨅ i, f i).down = �
 theorem up_iInf [InfSet α] (f : ι → α) : up (⨅ i, f i) = ⨅ i, up (f i) :=
   congr_arg ULift.up <| (down_iInf _).symm
 
-instance completeLattice [CompleteLattice α] : CompleteLattice (ULift.{v} α) :=
+instance instCompleteLattice [CompleteLattice α] : CompleteLattice (ULift.{v} α) :=
   ULift.down_injective.completeLattice _ down_sup down_inf
     (fun s => by rw [sSup_eq_iSup', down_iSup, iSup_subtype''])
     (fun s => by rw [sInf_eq_iInf', down_iInf, iInf_subtype'']) down_top down_bot

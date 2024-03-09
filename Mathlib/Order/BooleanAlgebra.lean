@@ -704,7 +704,7 @@ theorem compl_inf : (x ⊓ y)ᶜ = xᶜ ⊔ yᶜ :=
 
 @[simp]
 theorem compl_le_compl_iff_le : yᶜ ≤ xᶜ ↔ x ≤ y :=
-  ⟨fun h => by have h := compl_le_compl h; simp at h; assumption, compl_le_compl⟩
+  ⟨fun h => by have h := compl_le_compl h; simpa using h, compl_le_compl⟩
 #align compl_le_compl_iff_le compl_le_compl_iff_le
 
 @[simp] lemma compl_lt_compl_iff_lt : yᶜ < xᶜ ↔ x < y :=
@@ -787,14 +787,14 @@ lemma himp_ne_right : x ⇨ y ≠ x ↔ x ≠ ⊤ ∨ y ≠ ⊤ := himp_eq_left.
 
 end BooleanAlgebra
 
-instance Prop.booleanAlgebra : BooleanAlgebra Prop where
-  __ := Prop.heytingAlgebra
+instance Prop.instBooleanAlgebra : BooleanAlgebra Prop where
+  __ := Prop.instHeytingAlgebra
   __ := GeneralizedHeytingAlgebra.toDistribLattice
   compl := Not
   himp_eq p q := propext imp_iff_or_not
   inf_compl_le_bot p H := H.2 H.1
   top_le_sup_compl p _ := Classical.em p
-#align Prop.boolean_algebra Prop.booleanAlgebra
+#align Prop.boolean_algebra Prop.instBooleanAlgebra
 
 instance Prod.instBooleanAlgebra [BooleanAlgebra α] [BooleanAlgebra β] :
     BooleanAlgebra (α × β) where
@@ -876,7 +876,7 @@ protected def Function.Injective.booleanAlgebra [Sup α] [Inf α] [Top α] [Bot 
 
 end lift
 
-instance PUnit.booleanAlgebra : BooleanAlgebra PUnit := by
+instance PUnit.instBooleanAlgebra : BooleanAlgebra PUnit := by
   refine'
-  { PUnit.biheytingAlgebra with
+  { PUnit.instBiheytingAlgebra with
     .. } <;> (intros; trivial)

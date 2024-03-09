@@ -53,16 +53,16 @@ variable {ι α β : Type*}
 section
 variable (α β)
 
-instance Prod.himp [HImp α] [HImp β] : HImp (α × β) :=
+instance Prod.instHImp [HImp α] [HImp β] : HImp (α × β) :=
   ⟨fun a b => (a.1 ⇨ b.1, a.2 ⇨ b.2)⟩
 
-instance Prod.hnot [HNot α] [HNot β] : HNot (α × β) :=
+instance Prod.instHNot [HNot α] [HNot β] : HNot (α × β) :=
   ⟨fun a => (￢a.1, ￢a.2)⟩
 
-instance Prod.sdiff [SDiff α] [SDiff β] : SDiff (α × β) :=
+instance Prod.instSDiff [SDiff α] [SDiff β] : SDiff (α × β) :=
   ⟨fun a b => (a.1 \ b.1, a.2 \ b.2)⟩
 
-instance Prod.hasCompl [HasCompl α] [HasCompl β] : HasCompl (α × β) :=
+instance Prod.instHasCompl [HasCompl α] [HasCompl β] : HasCompl (α × β) :=
   ⟨fun a => (a.1ᶜ, a.2ᶜ)⟩
 
 end
@@ -1125,11 +1125,11 @@ end BiheytingAlgebra
 
 /-- Propositions form a Heyting algebra with implication as Heyting implication and negation as
 complement. -/
-instance Prop.heytingAlgebra : HeytingAlgebra Prop :=
-  { Prop.distribLattice, Prop.boundedOrder with
+instance Prop.instHeytingAlgebra : HeytingAlgebra Prop :=
+  { Prop.instDistribLattice, Prop.instBoundedOrder with
     himp := (· → ·),
     le_himp_iff := fun _ _ _ => and_imp.symm, himp_bot := fun _ => rfl }
-#align Prop.heyting_algebra Prop.heytingAlgebra
+#align Prop.heyting_algebra Prop.instHeytingAlgebra
 
 @[simp]
 theorem himp_iff_imp (p q : Prop) : p ⇨ q ↔ p → q :=
@@ -1276,8 +1276,8 @@ namespace PUnit
 
 variable (a b : PUnit.{u + 1})
 
-instance biheytingAlgebra : BiheytingAlgebra PUnit.{u+1} :=
-  { PUnit.linearOrder.{u} with
+instance instBiheytingAlgebra : BiheytingAlgebra PUnit.{u+1} :=
+  { PUnit.instLinearOrder.{u} with
     top := unit,
     bot := unit,
     sup := fun _ _ => unit,

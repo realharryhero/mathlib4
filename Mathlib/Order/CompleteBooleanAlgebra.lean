@@ -609,18 +609,18 @@ namespace PUnit
 
 variable (s : Set PUnit.{u + 1}) (x y : PUnit.{u + 1})
 
-instance completeAtomicBooleanAlgebra : CompleteAtomicBooleanAlgebra PUnit := by
+instance instCompleteAtomicBooleanAlgebra : CompleteAtomicBooleanAlgebra PUnit := by
   refine'
-    { PUnit.booleanAlgebra with
+    { PUnit.instBooleanAlgebra with
       sSup := fun _ => unit
       sInf := fun _ => unit
       .. } <;>
   (intros; trivial)
 
-instance completeBooleanAlgebra : CompleteBooleanAlgebra PUnit := inferInstance
+instance instCompleteBooleanAlgebra : CompleteBooleanAlgebra PUnit := inferInstance
 
-instance completeLinearOrder : CompleteLinearOrder PUnit :=
-  { PUnit.completeBooleanAlgebra, PUnit.linearOrder with }
+instance instCompleteLinearOrder : CompleteLinearOrder PUnit :=
+  { PUnit.instCompleteBooleanAlgebra, PUnit.instLinearOrder with }
 
 @[simp]
 theorem sSup_eq : sSup s = unit :=
