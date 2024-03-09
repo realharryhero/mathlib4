@@ -338,7 +338,7 @@ instance CompleteLinearOrder.toLinearOrder [i : CompleteLinearOrder α] : Linear
 namespace OrderDual
 
 instance instCompleteLattice [CompleteLattice α] : CompleteLattice αᵒᵈ where
-  __ := boundedOrder α
+  __ := instBoundedOrder α
   le_sSup := @CompleteLattice.sInf_le α _
   sSup_le := @CompleteLattice.le_sInf α _
   sInf_le := @CompleteLattice.le_sSup α _
@@ -1698,9 +1698,11 @@ instance Prop.instCompleteLattice : CompleteLattice Prop where
   le_sInf _ _ h p b hb := h b hb p
 #align Prop.complete_lattice Prop.instCompleteLattice
 
-noncomputable instance Prop.completeLinearOrder : CompleteLinearOrder Prop :=
-  { Prop.completeLattice, Prop.linearOrder, BooleanAlgebra.toBiheytingAlgebra with }
-#align Prop.complete_linear_order Prop.completeLinearOrder
+noncomputable instance Prop.instCompleteLinearOrder : CompleteLinearOrder Prop where
+  __ := Prop.instCompleteLattice
+  __ := Prop.linearOrder
+  __ := BooleanAlgebra.toBiheytingAlgebra
+#align Prop.complete_linear_order Prop.instCompleteLinearOrder
 
 @[simp]
 theorem sSup_Prop_eq {s : Set Prop} : sSup s = ∃ p ∈ s, p :=
@@ -1733,11 +1735,11 @@ instance Pi.infSet {α : Type*} {β : α → Type*} [∀ i, InfSet (β i)] : Inf
 
 instance Pi.instCompleteLattice {α : Type*} {β : α → Type*} [∀ i, CompleteLattice (β i)] :
     CompleteLattice (∀ i, β i) where
-  __ := Pi.boundedOrder
-  le_sSup s f hf i := le_iSup (fun f : s => (f : ∀ i, β i) i) ⟨f, hf⟩
-  sInf_le s f hf i := iInf_le (fun f : s => (f : ∀ i, β i) i) ⟨f, hf⟩
-  sSup_le _ _ hf i := iSup_le fun g ↦ hf g g.2 i
-  le_sInf _ _ hf i := le_iInf fun g ↦ hf g g.2 i
+  __ := instBoundedOrder
+  le_sSup s f hf := fun i => le_iSup (fun f : s => (f : ∀ i, β i) i) ⟨f, hf⟩
+  sInf_le s f hf := fun i => iInf_le (fun f : s => (f : ∀ i, β i) i) ⟨f, hf⟩
+  sSup_le _ _ hf := fun i => iSup_le fun g => hf g g.2 i
+  le_sInf _ _ hf := fun i => le_iInf fun g => hf g g.2 i
 #align pi.complete_lattice Pi.instCompleteLattice
 
 theorem sSup_apply {α : Type*} {β : α → Type*} [∀ i, SupSet (β i)] {s : Set (∀ a, β a)} {a : α} :
@@ -1874,7 +1876,7 @@ theorem iSup_mk [SupSet α] [SupSet β] (f : ι → α) (g : ι → β) :
 #align prod.supr_mk Prod.iSup_mk
 
 instance instCompleteLattice [CompleteLattice α] [CompleteLattice β] : CompleteLattice (α × β) where
-  __ := boundedOrder α β
+  __ := instBoundedOrder α β
   le_sSup _ _ hab := ⟨le_sSup <| mem_image_of_mem _ hab, le_sSup <| mem_image_of_mem _ hab⟩
   sSup_le _ _ h :=
     ⟨sSup_le <| forall_mem_image.2 fun p hp => (h p hp).1,

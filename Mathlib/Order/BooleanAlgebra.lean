@@ -728,7 +728,7 @@ theorem sdiff_compl : x \ yᶜ = x ⊓ y := by rw [sdiff_eq, compl_compl]
 #align sdiff_compl sdiff_compl
 
 instance OrderDual.instBooleanAlgebra : BooleanAlgebra αᵒᵈ where
-  __ := distribLattice α
+  __ := instDistribLattice α
   __ := instHeytingAlgebra
   sdiff_eq _ _ := @himp_eq α _ _ _
   himp_eq _ _ := @sdiff_eq α _ _ _
@@ -798,7 +798,7 @@ instance Prop.instBooleanAlgebra : BooleanAlgebra Prop where
 
 instance Prod.instBooleanAlgebra [BooleanAlgebra α] [BooleanAlgebra β] :
     BooleanAlgebra (α × β) where
-  __ := distribLattice α β
+  __ := instDistribLattice α β
   __ := instHeytingAlgebra
   himp_eq x y := by ext <;> simp [himp_eq]
   sdiff_eq x y := by ext <;> simp [sdiff_eq]
@@ -807,7 +807,7 @@ instance Prod.instBooleanAlgebra [BooleanAlgebra α] [BooleanAlgebra β] :
 
 instance Pi.instBooleanAlgebra {ι : Type u} {α : ι → Type v} [∀ i, BooleanAlgebra (α i)] :
     BooleanAlgebra (∀ i, α i) where
-  __ := distribLattice
+  __ := instDistribLattice
   __ := instHeytingAlgebra
   sdiff_eq _ _ := funext fun _ => sdiff_eq
   himp_eq _ _ := funext fun _ => himp_eq
@@ -818,7 +818,7 @@ instance Pi.instBooleanAlgebra {ι : Type u} {α : ι → Type v} [∀ i, Boolea
 instance Bool.instBooleanAlgebra : BooleanAlgebra Bool where
   __ := instDistribLattice
   __ := linearOrder
-  __ := boundedOrder
+  __ := instBoundedOrder
   compl := not
   inf_compl_le_bot a := a.and_not_self.le
   top_le_sup_compl a := a.or_not_self.ge

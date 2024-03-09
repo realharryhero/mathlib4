@@ -429,7 +429,7 @@ instance Pi.instCompleteBooleanAlgebra {ι : Type*} {π : ι → Type*} [∀ i, 
   __ := instCompleteDistribLattice
 #align pi.complete_boolean_algebra Pi.instCompleteBooleanAlgebra
 
-instance OrderDual.instCompleteBooleanAlgebra [hα : CompleteBooleanAlgebra α] :
+instance OrderDual.instCompleteBooleanAlgebra [CompleteBooleanAlgebra α] :
     CompleteBooleanAlgebra αᵒᵈ where
   __ := instBooleanAlgebra
   __ := instCompleteDistribLattice
@@ -484,7 +484,7 @@ instance Prod.instCompleteAtomicBooleanAlgebra [CompleteAtomicBooleanAlgebra α]
 
 instance Pi.instCompleteAtomicBooleanAlgebra {ι : Type*} {π : ι → Type*}
     [∀ i, CompleteAtomicBooleanAlgebra (π i)] : CompleteAtomicBooleanAlgebra (∀ i, π i) where
-  __ := instCompleteBooleanAlgebra
+  __ := Pi.instCompleteBooleanAlgebra
   iInf_iSup_eq f := by ext; rw [iInf_iSup_eq]
 
 instance OrderDual.instCompleteAtomicBooleanAlgebra [CompleteAtomicBooleanAlgebra α] :
@@ -493,8 +493,10 @@ instance OrderDual.instCompleteAtomicBooleanAlgebra [CompleteAtomicBooleanAlgebr
   __ := instCompletelyDistribLattice
 
 instance Prop.instCompleteAtomicBooleanAlgebra : CompleteAtomicBooleanAlgebra Prop where
-  __ := Prop.completeLattice
-  __ := Prop.booleanAlgebra
+  __ := Prop.instCompleteLattice
+  __ := Prop.instBooleanAlgebra
+  __ := Prop.instHeytingAlgebra
+  __ := BooleanAlgebra.toBiheytingAlgebra
   iInf_iSup_eq f := by simp [Classical.skolem]
 
 instance Prop.instCompleteBooleanAlgebra : CompleteBooleanAlgebra Prop := inferInstance
