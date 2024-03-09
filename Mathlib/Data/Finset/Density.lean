@@ -33,7 +33,7 @@ variable [Semifield 𝕜] {s t : Finset α} {a b : α}
 /-- `dens s` is the number of elements of `s`, aka its density. -/
 @[pp_dot] def dens (s : Finset α) : 𝕜 := s.card / Fintype.card α
 
-notation "dens[" 𝕜 "]" => @dens 𝕜
+@[inherit_doc dens] notation "dens[" 𝕜 "]" => @dens 𝕜
 
 lemma card_div_card_eq_dens (s : Finset α) : dens[𝕜] s = s.card / Fintype.card α := rfl
 
@@ -175,6 +175,8 @@ open Finset
 namespace Mathlib.Meta.Positivity
 open Qq Lean Meta
 
+/-- Positivity extension for `Finset.dens`: The density is always nonnegative, and positive if the
+finset is nonempty. -/
 @[positivity Finset.dens _]
 def evalFinsetDens : PositivityExt where eval {u 𝕜} _ _ e := do
   match e with
