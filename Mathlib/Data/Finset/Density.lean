@@ -5,7 +5,7 @@ Authors: Yaël Dillies
 -/
 import Mathlib.Algebra.Order.Field.Basic
 import Mathlib.Tactic.Positivity.Basic
-import Mathlib.Data.Fintype.Card
+import Mathlib.Tactic.Positivity.Finset
 
 /-!
 # Density of a finite set
