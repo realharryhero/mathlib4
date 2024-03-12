@@ -97,7 +97,7 @@ end defs
     AnalyticWithinAt 𝕜 f univ x ↔ AnalyticAt 𝕜 f x := by
   simp only [AnalyticWithinAt, hasFPowerSeriesWithinAt_univ, AnalyticAt]
 
-@[simp] lemma analyticWithinOn_univ {f : E → F} :
+lemma analyticWithinOn_univ {f : E → F} :
     AnalyticWithinOn 𝕜 f univ ↔ AnalyticOn 𝕜 f univ := by
   simp only [AnalyticWithinOn, analyticWithinAt_univ, AnalyticOn]
 
