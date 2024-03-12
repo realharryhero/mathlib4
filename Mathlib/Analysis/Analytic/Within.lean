@@ -106,8 +106,8 @@ lemma HasFPowerSeriesWithinAt.continuousWithinAt {f : E → F} {p : FormalMultil
   rcases h with ⟨r, h⟩
   exact h.continuousWithinAt
 
-lemma AnalyticWithinAt.continuousWithinAt {f : E → F} {s : Set E} {x : E} (h : AnalyticWithinAt 𝕜 f s x) :
-    ContinuousWithinAt f s x := by
+lemma AnalyticWithinAt.continuousWithinAt {f : E → F} {s : Set E} {x : E}
+    (h : AnalyticWithinAt 𝕜 f s x) : ContinuousWithinAt f s x := by
   rcases h with ⟨p, h⟩
   exact h.continuousWithinAt
 
