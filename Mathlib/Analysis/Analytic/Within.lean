@@ -203,7 +203,8 @@ be stitched together.
 lemma hasFPowerSeriesWithinOnBall_iff_exists_hasFPowerSeriesOnBall [CompleteSpace F] {f : E → F}
     {p : FormalMultilinearSeries 𝕜 E F} {s : Set E} {x : E} {r : ℝ≥0∞} :
     HasFPowerSeriesWithinOnBall f p s x r ↔
-      ContinuousWithinAt f s x ∧ ∃ g, EqOn f g (s ∩ EMetric.ball x r) ∧ HasFPowerSeriesOnBall g p x r := by
+      ContinuousWithinAt f s x ∧ ∃ g, EqOn f g (s ∩ EMetric.ball x r) ∧
+        HasFPowerSeriesOnBall g p x r := by
   constructor
   · intro h
     refine ⟨h.continuousWithinAt, fun y ↦ p.sum (y - x), ?_, ?_⟩
