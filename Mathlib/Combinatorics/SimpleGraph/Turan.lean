@@ -5,7 +5,7 @@ Authors: Jeremy Tan
 -/
 import Mathlib.Combinatorics.SimpleGraph.Clique
 import Mathlib.Combinatorics.SimpleGraph.DegreeSum
-import Mathlib.Data.Int.Card
+import Mathlib.Data.Int.CardIntervalMod
 import Mathlib.Order.Partition.Equipartition
 
 /-!
