@@ -26,7 +26,7 @@ are measurable.
 ## TODO
 
 Is there a way to generalise `IsClosed.upperClosure_pi`/`IsClosed.lowerClosure_pi` so that they also
-apply to `ℝ`, `ℝ × ℝ`, `EuclideanSpace ι ℝ`? `_pi` has been prepended to their names to disambiguate
+apply to `ℝ`, `ℝ × ℝ`, `EuclideanSpace ι ℝ`? `_pi` has been appended to their names to disambiguate
 from the other possible lemmas, but we will want there to be a single set of lemmas for all
 situations.
 -/
