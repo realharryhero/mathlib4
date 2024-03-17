@@ -168,8 +168,8 @@ theorem AntivaryOn.sum_smul_le_sum_smul_comp_perm (hfg : AntivaryOn f g s)
     exact has hx.2
 #align antivary_on.sum_smul_le_sum_smul_comp_perm AntivaryOn.sum_smul_le_sum_smul_comp_perm
 
-/-- **Equality case of the Rearrangement Inequality**: Pointwise scalar multiplication of `f` and `g`,
-which monovary together, is unchanged by a permutation if and only if `f` and `g ∘ σ` monovary
+/-- **Equality case of the Rearrangement Inequality**: Pointwise scalar multiplication of `f` and
+`g`, which monovary together, is unchanged by a permutation if and only if `f` and `g ∘ σ` monovary
 together. Stated by permuting the entries of `g`. -/
 theorem MonovaryOn.sum_smul_comp_perm_eq_sum_smul_iff (hfg : MonovaryOn f g s)
     (hσ : { x | σ x ≠ x } ⊆ s) :
@@ -356,8 +356,8 @@ theorem Monovary.sum_comp_perm_smul_le_sum_smul (hfg : Monovary f g) :
   (hfg.monovaryOn _).sum_comp_perm_smul_le_sum_smul fun _ _ ↦ mem_univ _
 #align monovary.sum_comp_perm_smul_le_sum_smul Monovary.sum_comp_perm_smul_le_sum_smul
 
-/-- **Equality case of the Rearrangement Inequality**: Pointwise scalar multiplication of `f` and `g`,
-which monovary together, is unchanged by a permutation if and only if `f ∘ σ` and `g` monovary
+/-- **Equality case of the Rearrangement Inequality**: Pointwise scalar multiplication of `f` and
+`g`, which monovary together, is unchanged by a permutation if and only if `f ∘ σ` and `g` monovary
 together. Stated by permuting the entries of `g`. -/
 theorem Monovary.sum_comp_perm_smul_eq_sum_smul_iff (hfg : Monovary f g) :
     ∑ i, f (σ i) • g i = ∑ i, f i • g i ↔ Monovary (f ∘ σ) g := by
