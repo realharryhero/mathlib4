@@ -3,7 +3,6 @@ Copyright (c) 2019 Yury Kudryashov. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Yury Kudryashov, Sébastien Gouëzel, Rémy Degenne
 -/
-import Mathlib.Algebra.Order.Chebyshev
 import Mathlib.Analysis.Convex.Jensen
 import Mathlib.Analysis.Convex.Mul
 import Mathlib.Analysis.Convex.SpecificFunctions.Basic
