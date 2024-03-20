@@ -103,8 +103,9 @@ theorem not_cliqueFree_of_isTuranMaximal (hn : r ≤ Fintype.card V) (hx : IsTur
   obtain ⟨a, _, b, _, ne, na⟩ := this
   have nhx : ¬G.IsTuranMaximal r := by
     simp_rw [IsTuranMaximal, hx.1, true_and]; push_neg
-    use G.addEdge a b, inferInstance, cf.addEdge a b
-    simp_rw [G.card_edgeFinset_addEdge na ne, Nat.lt.base]
+    use G ⊔ edge a b, inferInstance, cf.sup_edge a b
+    convert Nat.lt.base G.edgeFinset.card
+    convert G.card_edgeFinset_sup_edge na ne
   contradiction
 
 end Defs
@@ -277,7 +278,7 @@ theorem notAdj_card_parts : (notAdjFinpartition hmax).parts.card = min (Fintype.
     (f := fun a => fp.part (a := a) (by simp)) univ fp.parts h.1 (fun _ _ => fp.part_mem _)
   have : ¬IsTuranMaximal G r := by
     rw [IsTuranMaximal]; push_neg; intro
-    use G.addEdge x y, inferInstance
+    use G ⊔ edge x y, inferInstance
     have cf : G.CliqueFree r := by
       simp_rw [← cliqueFinset_eq_empty_iff, cliqueFinset, filter_eq_empty_iff, mem_univ,
         forall_true_left, isNClique_iff, and_comm, not_and, isClique_iff]
@@ -290,8 +291,9 @@ theorem notAdj_card_parts : (notAdjFinpartition hmax).parts.card = min (Fintype.
       change (notAdjSetoid hmax).r x' y'
       apply Finpartition.mem_part_ofSetoid_iff_rel.mp
       exact he' ▸ fp.mem_part _
-    refine' ⟨cf.addEdge x y, _⟩
-    rw [G.card_edgeFinset_addEdge _ hn]; · linarith
+    refine' ⟨cf.sup_edge x y, _⟩
+    convert Nat.lt.base G.edgeFinset.card
+    convert G.card_edgeFinset_sup_edge _ hn
     change (notAdjSetoid hmax).r x y
     apply Finpartition.mem_part_ofSetoid_iff_rel.mp
     exact he ▸ fp.mem_part _
