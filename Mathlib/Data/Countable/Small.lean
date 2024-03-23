@@ -5,8 +5,10 @@ Authors: Scott Morrison
 -/
 import Mathlib.Logic.Small.Basic
 import Mathlib.Data.Countable.Defs
+import Mathlib.Data.Fintype.Basic
 
 #align_import data.countable.small from "leanprover-community/mathlib"@"bbeb185db4ccee8ed07dc48449414ebfa39cb821"
+#align_import data.fintype.small from "leanprover-community/mathlib"@"1126441d6bccf98c81214a0780c73d499f6721fe"
 
 /-!
 # All countable types are small.
@@ -17,7 +19,22 @@ That is, any countable type is equivalent to a type in any universe.
 
 universe w v
 
-instance (priority := 100) small_of_countable (α : Type v) [Countable α] : Small.{w} α :=
+instance (priority := 100) Countable.toSmall (α : Type v) [Countable α] : Small.{w} α :=
   let ⟨_, hf⟩ := exists_injective_nat α
   small_of_injective hf
-#align small_of_countable small_of_countable
+#align small_of_countable Countable.toSmall
+#align small_of_fintype Countable.toSmall
+
+@[deprecated, nolint defLemma] -- 2024-03-20
+alias small_of_countable := Countable.toSmall
+
+@[deprecated, nolint defLemma] -- 2024-03-20
+alias small_of_fintype := Countable.toSmall
+
+variable {α : Type v} [Fintype α]
+
+noncomputable instance Shrink.instFintype [Small.{w} α] : Fintype (Shrink.{w} α) :=
+  Fintype.ofEquiv _ $ equivShrink _
+
+@[simp] lemma Fintype.card_shrink [Small.{w} α] : Fintype.card (Shrink.{w} α) = Fintype.card α :=
+  Fintype.card_congr (equivShrink _).symm
