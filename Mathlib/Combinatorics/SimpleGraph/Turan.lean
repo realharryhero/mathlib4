@@ -42,7 +42,6 @@ These bounds add up to exactly `(turanGraph (n + r) r).edgeFinset.card`, complet
 * `isTuranMaximal_iff_nonempty_iso_turanGraph`: Turán's theorem in full.
 -/
 
-
 open Finset
 
 namespace SimpleGraph
@@ -592,3 +591,5 @@ theorem isTuranMaximal_iff_nonempty_iso_turanGraph (hr : 0 < r) :
   · exact ⟨h.isoTuranGraph⟩
   · obtain ⟨iso⟩ := h
     exact isTuranMaximal_of_iso hr iso
+
+end SimpleGraph

@@ -921,7 +921,8 @@ def deleteEdges (s : Set (Sym2 V)) : SimpleGraph V where
 
 @[simp]
 theorem deleteEdges_adj (s : Set (Sym2 V)) (v w : V) :
-    (G.deleteEdges s).Adj v w ↔ G.Adj v w ∧ ¬s(v, w) ∈ s := Iff.rfl
+    (G.deleteEdges s).Adj v w ↔ G.Adj v w ∧ ¬s(v, w) ∈ s :=
+  Iff.rfl
 #align simple_graph.delete_edges_adj SimpleGraph.deleteEdges_adj
 
 theorem sdiff_eq_deleteEdges (G G' : SimpleGraph V) : G \ G' = G.deleteEdges G'.edgeSet := by
