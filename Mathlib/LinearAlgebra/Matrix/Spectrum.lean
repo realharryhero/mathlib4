@@ -55,6 +55,15 @@ noncomputable def eigenvectorBasis : OrthonormalBasis n 𝕜 (EuclideanSpace �
     (Fintype.equivOfCardEq (Fintype.card_fin _))
 #align matrix.is_hermitian.eigenvector_basis Matrix.IsHermitian.eigenvectorBasis
 
+-- I knew this should be easy to prove
+lemma mulVec_eigenvectorBasis (j : n) :
+    A *ᵥ (hA.eigenvectorBasis j) = hA.eigenvalues j • hA.eigenvectorBasis j := by
+  have := (isHermitian_iff_isSymmetric.1 hA).apply_eigenvectorBasis finrank_euclideanSpace
+    ((Fintype.equivOfCardEq (Fintype.card_fin _)).symm j)
+  rw [IsROrC.real_smul_eq_coe_smul (K := 𝕜)]
+  convert this using 2
+  all_goals rw [eigenvectorBasis, OrthonormalBasis.reindex_apply]
+
 /- A matrix whose columns are an orthonormal basis of eigenvectors of a hermitian matrix. -/
 --noncomputable def eigenvectorMatrix : Matrix n n 𝕜 :=
 --  (PiLp.basisFun _ 𝕜 n).toMatrix (eigenvectorBasis hA).toBasis
@@ -78,6 +87,41 @@ theorem eigenvectorUnitary_apply (i j : n) :
     (hA.eigenvectorUnitary : Matrix n n 𝕜) i j = hA.eigenvectorBasis j i := by
   simp [eigenvectorUnitary, Basis.toMatrix_apply]
 #align matrix.is_hermitian.eigenvector_matrix_apply Matrix.IsHermitian.eigenvectorUnitary_apply
+
+theorem eigenvectorUnitary_mulVec (j : n) :
+    (hA.eigenvectorUnitary : Matrix n n 𝕜) *ᵥ Pi.single j 1 = hA.eigenvectorBasis j := by
+  ext i
+  simp [eigenvectorUnitary_apply]
+
+theorem star_eigenvectorUnitary_mulVec (j : n) :
+    star (hA.eigenvectorUnitary : Matrix n n 𝕜) *ᵥ hA.eigenvectorBasis j = Pi.single j 1 := by
+  simpa only [mulVec_mulVec, unitary.coe_star_mul_self, one_mulVec] using
+    congr(star (hA.eigenvectorUnitary : Matrix n n 𝕜) *ᵥ
+      $((hA.eigenvectorUnitary_mulVec j).symm))
+
+lemma spectral_theorem' :
+    diagonal ((↑) ∘ hA.eigenvalues) = (star hA.eigenvectorUnitary : Matrix n n 𝕜) * A *
+      (hA.eigenvectorUnitary : Matrix n n 𝕜) := by
+  apply Matrix.toLin'.injective
+  apply Pi.basisFun 𝕜 n |>.ext fun j ↦ ?_
+  simp only [Pi.basisFun_apply, Matrix.toLin'_apply, LinearMap.coe_stdBasis]
+  rw [← mulVec_mulVec, ← mulVec_mulVec, hA.eigenvectorUnitary_mulVec, hA.mulVec_eigenvectorBasis,
+    mulVec_smul, hA.star_eigenvectorUnitary_mulVec, diagonal_mulVec_single, ← Pi.single_smul]
+  congr! 1
+  simp [Function.comp_apply, IsROrC.real_smul_eq_coe_smul (K := 𝕜)]
+
+lemma spectral_theorem'' :
+    A = (hA.eigenvectorUnitary : Matrix n n 𝕜) * diagonal ((↑) ∘ hA.eigenvalues) *
+      (star hA.eigenvectorUnitary : Matrix n n 𝕜) := by
+  apply Matrix.toLin'.injective
+  apply hA.eigenvectorBasis.toBasis |>.ext fun j ↦ ?_
+  simp only [OrthonormalBasis.coe_toBasis, toLin'_mul, LinearMap.coe_comp, Function.comp_apply,
+    toLin'_apply]
+  erw [toLin'_apply, toLin'_apply] -- this is because we're abusing defeq of `EuclideanSpace 𝕜 n` with `n → 𝕜`.
+  rw [hA.star_eigenvectorUnitary_mulVec j, diagonal_mulVec_single, ← smul_eq_mul, Pi.single_smul,
+    mulVec_smul, hA.eigenvectorUnitary_mulVec, hA.mulVec_eigenvectorBasis, Function.comp_apply,
+    IsROrC.real_smul_eq_coe_smul (K := 𝕜)]
+#exit
 
 open LinearMap in
 @[simp]
