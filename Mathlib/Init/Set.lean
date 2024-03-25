@@ -132,6 +132,7 @@ def elabSetBuilder : TermElab
     elabTerm (← `(setOf fun $x:ident ↦ satisfies_binder_pred% $x $b ∧ $p)) expectedType?
   | _, _ => throwUnsupportedSyntax
 
+/-- Unexpander for set builder notation. -/
 @[app_unexpander setOf]
 def setOf.unexpander : Lean.PrettyPrinter.Unexpander
   | `($_ fun $x:ident ↦ $p) => `({ $x:ident | $p })
