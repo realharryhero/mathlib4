@@ -132,7 +132,7 @@ lemma pow_sum_le_card_mul_sum_pow (hf : ∀ i ∈ s, 0 ≤ f i) :
   | 0 => by simp
   | n + 1 =>
     calc
-      _ = (∑ i in s, f i) ^ (n + 1) * ∑ i in s, f i := by rw [pow_succ']
+      _ = (∑ i in s, f i) ^ (n + 1) * ∑ i in s, f i := by rw [pow_succ]
       _ ≤ (s.card ^ n * ∑ i in s, f i ^ (n + 1)) * ∑ i in s, f i := by
         gcongr
         exacts [sum_nonneg hf, pow_sum_le_card_mul_sum_pow hf _]
@@ -140,7 +140,7 @@ lemma pow_sum_le_card_mul_sum_pow (hf : ∀ i ∈ s, 0 ≤ f i) :
       _ ≤ s.card ^ n * (s.card * ∑ i in s, f i ^ (n + 1) * f i) := by
         gcongr _ * ?_
         exact ((monovaryOn_self ..).pow_left₀ hf _).sum_mul_sum_le_card_mul_sum
-      _ = _ := by simp_rw [← mul_assoc, ← pow_succ']
+      _ = _ := by simp_rw [← mul_assoc, ← pow_succ]
 
 /-- Special case of **Chebyshev's Sum Inequality** or the **Cauchy-Schwarz Inequality**: The square
 of the sum is less than the size of the set times the sum of the squares. -/
