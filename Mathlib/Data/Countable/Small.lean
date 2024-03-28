@@ -5,7 +5,7 @@ Authors: Scott Morrison
 -/
 import Mathlib.Logic.Small.Basic
 import Mathlib.Data.Countable.Defs
-import Mathlib.Data.Fintype.Basic
+import Mathlib.Data.Fintype.Card
 
 #align_import data.countable.small from "leanprover-community/mathlib"@"bbeb185db4ccee8ed07dc48449414ebfa39cb821"
 #align_import data.fintype.small from "leanprover-community/mathlib"@"1126441d6bccf98c81214a0780c73d499f6721fe"
