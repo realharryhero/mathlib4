@@ -132,7 +132,7 @@ theorem pow_f_le_f_pow {f : ℚ → ℝ} {n : ℕ} (hn : 0 < n) {x : ℚ} (hx : 
   cases' pn with pn
   · norm_num
   have hpn' := hpn pn.succ_pos
-  rw [pow_succ' x (pn + 1), pow_succ' (f x) (pn + 1)]
+  rw [pow_succ x (pn + 1), pow_succ (f x) (pn + 1)]
   have hxp : 0 < x := by positivity
   calc
     f (x ^ (pn + 1) * x) ≤ f (x ^ (pn + 1)) * f x := H1 (x ^ (pn + 1)) x (pow_pos hxp (pn + 1)) hxp
@@ -233,7 +233,7 @@ theorem imo2013_q5 (f : ℚ → ℝ) (H1 : ∀ x y, 0 < x → 0 < y → f (x * y
         have :=
           fixed_point_of_gt_1 (Nat.one_lt_cast.mpr (Nat.succ_lt_succ n.succ_pos)) H1 H2 H4 H5 ha1
             hae
-        rwa [Rat.cast_coe_nat n.succ.succ] at this
+        rwa [Rat.cast_natCast n.succ.succ] at this
       rw [← hfneq]
       exact H1 (n.succ.succ : ℚ) x (Nat.cast_pos.mpr hn) hx
     exact h2.antisymm (H3 x hx n hn)
