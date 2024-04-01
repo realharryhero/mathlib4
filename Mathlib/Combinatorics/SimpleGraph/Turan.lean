@@ -590,10 +590,7 @@ end Reverse
 /-- **Turán's theorem**. `turanGraph n r` is, up to isomorphism, the unique
 `r + 1`-cliquefree Turán-maximal graph on `n` vertices. -/
 theorem isTuranMaximal_iff_nonempty_iso_turanGraph (hr : 0 < r) :
-    G.IsTuranMaximal r ↔ Nonempty (G ≃g turanGraph (Fintype.card V) r) := by
-  constructor <;> intro h
-  · exact ⟨h.isoTuranGraph⟩
-  · obtain ⟨iso⟩ := h
-    exact G.isTuranMaximal_of_iso hr iso
+    G.IsTuranMaximal r ↔ Nonempty (G ≃g turanGraph (Fintype.card V) r) :=
+  ⟨fun h ↦ ⟨h.isoTuranGraph⟩, fun h ↦ G.isTuranMaximal_of_iso hr h.some⟩
 
 end SimpleGraph
