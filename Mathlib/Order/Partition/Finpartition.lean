@@ -495,6 +495,10 @@ theorem exists_mem (ha : a ∈ s) : ∃ t ∈ P.parts, a ∈ t := by
   exact mem_sup.1 ha
 #align finpartition.exists_mem Finpartition.exists_mem
 
+theorem biUnion_parts : P.parts.biUnion id = s :=
+  (sup_eq_biUnion _ _).symm.trans P.sup_parts
+#align finpartition.bUnion_parts Finpartition.biUnion_parts
+
 theorem existsUnique_mem (ha : a ∈ s) : ∃! t, t ∈ P.parts ∧ a ∈ t := by
   obtain ⟨t, ht, ht'⟩ := P.exists_mem ha
   refine' ⟨t, ⟨ht, ht'⟩, _⟩
@@ -502,16 +506,26 @@ theorem existsUnique_mem (ha : a ∈ s) : ∃! t, t ∈ P.parts ∧ a ∈ t := b
   exact P.eq_of_mem_parts hu ht hu' ht'
 
 /-- The part of the finpartition that `a` lies in. -/
-def part (ha : a ∈ s) : Finset α := choose (hp := P.existsUnique_mem ha)
+def part (a : α) : Finset α := if ha : a ∈ s then choose (hp := P.existsUnique_mem ha) else ∅
 
-theorem part_mem (ha : a ∈ s) : P.part ha ∈ P.parts := choose_mem _ _ _
+theorem part_mem (ha : a ∈ s) : P.part a ∈ P.parts := by simp [part, ha, choose_mem]
 
-theorem mem_part (ha : a ∈ s) : a ∈ P.part ha := choose_property _ _ _
+theorem mem_part (ha : a ∈ s) : a ∈ P.part a := by simp [part, ha, choose_property]
+
+theorem part_surjOn : Set.SurjOn P.part s P.parts := fun p hp ↦ by
+  obtain ⟨x, hx⟩ := P.nonempty_of_mem_parts hp
+  have hx' := mem_of_subset ((le_sup hp).trans P.sup_parts.le) hx
+  use x, hx', (P.existsUnique_mem hx').unique ⟨P.part_mem hx', P.mem_part hx'⟩ ⟨hp, hx⟩
+
+theorem exists_subset_part_bijOn : ∃ r ⊆ s, Set.BijOn P.part r P.parts := by
+  obtain ⟨r, hrs, hr⟩ := P.part_surjOn.exists_bijOn_subset
+  lift r to Finset α using s.finite_toSet.subset hrs
+  exact ⟨r, mod_cast hrs, hr⟩
 
 /-- First equivalence in the `IsEquipartition.partPreservingEquiv` chain. -/
 noncomputable def equivProduct : s ≃ { t : Finset α × ℕ // t.1 ∈ P.parts ∧ t.2 < t.1.card } where
   toFun x := by
-    let p := P.part x.2
+    let p := P.part x.1
     exact ⟨⟨p, p.equivFin ⟨x.1, P.mem_part x.2⟩⟩,
       ⟨by dsimp only; exact P.part_mem x.2, by dsimp only; apply Fin.prop⟩⟩
   invFun t := by
@@ -523,12 +537,12 @@ noncomputable def equivProduct : s ≃ { t : Finset α × ℕ // t.1 ∈ P.parts
     obtain ⟨⟨p, i⟩, ⟨m, l⟩⟩ := t
     let x := p.equivFin.symm ⟨i, l⟩
     have ξ : x.1 ∈ s := mem_of_subset ((le_sup m).trans P.sup_parts.le) x.2
-    have ξ' : P.part ξ = p := P.eq_of_mem_parts (P.part_mem _) m (P.mem_part _) x.2
+    have ξ' : P.part x.1 = p := P.eq_of_mem_parts (P.part_mem ξ) m (P.mem_part ξ) x.2
     simp only [ξ', Subtype.mk.injEq, Prod.mk.injEq, true_and]
     have : p.equivFin x = i := by simp [x]
     convert this
 
-theorem equivProduct_part_eq_part {b} (ha : a ∈ s) (hb : b ∈ s) : P.part ha = P.part hb ↔
+theorem equivProduct_part_eq_part {b} (ha : a ∈ s) (hb : b ∈ s) : P.part a = P.part b ↔
     (P.equivProduct ⟨a, ha⟩).1.1 = (P.equivProduct ⟨b, hb⟩).1.1 := ⟨id, id⟩
 
 theorem equivProduct3_lt {n} (l : n < s.card) :
@@ -537,9 +551,8 @@ theorem equivProduct3_lt {n} (l : n < s.card) :
   have y : 0 < P.parts.card := by
     have z := n.zero_le.trans_lt l
     rw [Finset.card_pos] at z ⊢
-    obtain ⟨_, m⟩ := z
-    have := P.part_mem m
-    use P.part m
+    obtain ⟨w, m⟩ := z
+    use P.part w, P.part_mem m
   exact ⟨Nat.mod_lt _ y, by rw [Nat.mod_add_div]; exact l⟩
 
 /-- Third equivalence in the `IsEquipartition.partPreservingEquiv` chain. -/
@@ -573,10 +586,6 @@ theorem equivProduct3_part_eq_part {t u} :
     have b' : b % P.parts.card = b := by rw [Nat.mod_eq_iff_lt y.ne.symm]; exact l2
     rw [a', b'] at e
     exact e
-
-theorem biUnion_parts : P.parts.biUnion id = s :=
-  (sup_eq_biUnion _ _).symm.trans P.sup_parts
-#align finpartition.bUnion_parts Finpartition.biUnion_parts
 
 theorem sum_card_parts : ∑ i in P.parts, i.card = s.card := by
   convert congr_arg Finset.card P.biUnion_parts
@@ -660,8 +669,8 @@ def ofSetoid (s : Setoid α) [DecidableRel s.r] : Finpartition (univ : Finset α
     use a; exact s.refl a
 
 theorem mem_part_ofSetoid_iff_rel {s : Setoid α} [DecidableRel s.r] {b : α} :
-    b ∈ (ofSetoid s).part (mem_univ a) ↔ s.r a b := by
-  simp only [part, ofSetoid]
+    b ∈ (ofSetoid s).part a ↔ s.r a b := by
+  simp_rw [part, ofSetoid, mem_univ, reduceDite]
   generalize_proofs H
   have := choose_spec _ _ H
   simp only [mem_univ, mem_image, true_and] at this
@@ -751,38 +760,5 @@ theorem card_filter_atomise_le_two_pow (ht : t ∈ F) :
 #align finpartition.card_filter_atomise_le_two_pow Finpartition.card_filter_atomise_le_two_pow
 
 end Atomise
-
-section Representatives
-
-/-- Choose representatives from each part of a finpartition, collecting them into a finset. -/
-noncomputable def reprs : Finset α :=
-  P.parts.attach.map ⟨fun p => (P.nonempty_of_mem_parts p.2).choose, by
-    rw [Injective]
-    intro ⟨v1, p1⟩ ⟨v2, p2⟩ eq
-    rw [Subtype.mk.injEq]
-    exact P.eq_of_mem_parts p1 p2 (eq ▸ (P.nonempty_of_mem_parts p1).choose_spec)
-      (P.nonempty_of_mem_parts p2).choose_spec⟩
-
-theorem card_reprs : P.reprs.card = P.parts.card := by simp [reprs]
-
-theorem mem_of_reprs (h : a ∈ P.reprs) : a ∈ s := by
-  simp_rw [reprs, mem_map, mem_attach, true_and] at h
-  obtain ⟨p, rfl⟩ := h
-  exact mem_of_subset ((le_sup p.2).trans P.sup_parts.le) (P.nonempty_of_mem_parts p.2).choose_spec
-
-/-- Two representatives coming from the same part are equal. -/
-theorem reprs_injective {b : α} (ha : a ∈ P.reprs) (hb : b ∈ P.reprs)
-    (hc : P.part (P.mem_of_reprs ha) = P.part (P.mem_of_reprs hb)) : a = b := by
-  rw [reprs, mem_map] at ha hb
-  obtain ⟨⟨_, am⟩, _, ha'⟩ := ha
-  obtain ⟨⟨_, bm⟩, _, hb'⟩ := hb
-  rw [P.eq_of_mem_parts (P.part_mem _) am (P.mem_part _)
-    (ha' ▸ (P.nonempty_of_mem_parts am).choose_spec),
-      P.eq_of_mem_parts (P.part_mem _) bm (P.mem_part _)
-    (hb' ▸ (P.nonempty_of_mem_parts bm).choose_spec)] at hc
-  simp_rw [hc] at ha'
-  exact ha' ▸ hb'
-
-end Representatives
 
 end Finpartition

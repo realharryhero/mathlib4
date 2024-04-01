@@ -281,7 +281,7 @@ theorem IsEquipartition.equivProduct2_part_eq_part (hP : P.IsEquipartition) {t u
 a part-preserving equivalence with the residue classes of `Fin n` modulo `k`. -/
 noncomputable def IsEquipartition.partPreservingEquiv (hP : P.IsEquipartition) :
     { m : s ≃ Fin s.card //
-      ∀ a b, P.part a.2 = P.part b.2 ↔ m a % P.parts.card = m b % P.parts.card } where
+      ∀ a b : s, P.part a = P.part b ↔ m a % P.parts.card = m b % P.parts.card } where
   val := (P.equivProduct.trans hP.equivProduct2).trans P.equivProduct3
   property a b := by
     rw [P.equivProduct_part_eq_part, hP.equivProduct2_part_eq_part, P.equivProduct3_part_eq_part]

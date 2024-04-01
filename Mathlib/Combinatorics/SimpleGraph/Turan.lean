@@ -363,7 +363,7 @@ def notAdjFinpartition : Finpartition (univ : Finset V) :=
   Finpartition.ofSetoid (notAdjSetoid hmax)
 
 theorem degree_eq_fintype_card_sub_part_card : G.degree s = Fintype.card V -
-    ((notAdjFinpartition hmax).part (mem_univ s)).card := by
+    ((notAdjFinpartition hmax).part s).card := by
   calc
     G.degree s = (univ.filter (fun b => G.Adj s b)).card := by
       simp [← card_neighborFinset_eq_degree, neighborFinset]
@@ -382,12 +382,12 @@ theorem notAdj_equipartition : (notAdjFinpartition hmax).IsEquipartition := by
   obtain ⟨large, hl, small, hs, ineq⟩ := hn
   obtain ⟨w, hw⟩ := fp.nonempty_of_mem_parts hl
   obtain ⟨v, hv⟩ := fp.nonempty_of_mem_parts hs
-  have large_eq : large = fp.part (a := w) (mem_univ _) :=
+  have large_eq : large = fp.part w :=
     (fp.existsUnique_mem (a := w) (mem_univ _)).unique
-      ⟨hl, hw⟩ ⟨fp.part_mem _, fp.mem_part _⟩
-  have small_eq : small = fp.part (a := v) (mem_univ _) :=
+      ⟨hl, hw⟩ ⟨fp.part_mem (mem_univ _), fp.mem_part (mem_univ _)⟩
+  have small_eq : small = fp.part v :=
     (fp.existsUnique_mem (a := v) (mem_univ _)).unique
-      ⟨hs, hv⟩ ⟨fp.part_mem _, fp.mem_part _⟩
+      ⟨hs, hv⟩ ⟨fp.part_mem (mem_univ _), fp.mem_part (mem_univ _)⟩
   have : ¬IsTuranMaximal G r := by
     rw [IsTuranMaximal]; push_neg; intro cf
     use G.replaceVertex v w, inferInstance
@@ -412,17 +412,20 @@ theorem notAdj_equipartition : (notAdjFinpartition hmax).IsEquipartition := by
 theorem notAdj_card_parts_le : (notAdjFinpartition hmax).parts.card ≤ r := by
   let fp := notAdjFinpartition hmax
   by_contra! h
-  let z := fp.reprs -- `z` is an `r + 1`-clique in `G`
+  obtain ⟨z, _, hz⟩ := fp.exists_subset_part_bijOn
   have ncf : ¬G.CliqueFree z.card := by
-    apply IsNClique.not_cliqueFree (s := z)
-    constructor
-    swap; · rfl
-    intro v hv w hw hn
+    refine' IsNClique.not_cliqueFree ⟨fun v hv w hw hn ↦ _, rfl⟩
     norm_cast at hv hw
     contrapose! hn
-    exact fp.reprs_injective hv hw (fp.eq_of_mem_parts (fp.part_mem _) (fp.part_mem _)
-      (Finpartition.mem_part_ofSetoid_iff_rel.mpr hn) (fp.mem_part _))
-  rw [Finpartition.card_reprs] at ncf
+    have i1 : w ∈ fp.part v := Finpartition.mem_part_ofSetoid_iff_rel.mpr hn
+    have i2 : w ∈ fp.part w := fp.mem_part (mem_univ _)
+    exact hz.injOn hv hw <|
+      fp.eq_of_mem_parts (fp.part_mem (mem_univ _)) (fp.part_mem (mem_univ _)) i1 i2
+  have zc : z.card = fp.parts.card := by
+    rw [← Fintype.card_coe, ← Fintype.card_coe, Fintype.card_eq]
+    let q := hz.equiv
+    use q, q.symm, q.left_inv, q.right_inv
+  rw [zc] at ncf
   exact absurd (CliqueFree.mono (Nat.succ_le_of_lt h) hmax.1) ncf
 
 /-- There are `min n r` parts in a graph on `n` vertices satisfying `G.IsTuranMaximal r`.
@@ -434,7 +437,7 @@ theorem notAdj_card_parts : (notAdjFinpartition hmax).parts.card = min (Fintype.
   by_contra! h
   rw [lt_min_iff] at h
   obtain ⟨x, _, y, _, hn, he⟩ := @exists_ne_map_eq_of_card_lt_of_maps_to
-    (f := fun a => fp.part (a := a) (by simp)) univ fp.parts h.1 (fun _ _ => fp.part_mem _)
+    (f := fun a => fp.part a) univ fp.parts h.1 (fun _ _ => fp.part_mem (mem_univ _))
   have : ¬IsTuranMaximal G r := by
     rw [IsTuranMaximal]; push_neg; intro
     use G ⊔ edge x y, inferInstance
@@ -443,19 +446,19 @@ theorem notAdj_card_parts : (notAdjFinpartition hmax).parts.card = min (Fintype.
         forall_true_left, isNClique_iff, and_comm, not_and, isClique_iff]
       intro z zc
       obtain ⟨x', xm, y', ym, hn', he'⟩ := @exists_ne_map_eq_of_card_lt_of_maps_to
-        (f := fun a => fp.part (a := a) (by simp)) z fp.parts (zc.symm ▸ h.2)
-        (fun _ _ => fp.part_mem _)
+        (f := fun a => fp.part a) z fp.parts (zc.symm ▸ h.2)
+        (fun _ _ => fp.part_mem (mem_univ _))
       unfold Set.Pairwise; push_neg; norm_cast
       use x', xm, y', ym, hn'
       change (notAdjSetoid hmax).r x' y'
       apply Finpartition.mem_part_ofSetoid_iff_rel.mp
-      exact he' ▸ fp.mem_part _
+      exact he' ▸ fp.mem_part (mem_univ _)
     refine' ⟨cf.sup_edge x y, _⟩
     convert Nat.lt.base G.edgeFinset.card
     convert G.card_edgeFinset_sup_edge _ hn
     change (notAdjSetoid hmax).r x y
     apply Finpartition.mem_part_ofSetoid_iff_rel.mp
-    exact he ▸ fp.mem_part _
+    exact he ▸ fp.mem_part (mem_univ _)
   contradiction
 
 /-- **Turán's theorem**, forward direction.
@@ -470,10 +473,11 @@ noncomputable def IsTuranMaximal.isoTuranGraph : G ≃g turanGraph (Fintype.card
   change _ ↔ (notAdjSetoid hmax).r a b
   rw [← Finpartition.mem_part_ofSetoid_iff_rel]
   change _ ↔ b ∈ fp.part _
-  have pe : b ∈ fp.part (mem_univ a) ↔ fp.part (mem_univ a) = fp.part (mem_univ b) := by
+  have pe : b ∈ fp.part a ↔ fp.part a = fp.part b := by
     constructor <;> intro h
-    · exact fp.eq_of_mem_parts (fp.part_mem _) (fp.part_mem _) h (fp.mem_part _)
-    · rw [h]; exact fp.mem_part _
+    · exact fp.eq_of_mem_parts (fp.part_mem (mem_univ _)) (fp.part_mem (mem_univ _)) h
+        (fp.mem_part (mem_univ _))
+    · rw [h]; exact fp.mem_part (mem_univ _)
   rw [pe, zp ⟨a, mem_univ _⟩ ⟨b, mem_univ _⟩, notAdj_card_parts, not_not, min_comm]
   rcases le_or_lt r (Fintype.card V) with h | h
   · rw [min_eq_left h]; rfl
