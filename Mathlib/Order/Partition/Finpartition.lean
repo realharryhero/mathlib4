@@ -210,10 +210,6 @@ theorem parts_nonempty (P : Finpartition a) (ha : a ≠ ⊥) : P.parts.Nonempty 
   parts_nonempty_iff.2 ha
 #align finpartition.parts_nonempty Finpartition.parts_nonempty
 
-@[simp]
-theorem parts_equiv {β : Type*} [Lattice β] [OrderBot β] {e : α ≃o β} :
-    (P.map e).parts = P.parts.map e := rfl
-
 instance : Unique (Finpartition (⊥ : α)) :=
   { (inferInstance : Inhabited (Finpartition (⊥ : α))) with
     uniq := fun P ↦ by
