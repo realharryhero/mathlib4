@@ -47,7 +47,8 @@ def refine_tree : InfoTree → Array Syntax
       let stx := i.stx
       if ! ignore.contains stx.getKind then
         if (refine? stx) &&
-           i.goalsAfter.length < i.goalsBefore.length then rargs.push stx
+          (i.goalsAfter.length + 1 == i.goalsBefore.length &&  -- would `<` be enough?
+            (i.goalsAfter.map i.goalsBefore.contains).all (·)) then rargs.push stx
         else rargs
       else #[]
     else rargs
