@@ -30,13 +30,11 @@ def refine? : Syntax → Bool
   | .node _ ``Lean.Parser.Tactic.refine _  => true
   | _ => false
 
-/-- `refine? stx` detects whether the input syntax `stx` is `refine` or `refine'`. -/
-def last : Syntax → Syntax
-  | .node _ ``Lean.Parser.Tactic.tacticSeq1Indented #[.node _ `null args] => args.back
-  | _ => .missing
-
 /-- `SyntaxNodeKinds` that "contain" a `refine` and that the linter should ignore. -/
-abbrev ignore : HashSet SyntaxNodeKind := HashSet.empty.insert `Mathlib.Tactic.useSyntax
+abbrev ignore : HashSet SyntaxNodeKind := HashSet.empty
+  |>.insert `Mathlib.Tactic.useSyntax
+  |>.insert `Mathlib.Tactic.«tacticUse!___,,»
+  |>.insert `Mathlib.Tactic.congrM
 
 /-- `refine_tree t` returns all terminal usages of `refine/refine'` in the input infotree. -/
 partial
