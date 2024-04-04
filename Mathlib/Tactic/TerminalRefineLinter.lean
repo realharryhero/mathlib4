@@ -73,6 +73,6 @@ def terminalRefineLinter : Linter where run := withSetOptionIn fun _stx => do
   for t in trees.toArray do
     for stx in (refine_tree t) do
       Linter.logLint linter.terminalRefine stx
-        m!"Please, use `exact` instead of `{stx.getKind.components.getLastD `refine}`! {stx.getKind}"
+        m!"Please, use `exact` instead of `{stx.getKind.components.getLastD `refine}`!"
 
 initialize addLinter terminalRefineLinter
