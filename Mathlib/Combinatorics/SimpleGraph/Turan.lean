@@ -496,25 +496,20 @@ section Reverse
 
 variable (hr : 0 < r)
 
-lemma restrictSubtype_cliqueFree (hmax : G.IsTuranMaximal r) (K : Finset V) :
-    (G.restrictSubtype Kᶜ).CliqueFree (r + 1) := by
-  by_contra ncf; unfold CliqueFree at ncf; push_neg at ncf; obtain ⟨Q, hQ⟩ := ncf
-  have nq := hQ.map (f := ⟨Subtype.val, Subtype.val_injective⟩)
-  rw [restrictSubtype_map] at nq
-  exact absurd hmax.1 (nq.mono (G.restrictSubset_le Kᶜ)).not_cliqueFree
-
 open Classical in
-lemma restrictSubtype_compl_edgeFinset_card {m} (H : SimpleGraph (Fin (m + r)))
+lemma induce_compl_edgeFinset_card {m} (H : SimpleGraph (Fin (m + r)))
     (itm : H.IsTuranMaximal r) (K : Finset (Fin (m + r))) (Kc : K.card = r)
     (ih : (turanGraph m r).IsTuranMaximal r) :
-    (H.restrictSubtype Kᶜ).edgeFinset.card ≤ (turanGraph m r).edgeFinset.card := by
-  let S := H.restrictSubtype Kᶜ
-  have Sc : Fintype.card { x // x ∈ Kᶜ } = m := by simp [Kc]
+    (H.induce Kᶜ).edgeFinset.card ≤ (turanGraph m r).edgeFinset.card := by
+  let S := H.induce Kᶜ
+  have Sc : Fintype.card ↑((K : Set (Fin (m + r)))ᶜ) = m := by
+    rw [Fintype.card_compl_set]
+    simp [Kc]
   let S' := S.overFin Sc
   let I := S.overFinIso Sc
   have card_eq : S'.edgeFinset.card = S.edgeFinset.card := by
     apply card_eq_of_equiv; simp only [Set.mem_toFinset]; exact I.mapEdgeSet.symm
-  exact card_eq ▸ ih.2 S' ((H.restrictSubtype_cliqueFree itm K).comap I.symm)
+  exact card_eq ▸ ih.2 S' ((itm.1.comap (Embedding.induce Kᶜ)).comap I.symm)
 
 open Classical BigOperators in
 lemma sum_card_filter_adj_le_sub_mul {m} (H : SimpleGraph (Fin (m + r)))
@@ -542,13 +537,13 @@ lemma card_edgeFinset_le_card_turanGraph_calc {m} (H : SimpleGraph (Fin (m + r))
     card (edgeFinset H) ≤ card (edgeFinset (turanGraph (m + r) r)) := by
   rw [CliqueFree] at ncf; push_neg at ncf; obtain ⟨K, Kp⟩ := ncf
   have Kc : K.card = r := Kp.2
-  simp_rw [H.edgeFinset_decompose_card K, ← restrictSubtype_edgeFinset_card,
-    betweenSubset_edgeFinset_card, card_edgeFinset_turanGraph_add hr]
-  rw [add_right_comm (r.choose 2)]; gcongr
-  · convert card_edgeFinset_le_card_choose_two
-    · rw [Fintype.card_coe, Kc]
-  · convert H.restrictSubtype_compl_edgeFinset_card (by convert itm) K Kc ih
+  rw [H.edgeFinset_decompose_card K, crossEdges_edgeFinset_card,
+    card_edgeFinset_turanGraph_add hr, add_comm (r.choose 2)]; gcongr
   · exact H.sum_card_filter_adj_le_sub_mul hr itm.1 K Kp
+  · convert card_edgeFinset_le_card_choose_two
+    · simp [Kc]
+    · infer_instance
+  · exact H.induce_compl_edgeFinset_card itm K Kc ih
 
 /-- `turanGraph n r` is Turán-maximal *per se* (if `0 < r`). -/
 theorem isTuranMaximal_turanGraph' : (turanGraph n r).IsTuranMaximal r := by
