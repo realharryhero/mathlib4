@@ -135,140 +135,53 @@ end Defs
 
 section EdgeCard
 
+def turanGraphEmbedding : turanGraph n r ↪g turanGraph (n + r) r where
+  toFun := Fin.castAddEmb r
+  inj' := (Fin.castAddEmb r).toEmbedding.injective
+  map_rel_iff' := by simp [turanGraph]
+
 variable (hr : 0 < r)
-
-/-- Equivalence 0 -/
-def equivFin0 (p : ℕ → Prop) : { x : Fin n // p ↑x } ≃ { x : ℕ // x < n ∧ p x } where
-  toFun := fun ⟨v, q⟩ ↦ ⟨v.1, ⟨v.2, q⟩⟩
-  invFun := fun ⟨v, q⟩ ↦ ⟨⟨v, q.1⟩, q.2⟩
-  left_inv _ := rfl
-  right_inv _ := rfl
-
-theorem degree_turanGraph (v : Fin n) :
-    (turanGraph n r).degree v = n - (n / r + if v % r < n % r then 1 else 0) := by
-  simp_rw [← card_neighborFinset_eq_degree, neighborFinset, Set.toFinset_card,
-    Fintype.card_ofFinset, mem_neighborSet, turanGraph, filter_not, card_univ_diff,
-    Fintype.card_fin, ← Fintype.card_subtype]
-  congr
-  rw [← Nat.count_modEq_card _ hr, Nat.count_eq_card_fintype]
-  apply @Fintype.card_congr _ _ _ (Nat.CountSet.fintype _ n) _
-  convert (equivFin0 _) using 3
-  rw [Nat.ModEq.comm]; rfl
-
-private lemma aux2 : n - n / r = (r - 1) * (n / r) + n % r := by
-  nth_rw 1 [← Nat.div_add_mod n r, add_comm]
-  nth_rw 2 [← one_mul (n / r)]
-  nth_rw 1 [add_tsub_assoc_of_le (by exact Nat.mul_le_mul_right (n / r) hr),
-    ← tsub_mul, add_comm]
-
-private lemma aux3 (v : ℕ) : n - (n / r + if v % r < n % r then 1 else 0) =
-    (r - 1) * (n / r) + (n % r - if v % r < n % r then 1 else 0) := by
-  rw [← Nat.sub_sub, aux2 hr, add_tsub_assoc_of_le]
-  split_ifs with c
-  · exact (zero_le _).trans_lt c
-  · apply zero_le
-
-private lemma aux4 : Even ((n + n % r) * (r - 1) * (n / r)) := by
-  cases' (r - 1).even_or_odd with re ro
-  · simp [re]
-  · rw [Nat.odd_sub' hr] at ro
-    simp only [Nat.odd_iff_not_even, Nat.not_even_one, not_false_eq_true, true_iff] at ro
-    cases' n.even_or_odd with ne no
-    · have v : Even (n + n % r) := Even.add ne ((Even.mod_even_iff ro).mpr ne)
-      simp [v, parity_simps]
-    · have v : Even (n + n % r) := Odd.add_odd no ((Odd.mod_even_iff ro).mpr no)
-      simp [v, parity_simps]
 
 open BigOperators
 
-/-- Formula for the number of edges in `turanGraph n r`. -/
-theorem card_edgeFinset_turanGraph : (turanGraph n r).edgeFinset.card =
-    (n + n % r) * (r - 1) * (n / r) / 2 + (n % r).choose 2 := by
-  rw [← mul_left_cancel_iff_of_pos zero_lt_two, ← sum_degrees_eq_twice_card_edges]
-  simp_rw [degree_turanGraph hr, aux3 hr]
-  rw [sum_add_distrib, sum_tsub_distrib]
-  swap
-  · intro x _
-    split_ifs with c
-    · exact (zero_le _).trans_lt c
-    · apply zero_le
-  simp_rw [sum_const, card_fin, smul_eq_mul]
-  rw [Fin.sum_univ_eq_sum_range (fun x ↦ if x % r < n % r then 1 else 0),
-    ← sum_fiberwise_of_maps_to (g := (· % r)) (t := Ico 0 r) (fun _ _ ↦ by simp [Nat.mod_lt _ hr])]
-  have : ∀ j ∈ Ico 0 r,
-      (∑ i in (range n).filter (· % r = j), if i % r < n % r then 1 else 0) =
-      if j < n % r then n.count (· ≡ j [MOD r]) else 0 := by
-    intro j hj
-    rw [sum_boole, filter_filter]
-    split_ifs with hl
-    · have re : (range n).filter (fun a ↦ a % r = j ∧ a % r < n % r) =
-          (range n).filter (fun a ↦ a % r = j % r) := by
-        ext a
-        simp_rw [mem_filter, and_congr_right_iff]
-        have je := Nat.mod_eq_of_lt (mem_Ico.mp hj).2
-        intro; constructor
-        · intro ⟨h1, _⟩; exact h1.trans je.symm
-        · intro h; rw [h, je]; exact ⟨rfl, hl⟩
-      rw [re, Nat.cast_id, Nat.count_eq_card_filter_range]; rfl
-    · have re : (range n).filter (fun a ↦ a % r = j ∧ a % r < n % r) =
-          (range n).filter (fun _ ↦ False) := by
-        ext a
-        simp_rw [mem_filter, and_congr_right_iff]
-        intro; constructor
-        · intro ⟨h1, h2⟩; exact absurd (h1 ▸ h2) hl
-        · tauto
-      simp [re]
-  rw [sum_congr rfl this, ← sum_Ico_consecutive _ (Nat.zero_le _) (Nat.mod_lt n hr).le]
-  clear this
-  have : ∀ i ∈ Ico 0 (n % r),
-      (if i < n % r then Nat.count (fun x ↦ x ≡ i [MOD r]) n else 0) = n / r + 1 := by
-    intro i hi
-    rw [mem_Ico] at hi
-    simp_rw [hi.2, ite_true, Nat.count_modEq_card _ hr, (i.mod_le r).trans_lt hi.2, ite_true]
-  rw [sum_congr rfl this, sum_const, Nat.Ico_zero_eq_range, card_range, smul_eq_mul]
-  clear this
-  have : ∀ i ∈ Ico (n % r) r,
-      (if i < n % r then Nat.count (fun x ↦ x ≡ i [MOD r]) n else 0) = 0 := by
-    intro i hi
-    rw [mem_Ico] at hi
-    simp [hi.1.not_lt]
-  rw [sum_congr rfl this, sum_const_zero, add_zero]
-  clear this
-  rw [mul_comm n (n % r), ← Nat.mul_sub_left_distrib, ← Nat.sub_sub, mul_tsub, mul_one,
-    ← add_tsub_assoc_of_le]
-  swap
-  · cases' (n % r).eq_zero_or_pos with h h; · simp [h]
-    rw [le_mul_iff_one_le_right h, Nat.one_le_iff_ne_zero, Nat.sub_ne_zero_iff_lt]
-    change 1 ≤ r at hr
-    cases' hr.eq_or_gt with i i
-    · rw [i, Nat.mod_one] at h; simp at h
-    · refine' Nat.div_lt_self _ i
-      contrapose! h
-      simp only [nonpos_iff_eq_zero] at h; subst h; simp
-  rw [aux2 hr, mul_add, ← add_assoc, ← add_mul, ← mul_assoc]
-  rw [mul_add, Nat.two_mul_div_two_of_even (aux4 hr), add_tsub_assoc_of_le (Nat.le_mul_self _)]
-  congr
-  cases' (n % r).eq_zero_or_pos with h h; · simp [h]
-  rw [Nat.choose_two_right, Nat.two_mul_div_two_of_even (Nat.even_mul_pred_self _), mul_tsub,
-    mul_one]
-
-theorem card_edgeFinset_turanGraph_add : (turanGraph (n + r) r).edgeFinset.card =
-    r.choose 2 + (r - 1) * n + (turanGraph n r).edgeFinset.card := by
-  simp_rw [card_edgeFinset_turanGraph hr, Nat.add_mod_right]
-  rw [Nat.add_div_right _ hr, ← add_assoc]; congr
-  rw [Nat.mul_succ]
-  conv_lhs => enter [1, 1, 1, 1]; rw [add_assoc, add_comm r, ← add_assoc]
-  rw [add_mul, add_mul, add_assoc]
-  conv_lhs =>
-    enter [1, 2]
-    rw [mul_assoc, mul_comm, mul_comm _ (r - 1), mul_assoc, ← mul_add, mul_comm _ r,
-      add_comm (n + r), ← add_assoc, Nat.div_add_mod, ← add_assoc, mul_comm, ← two_mul, add_mul]
-  nth_rw 1 [← Nat.div_two_mul_two_of_even (aux4 hr),
-    ← Nat.div_two_mul_two_of_even (n := 2 * n * (r - 1)) (by simp),
-    ← Nat.div_two_mul_two_of_even (n := r * (r - 1)) (Nat.even_mul_pred_self _),
-    ← add_mul, ← add_mul, Nat.mul_div_left _ zero_lt_two]
-  rw [← Nat.choose_two_right, add_comm, add_comm _ (r.choose 2)]; congr
-  rw [mul_assoc, mul_comm, Nat.mul_div_left _ zero_lt_two, mul_comm]
+theorem card_edgeFinset_turanGraph_add (hr : 0 < r) : (turanGraph (n + r) r).edgeFinset.card =
+    (r - 1) * n + (turanGraph n r).edgeFinset.card + r.choose 2 := by
+  rw [(turanGraph (n + r) r).edgeFinset_decompose_card (univ.map (Fin.castAddEmb r).toEmbedding)]
+  have eqv : univ.map (Fin.castAddEmb r).toEmbedding = {x : Fin (n + r) | x < n}.toFinset := by
+    ext x
+    simp_rw [Fin.castAddEmb_toEmbedding, mem_map, Function.Embedding.coeFn_mk,
+      Set.toFinset_setOf, mem_filter, mem_univ, true_and]
+    constructor <;> intro h
+    · obtain ⟨_, h⟩ := h
+      simp_rw [← h, Fin.coe_castAdd, Fin.is_lt]
+    · use ⟨x, h⟩
+      rw [Fin.castAdd_mk, Fin.eta]
+  congr 2
+  · rw [crossEdges_edgeFinset_card]
+    simp [turanGraph]
+  · rw [eqv]
+    apply card_congr
+    on_goal 4 =>
+      intro a ha
+      simp only [Set.mem_setOf_eq, Set.toFinset_setOf, coe_filter, mem_univ, true_and,
+        Set.coe_setOf] at a
+      exact a.map fun x ↦ ⟨x.1, x.2⟩
+    · intro a ha
+      obtain ⟨x, y⟩ := a
+      simp at ha
+    · sorry
+    · sorry
+  · convert card_edgeFinset_top_eq_card_choose_two
+    · ext x' y'
+      obtain ⟨x, hx⟩ := x'
+      obtain ⟨y, hy⟩ := y'
+      replace hx : n ≤ x := by simpa [Fin.castAdd] using hx
+      replace hy : n ≤ y := by simpa [Fin.castAdd] using hy
+      have := (Nat.mod_injOn_Ico n r).eq_iff (mem_Ico.mpr ⟨hx, x.2⟩) (mem_Ico.mpr ⟨hy, y.2⟩)
+      simp [turanGraph, this, Fin.val_eq_val]
+    · rw [Fintype.card_compl_set, Fintype.card_fin, ← Set.toFinset_card, toFinset_coe, card_map,
+        card_fin, Nat.add_sub_cancel_left]
+    · infer_instance
 
 end EdgeCard
 
@@ -514,7 +427,7 @@ lemma induce_compl_edgeFinset_card {m} (H : SimpleGraph (Fin (m + r)))
 open Classical BigOperators in
 lemma sum_card_filter_adj_le_sub_mul {m} (H : SimpleGraph (Fin (m + r)))
     (cf : H.CliqueFree (r + 1)) (K : Finset (Fin (m + r))) (Kp : H.IsNClique r K) :
-    ∑ b in Kᶜ, card (filter (fun x ↦ Adj H x b) K) ≤ (r - 1) * m := by
+    ∑ b in Kᶜ, card (filter (fun x ↦ H.Adj x b) K) ≤ (r - 1) * m := by
   suffices ∀ b ∈ Kᶜ, ∃ a ∈ K, ¬H.Adj a b by
     have lt : ∀ b ∈ Kᶜ, (K.filter (H.Adj · b)).card ≤ r - 1 := by
       intro b mb
@@ -538,7 +451,8 @@ lemma card_edgeFinset_le_card_turanGraph_calc {m} (H : SimpleGraph (Fin (m + r))
   rw [CliqueFree] at ncf; push_neg at ncf; obtain ⟨K, Kp⟩ := ncf
   have Kc : K.card = r := Kp.2
   rw [H.edgeFinset_decompose_card K, crossEdges_edgeFinset_card,
-    card_edgeFinset_turanGraph_add hr, add_comm (r.choose 2)]; gcongr
+    card_edgeFinset_turanGraph_add hr, add_assoc (_ * _), add_comm _ (r.choose 2), ← add_assoc]
+  gcongr
   · exact H.sum_card_filter_adj_le_sub_mul hr itm.1 K Kp
   · convert card_edgeFinset_le_card_choose_two
     · simp [Kc]
