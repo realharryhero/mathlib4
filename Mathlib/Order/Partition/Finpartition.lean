@@ -7,7 +7,6 @@ import Mathlib.Algebra.BigOperators.Basic
 import Mathlib.Order.SupIndep
 import Mathlib.Order.Atoms
 import Mathlib.Data.Fintype.Powerset
-import Mathlib.Data.Nat.Order.Lemmas
 
 #align_import order.partition.finpartition from "leanprover-community/mathlib"@"d6fad0e5bf2d6f48da9175d25c3dc5706b3834ce"
 
