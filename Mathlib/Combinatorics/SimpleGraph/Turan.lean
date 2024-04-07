@@ -3,9 +3,9 @@ Copyright (c) 2024 Jeremy Tan. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jeremy Tan
 -/
+import Mathlib.Algebra.BigOperators.Intervals
 import Mathlib.Algebra.BigOperators.Ring
 import Mathlib.Combinatorics.SimpleGraph.Clique
-import Mathlib.Data.Int.CardIntervalMod
 import Mathlib.Order.Partition.Equipartition
 
 /-!
@@ -135,11 +135,6 @@ end Defs
 
 section EdgeCard
 
-def turanGraphEmbedding : turanGraph n r ↪g turanGraph (n + r) r where
-  toFun := Fin.castAddEmb r
-  inj' := (Fin.castAddEmb r).toEmbedding.injective
-  map_rel_iff' := by simp [turanGraph]
-
 lemma range_castAddEmb_compl_eq_attach_image : ((Set.range (@Fin.castAddEmb n r)).toFinset)ᶜ =
     (range r).attach.image (fun x ↦ ⟨n + x.1, add_lt_add_left (mem_range.mp x.2) n⟩) := by
   ext x
@@ -171,8 +166,7 @@ lemma range_castAddEmb_eq_attach_image : (Set.range (@Fin.castAddEmb n r)).toFin
   · obtain ⟨a, b, c⟩ := h
     simp [← c, b]
 
-open BigOperators
-
+open BigOperators in
 theorem card_edgeFinset_turanGraph_add (hr : 0 < r) : (turanGraph (n + r) r).edgeFinset.card =
     (r - 1) * n + (turanGraph n r).edgeFinset.card + r.choose 2 := by
   set R := (Set.range (@Fin.castAddEmb n r)).toFinset
@@ -197,14 +191,32 @@ theorem card_edgeFinset_turanGraph_add (hr : 0 < r) : (turanGraph (n + r) r).edg
     have Lle : ∀ x, L x ≤ n := fun x ↦ Rc.symm ▸ card_filter_le R _
     zify [Lle, hr]
     rw [sum_sub_distrib, sum_const, card_range, nsmul_eq_mul, sub_one_mul, sub_right_inj]
-    norm_cast
     simp_rw [L, R, range_castAddEmb_eq_attach_image, filter_image]
     conv_lhs =>
       enter [2, x]
-      rw [card_image_of_injective _ (fun _ _ c ↦ by simpa [Subtype.val_inj] using c)]
-    clear! R K L
-    -- simp only [filter_attach]
-    sorry
+      rw [card_image_of_injective _ (fun _ _ c ↦ by simpa [Subtype.val_inj] using c),
+        filter_attach (fun v ↦ v % r = (n + x) % r), card_map, card_attach, card_filter,
+        ← sum_range_reflect]
+    rw [← sum_range_reflect]
+    have rcoe : ∀ b : ℕ, ∀ x ∈ range b, ↑(b - 1 - x) = (b : ℤ) - 1 - x := fun b x hb ↦ by
+      rw [Nat.sub_sub, Int.sub_sub, Int.natCast_sub, Int.natCast_add, Nat.cast_one]
+      have := mem_range.mp hb
+      omega
+    zify
+    rw [sum_congr (g := fun x : ℕ ↦
+      ∑ y in range n, if (n - 1 - y) % r = ((n : ℤ) + (r - 1 - x)) % r then 1 else 0) rfl
+      fun x hx ↦ sum_congr rfl (fun y hy ↦ by rw [rcoe r x hx, rcoe n y hy])]
+    simp_rw [Int.emod_eq_emod_iff_emod_sub_eq_zero]
+    conv_lhs =>
+      enter [2, x, 2, y]
+      rw [show (n : ℤ) - 1 - y - (n + (r - 1 - x)) = x - y - r by omega, Int.Int.emod_sub_cancel]
+    simp_rw [← Int.emod_eq_emod_iff_emod_sub_eq_zero]
+    norm_cast; clear! R K L rcoe
+    rw [sum_comm, sum_congr (g := fun y ↦ 1) rfl, sum_const, card_range, smul_eq_mul, mul_one]
+    · intro y _
+      rw [sum_congr (g := fun x ↦ if x = y % r then 1 else 0) rfl
+        (fun x hx ↦ by congr; exact Nat.mod_eq_of_lt (mem_range.mp hx)), sum_ite_eq']
+      simp only [mem_range.mpr (Nat.mod_lt y hr), ite_true]
   · symm
     apply Iso.card_edgeFinset_eq
     rw [Set.coe_toFinset]
