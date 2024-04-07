@@ -14,7 +14,7 @@ This defines the density of a `Finset` and provides induction principles for fin
 
 ## Main declarations
 
-* `Finset.dens t`: `dens s : ℕ` returns the density of `s : Finset α`.
+* `Finset.dens s`: Density of `s : Finset α` in `α`.
 
 ## Notation
 
@@ -35,7 +35,7 @@ variable [Semifield 𝕜] {s t : Finset α} {a b : α}
 
 @[inherit_doc dens] notation "dens[" 𝕜 "]" => @dens 𝕜
 
-lemma card_div_card_eq_dens (s : Finset α) : dens[𝕜] s = s.card / Fintype.card α := rfl
+lemma dens_eq_card_div_card (s : Finset α) : dens[𝕜] s = s.card / Fintype.card α := rfl
 
 @[simp] lemma dens_empty : dens[𝕜] (∅ : Finset α) = 0 := by simp [dens]
 
@@ -63,10 +63,10 @@ lemma dens_inter_add_dens_union (s t : Finset α) :
 @[simp] lemma dens_union_of_disjoint (h : Disjoint s t) : dens[𝕜] (s ∪ t) = dens s + dens t := by
   rw [← disjUnion_eq_union s t h, dens_disjUnion _ _ _]
 
-lemma dens_sdiff_add_dens_eq_dens (h : s ⊆ t) :  dens[𝕜] (t \ s) + dens s = dens t := by
+lemma dens_sdiff_add_dens_eq_dens (h : s ⊆ t) : dens[𝕜] (t \ s) + dens s = dens t := by
   simp [dens, ← card_sdiff_add_card_eq_card h, add_div]
 
-lemma dens_sdiff_add_dens : dens[𝕜] (s \ t) + dens t = (s ∪ t).dens := by
+lemma dens_sdiff_add_dens (s t : Finset α) : dens[𝕜] (s \ t) + dens t = (s ∪ t).dens := by
   rw [← dens_union_of_disjoint sdiff_disjoint, sdiff_union_self_eq_union]
 
 lemma dens_sdiff_comm [IsCancelAdd 𝕜] (h : card s = card t) : dens[𝕜] (s \ t) = dens (t \ s) :=
@@ -84,7 +84,6 @@ lemma dens_inter_add_dens_sdiff (s t : Finset α) : dens[𝕜] (s ∩ t) + dens 
 lemma dens_filter_add_dens_filter_not_eq_dens
     (p : α → Prop) [DecidablePred p] [∀ x, Decidable (¬p x)] :
     dens[𝕜] (s.filter p) + dens (s.filter fun a ↦ ¬ p a) = dens s := by
-  classical
   rw [← dens_union_of_disjoint (disjoint_filter_filter_neg ..), filter_union_filter_neg_eq]
 
 end Lattice
@@ -144,22 +143,16 @@ variable [DecidableEq α]
 lemma dens_union_le (s t : Finset α) : dens[𝕜] (s ∪ t) ≤ dens s + dens t :=
   dens_union_add_dens_inter (𝕜 := 𝕜) s t ▸ le_add_of_nonneg_right dens_nonneg
 
-lemma dens_le_dens_sdiff_add_dens : dens[𝕜] s ≤ dens (s \ t) + dens t := by
-  simp_rw [dens, ← add_div, ← Nat.cast_add]
-  gcongr
-  · positivity
-  · exact card_le_card_sdiff_add_card
+lemma dens_le_dens_sdiff_add_dens : dens[𝕜] s ≤ dens (s \ t) + dens t :=
+  dens_sdiff_add_dens (𝕜 := 𝕜) s _ ▸ dens_le_dens (subset_union_left _ _)
 
 variable [Sub 𝕜] [OrderedSub 𝕜]
 
-lemma dens_sdiff (h : s ⊆ t) : dens[𝕜] (t \ s) = dens t - dens s := by
-  suffices dens (t \ s) = dens (t \ s ∪ s) - dens s by rwa [sdiff_union_of_subset h] at this
-  rw [dens_union_of_disjoint sdiff_disjoint, add_tsub_cancel_right]
+lemma dens_sdiff (h : s ⊆ t) : dens[𝕜] (t \ s) = dens t - dens s :=
+  eq_tsub_of_add_eq (dens_sdiff_add_dens_eq_dens h)
 
 lemma le_dens_sdiff (s t : Finset α) : dens[𝕜] t - dens s ≤ dens (t \ s) :=
-  calc
-    _ ≤ dens t - dens (s ∩ t) := tsub_le_tsub_left (dens_mono (inter_subset_left s t)) _
-    _ = dens[𝕜] (t \ s) := by rw [← dens_sdiff (inter_subset_right s t), sdiff_inter_self_right t s]
+  tsub_le_iff_right.2 dens_le_dens_sdiff_add_dens
 
 end Lattice
 
