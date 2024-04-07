@@ -55,7 +55,7 @@ protected theorem nonneg_add {a b} : Rat.Nonneg a → Rat.Nonneg b → Rat.Nonne
     numDenCasesOn' b fun n₂ d₂ h₂ => by
       have d₁0 : 0 < (d₁ : ℤ) := Int.coe_nat_pos.2 (Nat.pos_of_ne_zero h₁)
       have d₂0 : 0 < (d₂ : ℤ) := Int.coe_nat_pos.2 (Nat.pos_of_ne_zero h₂)
-      simp only [d₁0, d₂0, h₁, h₂, mul_pos, divInt_nonneg, add_def'', Ne.def,
+      simp only [d₁0, d₂0, h₁, h₂, mul_pos, divInt_nonneg, add_def'', Ne,
         Nat.cast_eq_zero, not_false_iff]
       intro n₁0 n₂0
       apply add_nonneg <;> apply mul_nonneg <;> · first |assumption|apply Int.ofNat_zero_le
@@ -128,7 +128,7 @@ protected theorem le_iff_Nonneg (a b : ℚ) : a ≤ b ↔ Rat.Nonneg (b - a) :=
           apply mul_pos <;> rwa [pos_iff_ne_zero]
       · simp only [divInt_ofNat, ← zero_iff_num_zero, mkRat_eq_zero hb] at h'
         simp [h', Rat.Nonneg]
-      · simp [Rat.Nonneg, Rat.sub_def, normalize_eq]
+      · simp only [Rat.Nonneg, sub_def, normalize_eq]
         refine ⟨fun H => ?_, fun H _ => ?_⟩
         · refine Int.ediv_nonneg ?_ (Nat.cast_nonneg _)
           rw [sub_nonneg]
@@ -316,6 +316,3 @@ assert_not_exists Fintype
 assert_not_exists Set.Icc
 
 assert_not_exists GaloisConnection
-
--- These are less significant, but should not be relaxed until at least after port to Lean 4.
-assert_not_exists LinearOrderedCommGroupWithZero

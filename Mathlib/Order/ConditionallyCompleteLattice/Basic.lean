@@ -304,18 +304,18 @@ noncomputable def IsWellOrder.conditionallyCompleteLinearOrderBot (α : Type*)
 
 end
 
-section OrderDual
+namespace OrderDual
 
-instance instConditionallyCompleteLatticeOrderDual (α : Type*) [ConditionallyCompleteLattice α] :
+instance instConditionallyCompleteLattice (α : Type*) [ConditionallyCompleteLattice α] :
     ConditionallyCompleteLattice αᵒᵈ :=
-  { instInfOrderDual α, instSupOrderDual α, OrderDual.lattice α with
+  { OrderDual.instInf α, OrderDual.instSup α, OrderDual.instLattice α with
     le_csSup := ConditionallyCompleteLattice.csInf_le (α := α)
     csSup_le := ConditionallyCompleteLattice.le_csInf (α := α)
     le_csInf := ConditionallyCompleteLattice.csSup_le (α := α)
     csInf_le := ConditionallyCompleteLattice.le_csSup (α := α) }
 
 instance (α : Type*) [ConditionallyCompleteLinearOrder α] : ConditionallyCompleteLinearOrder αᵒᵈ :=
-  { instConditionallyCompleteLatticeOrderDual α, OrderDual.instLinearOrder α with
+  { OrderDual.instConditionallyCompleteLattice α, OrderDual.instLinearOrder α with
     csSup_of_not_bddAbove := ConditionallyCompleteLinearOrder.csInf_of_not_bddBelow (α := α)
     csInf_of_not_bddBelow := ConditionallyCompleteLinearOrder.csSup_of_not_bddAbove (α := α) }
 
@@ -978,7 +978,7 @@ end ConditionallyCompleteLattice
 
 instance Pi.conditionallyCompleteLattice {ι : Type*} {α : ι → Type*}
     [∀ i, ConditionallyCompleteLattice (α i)] : ConditionallyCompleteLattice (∀ i, α i) :=
-  { Pi.lattice, Pi.supSet, Pi.infSet with
+  { Pi.instLattice, Pi.supSet, Pi.infSet with
     le_csSup := fun s f ⟨g, hg⟩ hf i =>
       le_csSup ⟨g i, Set.forall_mem_range.2 fun ⟨f', hf'⟩ => hg hf' i⟩ ⟨⟨f, hf⟩, rfl⟩
     csSup_le := fun s f hs hf i =>
@@ -1071,7 +1071,7 @@ theorem csSup_eq_csSup_of_forall_exists_le {s t : Set α}
   · simp [csSup_of_not_bddAbove, (not_or.1 B).1, (not_or.1 B).2]
 
 /-- When every element of a set `s` is bounded by an element of a set `t`, and conversely, then
-`s` and `t` have the same supremum. This holds even when the sets may be empty or unbounded. -/
+`s` and `t` have the same infimum. This holds even when the sets may be empty or unbounded. -/
 theorem csInf_eq_csInf_of_forall_exists_le {s t : Set α}
     (hs : ∀ x ∈ s, ∃ y ∈ t, y ≤ x) (ht : ∀ y ∈ t, ∃ x ∈ s, x ≤ y) :
     sInf s = sInf t :=
@@ -1719,7 +1719,7 @@ lemma iSup_coe_lt_top : ⨆ x, (f x : WithTop α) < ⊤ ↔ BddAbove (range f) :
 lemma iInf_coe_eq_top : ⨅ x, (f x : WithTop α) = ⊤ ↔ IsEmpty ι := by simp [isEmpty_iff]
 
 lemma iInf_coe_lt_top : ⨅ i, (f i : WithTop α) < ⊤ ↔ Nonempty ι := by
-  rw [lt_top_iff_ne_top, Ne.def, iInf_coe_eq_top, not_isEmpty_iff]
+  rw [lt_top_iff_ne_top, Ne, iInf_coe_eq_top, not_isEmpty_iff]
 
 end WithTop
 end WithTopBot

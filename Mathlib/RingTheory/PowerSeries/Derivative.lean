@@ -36,7 +36,7 @@ The formal derivative of a power series in one variable.
 This is defined here as a function, but will be packaged as a
 derivation `derivative` on `R⟦X⟧`.
 -/
-noncomputable def derivativeFun (f : R⟦X⟧) : R⟦X⟧ := mk λ n ↦ coeff R (n + 1) f * (n + 1)
+noncomputable def derivativeFun (f : R⟦X⟧) : R⟦X⟧ := mk fun n ↦ coeff R (n + 1) f * (n + 1)
 
 theorem coeff_derivativeFun (f : R⟦X⟧) (n : ℕ) :
     coeff R n f.derivativeFun = coeff R (n + 1) f * (n + 1) := by
@@ -92,14 +92,15 @@ theorem derivativeFun_smul (r : R) (f : R⟦X⟧) : derivativeFun (r • f) = r 
     smul_eq_mul]
 
 variable (R)
-/--The formal derivative of a formal power series.-/
+
+/-- The formal derivative of a formal power series.-/
 noncomputable def derivative : Derivation R R⟦X⟧ R⟦X⟧ where
   toFun             := derivativeFun
   map_add'          := derivativeFun_add
   map_smul'         := derivativeFun_smul
   map_one_eq_zero'  := derivativeFun_one
   leibniz'          := derivativeFun_mul
-/--Abbreviation of `PowerSeries.derivative`, the formal derivative on `R⟦X⟧`.-/
+/-- Abbreviation of `PowerSeries.derivative`, the formal derivative on `R⟦X⟧`.-/
 scoped notation "d⁄dX" => derivative
 
 variable {R}
@@ -133,7 +134,7 @@ theorem trunc_derivative' (f : R⟦X⟧) (n : ℕ) :
 
 end CommutativeSemiring
 
-/-In the next lemma, we use `smul_right_inj`, which requires not only `NoZeroSMulDivisors ℕ R`, but
+/- In the next lemma, we use `smul_right_inj`, which requires not only `NoZeroSMulDivisors ℕ R`, but
 also cancellation of addition in `R`. For this reason, the next lemma is stated in the case that `R`
 is a `CommRing`.-/
 
