@@ -3,6 +3,7 @@ Copyright (c) 2024 Jeremy Tan. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Jeremy Tan
 -/
+import Mathlib.Algebra.BigOperators.Ring
 import Mathlib.Combinatorics.SimpleGraph.Clique
 import Mathlib.Data.Int.CardIntervalMod
 import Mathlib.Order.Partition.Equipartition
