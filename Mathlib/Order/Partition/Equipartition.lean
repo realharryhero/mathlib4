@@ -277,6 +277,20 @@ theorem IsEquipartition.equivProduct2_part_eq_part (hP : P.IsEquipartition) {t u
     rw [SetCoe.ext_iff, hP.partsEquiv.apply_eq_iff_eq, Subtype.mk_eq_mk] at a
     exact a
 
+/-theorem IsEquipartition.exists_ppe (hP : P.IsEquipartition) {r : ℕ}
+    (hr : s.card = P.parts.card ∧ s.card < r ∨ r = P.parts.card) :
+    ∃ m : s ≃ Fin s.card, ∀ a b : s, P.part a = P.part b ↔ m a % r = m b % r := by
+  rcases hr with ⟨hs, hr⟩ | hr
+  · replace hs := P.eq_bot_iff.mp hs.symm
+    use s.equivFin
+    intro a b
+    rw [hs, part_bot a.2, part_bot b.2, singleton_inj,
+      Nat.mod_eq_of_lt <| (s.equivFin a).2.trans hr,
+      Nat.mod_eq_of_lt <| (s.equivFin b).2.trans hr,
+      Fin.val_eq_val, EmbeddingLike.apply_eq_iff_eq, Subtype.mk.injEq]
+  · obtain ⟨z, sz, bz⟩ := P.exists_subset_part_bijOn
+    sorry-/
+
 /-- An equipartition of a finset with `n` elements into `k` parts has
 a part-preserving equivalence with the residue classes of `Fin n` modulo `k`. -/
 noncomputable def IsEquipartition.partPreservingEquiv (hP : P.IsEquipartition) :
