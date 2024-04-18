@@ -18,7 +18,26 @@ lemma ContinuousFunctionalCalculus.toNonUnital : NonUnitalContinuousFunctionalCa
     refine ⟨ψ', ?closedEmbedding, ?map_id, ?map_spectrum, ?predicate⟩
     case closedEmbedding => sorry
     case map_id => exact cfcHom_id ha
-    case map_spectrum => sorry
+    case map_spectrum =>
+      intro f
+      simp only [ψ']
+      rw [quasispectrum_eq_spectrum_union_zero]
+      simp only [NonUnitalStarAlgHom.comp_assoc, NonUnitalStarAlgHom.comp_apply,
+        NonUnitalStarAlgHom.coe_coe]
+      rw [cfcHom_map_spectrum ha]
+      ext x
+      constructor
+      · rintro (⟨x, rfl⟩ | rfl)
+        · exact ⟨⟨x.1, spectrum_subset_quasispectrum R a x.2⟩, rfl⟩
+        · exact ⟨0, map_zero f⟩
+      · rintro ⟨x, rfl⟩
+        have hx := x.2
+        simp_rw [quasispectrum_eq_spectrum_union_zero R a] at hx
+        obtain (hx | hx) := hx
+        · exact Or.inl ⟨⟨x.1, hx⟩, rfl⟩
+        · apply Or.inr
+          simp only [Set.mem_singleton_iff] at hx ⊢
+          rw [show x = 0 from Subtype.val_injective hx, map_zero]
     case predicate => exact fun f ↦ cfcHom_predicate ha _
 
 end Generic
