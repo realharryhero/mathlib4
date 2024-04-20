@@ -6,6 +6,7 @@ Authors: Patrick Massot, Kevin Buzzard, Scott Morrison, Johan Commelin, Chris Hu
 -/
 import Mathlib.Algebra.Group.Pi.Basic
 import Mathlib.Data.FunLike.Basic
+import Mathlib.Logic.Function.Iterate
 
 #align_import algebra.hom.group from "leanprover-community/mathlib"@"a148d797a1094ab554ad4183a4ad6f130358ef64"
 
@@ -1132,29 +1133,31 @@ protected def End := A →+ A
 
 namespace End
 
+instance instFunLike : FunLike (AddMonoid.End A) A A := AddMonoidHom.instFunLike
+instance instAddMonoidHomClass : AddMonoidHomClass (AddMonoid.End A) A A :=
+  AddMonoidHom.instAddMonoidHomClass
+
+instance instOne : One (AddMonoid.End A) where one := .id _
+instance instMul : Mul (AddMonoid.End A) where mul := .comp
+
+@[simp, norm_cast] lemma coe_one : ((1 : AddMonoid.End A) : A → A) = id := rfl
+#align add_monoid.coe_one AddMonoid.End.coe_one
+
+@[simp, norm_cast] lemma coe_mul (f g : AddMonoid.End A) : (f * g : A → A) = f ∘ g := rfl
+#align add_monoid.coe_mul AddMonoid.End.coe_mul
+
 instance monoid : Monoid (AddMonoid.End A) where
-  mul := AddMonoidHom.comp
-  one := AddMonoidHom.id A
   mul_assoc _ _ _ := AddMonoidHom.comp_assoc _ _ _
   mul_one := AddMonoidHom.comp_id
   one_mul := AddMonoidHom.id_comp
+  npow n f := (npowRec n f).copy (Nat.iterate f n) $ by induction n <;> simp [npowRec, *] <;> rfl
+  npow_succ n f := DFunLike.coe_injective $ Function.iterate_succ _ _
+
+@[simp, norm_cast] lemma coe_pow (f : AddMonoid.End A) (n : ℕ) : (↑(f ^ n) : A → A) = f^[n] := rfl
 
 instance : Inhabited (AddMonoid.End A) := ⟨1⟩
 
-instance : FunLike (AddMonoid.End A) A A := AddMonoidHom.instFunLike
-
-instance : AddMonoidHomClass (AddMonoid.End A) A A := AddMonoidHom.instAddMonoidHomClass
-
 end End
-
-@[simp]
-theorem coe_one : ((1 : AddMonoid.End A) : A → A) = id := rfl
-#align add_monoid.coe_one AddMonoid.coe_one
-
-@[simp]
-theorem coe_mul (f g) : ((f * g : AddMonoid.End A) : A → A) = f ∘ g := rfl
-#align add_monoid.coe_mul AddMonoid.coe_mul
-
 end AddMonoid
 
 end End
