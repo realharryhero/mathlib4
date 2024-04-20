@@ -1098,18 +1098,26 @@ protected def End := M →* M
 
 namespace End
 
+instance instFunLike : FunLike (Monoid.End M) M M := MonoidHom.instFunLike
+instance instMonoidHomClass : MonoidHomClass (Monoid.End M) M M := MonoidHom.instMonoidHomClass
+
+instance instOne : One (Monoid.End M) where one := .id _
+instance instMul : Mul (Monoid.End M) where mul := .comp
+
 instance : Monoid (Monoid.End M) where
   mul := MonoidHom.comp
   one := MonoidHom.id M
   mul_assoc _ _ _ := MonoidHom.comp_assoc _ _ _
   mul_one := MonoidHom.comp_id
   one_mul := MonoidHom.id_comp
+  npow n f := (npowRec n f).copy (Nat.iterate f n) $ by induction n <;> simp [npowRec, *] <;> rfl
+  npow_succ n f := DFunLike.coe_injective $ Function.iterate_succ _ _
 
 instance : Inhabited (Monoid.End M) := ⟨1⟩
 
-instance : FunLike (Monoid.End M) M M := MonoidHom.instFunLike
-
-instance : MonoidHomClass (Monoid.End M) M M := MonoidHom.instMonoidHomClass
+@[simp, norm_cast] lemma coe_pow (f : Monoid.End M) (n : ℕ) : (↑(f ^ n) : M → M) = f^[n] := rfl
+#align monoid_hom.coe_pow Monoid.End.coe_pow
+#align monoid.End.coe_pow Monoid.End.coe_pow
 
 end End
 
@@ -1154,6 +1162,7 @@ instance monoid : Monoid (AddMonoid.End A) where
   npow_succ n f := DFunLike.coe_injective $ Function.iterate_succ _ _
 
 @[simp, norm_cast] lemma coe_pow (f : AddMonoid.End A) (n : ℕ) : (↑(f ^ n) : A → A) = f^[n] := rfl
+#align add_monoid.End.coe_pow AddMonoid.End.coe_pow
 
 instance : Inhabited (AddMonoid.End A) := ⟨1⟩
 
