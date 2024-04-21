@@ -363,6 +363,7 @@ import Mathlib.Algebra.Module.CharacterModule
 import Mathlib.Algebra.Module.DedekindDomain
 import Mathlib.Algebra.Module.Equiv
 import Mathlib.Algebra.Module.Equiv2
+import Mathlib.Algebra.Module.EquivNatInt
 import Mathlib.Algebra.Module.FinitePresentation
 import Mathlib.Algebra.Module.GradedModule
 import Mathlib.Algebra.Module.Hom
