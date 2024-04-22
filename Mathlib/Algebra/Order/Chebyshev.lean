@@ -117,8 +117,9 @@ theorem MonovaryOn.sum_mul_sum_le_card_mul_sum (hfg : MonovaryOn f g s) :
 other is antitone), the product of their sum is greater than the size of the set times their scalar
 product. -/
 theorem AntivaryOn.card_mul_sum_le_sum_mul_sum (hfg : AntivaryOn f g s) :
-    ((s.card : α) * ∑ i in s, f i * g i) ≤ (∑ i in s, f i) * ∑ i in s, g i :=
-  hfg.dual_right.sum_mul_sum_le_card_mul_sum
+    (s.card : α) * ∑ i in s, f i * g i ≤ (∑ i in s, f i) * ∑ i in s, g i := by
+  rw [← nsmul_eq_mul]
+  exact hfg.card_smul_sum_le_sum_smul_sum
 #align antivary_on.card_mul_sum_le_sum_mul_sum AntivaryOn.card_mul_sum_le_sum_mul_sum
 
 /-- Special case of **Jensen's inequality** for sums of powers. -/
