@@ -118,7 +118,7 @@ other is antitone), the product of their sum is greater than the size of the set
 product. -/
 theorem AntivaryOn.card_mul_sum_le_sum_mul_sum (hfg : AntivaryOn f g s) :
     ((s.card : α) * ∑ i in s, f i * g i) ≤ (∑ i in s, f i) * ∑ i in s, g i :=
-  hfg.mono_right.sum_mul_sum_le_card_mul_sum
+  hfg.dual_right.sum_mul_sum_le_card_mul_sum
 #align antivary_on.card_mul_sum_le_sum_mul_sum AntivaryOn.card_mul_sum_le_sum_mul_sum
 
 /-- Special case of **Jensen's inequality** for sums of powers. -/
