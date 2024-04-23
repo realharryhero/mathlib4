@@ -3,11 +3,11 @@ Copyright (c) 2022 Riccardo Brasca. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Riccardo Brasca
 -/
-import Mathlib.Algebra.GCDMonoid.Finset
 import Mathlib.Algebra.GCDMonoid.Basic
-import Mathlib.RingTheory.Int.Basic
-import Mathlib.RingTheory.Polynomial.Content
+import Mathlib.Algebra.GCDMonoid.Finset
+import Mathlib.Algebra.GCDMonoid.Int
 import Mathlib.Algebra.GCDMonoid.Nat
+import Mathlib.RingTheory.Polynomial.Content
 
 #align_import algebra.gcd_monoid.div from "leanprover-community/mathlib"@"b537794f8409bc9598febb79cd510b1df5f4539d"
 

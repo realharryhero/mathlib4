@@ -4,10 +4,11 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kevin Buzzard, Yaël Dillies
 -/
 import Mathlib.Algebra.GCDMonoid.Finset
+import Mathlib.Algebra.GCDMonoid.Int
 import Mathlib.Algebra.GroupPower.Ring
 import Mathlib.Data.Nat.Parity
 import Mathlib.Data.Rat.Defs
-import Mathlib.RingTheory.Int.Basic
+import Mathlib.RingTheory.PrincipalIdealDomain
 import Mathlib.Tactic.NormNum
 import Mathlib.Tactic.Positivity.Basic
 import Mathlib.Tactic.TFAE

@@ -24,7 +24,8 @@ This file defines extra structures on `CancelCommMonoidWithZero`s, including `Is
 * `gcdMonoid_of_lcm`, `gcdMonoid_of_exists_lcm`, `normalizedGCDMonoid_of_lcm`,
   `normalizedGCDMonoid_of_exists_lcm`
 
-For the `NormalizedGCDMonoid` instances on `ℕ` and `ℤ`, see `RingTheory.Int.Basic`.
+For the `NormalizedGCDMonoid` instances on `ℕ` and `ℤ`, see `Mathlib.Algebra.GCDMonoid.Nat` and
+`Mathlib.Algebra.GCDMonoid.Int`, respectively.
 
 ## Implementation Notes
 
