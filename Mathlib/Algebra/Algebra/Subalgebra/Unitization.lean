@@ -51,15 +51,22 @@ section Subalgebra
 variable {R A : Type*} [CommSemiring R] [Semiring A] [Algebra R A]
 
 /-- Turn a `Subalgebra` into a `NonUnitalSubalgebra` by forgetting that it contains `1`. -/
+@[simps]
 def Subalgebra.toNonUnitalSubalgebra (S : Subalgebra R A) : NonUnitalSubalgebra R A :=
   { S with
     smul_mem' := fun r _x hx => S.smul_mem hx r }
+
+@[simp]
+lemma Subalgebra.mem_toNonUnitalSubalgebra (S : Subalgebra R A) {x : A} :
+    x ∈ S.toNonUnitalSubalgebra ↔ x ∈ S :=
+  Iff.rfl
 
 theorem Subalgebra.one_mem_toNonUnitalSubalgebra (S : Subalgebra R A) :
     (1 : A) ∈ S.toNonUnitalSubalgebra :=
   S.one_mem
 
 /-- Turn a non-unital subalgebra containing `1` into a subalgebra. -/
+@[simps]
 def NonUnitalSubalgebra.toSubalgebra (S : NonUnitalSubalgebra R A) (h1 : (1 : A) ∈ S) :
     Subalgebra R A :=
   { S with
@@ -185,14 +192,21 @@ section Subsemiring
 variable {R : Type*} [NonAssocSemiring R]
 
 /-- Turn a `Subsemiring` into a `NonUnitalSubsemiring` by forgetting that it contains `1`. -/
+@[simps]
 def Subsemiring.toNonUnitalSubsemiring (S : Subsemiring R) : NonUnitalSubsemiring R :=
   { S with }
+
+@[simp]
+lemma Subsemiring.mem_toNonUnitalSubsemiring (S : Subsemiring R) {x : R} :
+    x ∈ S.toNonUnitalSubsemiring ↔ x ∈ S :=
+  Iff.rfl
 
 theorem Subsemiring.one_mem_toNonUnitalSubsemiring (S : Subsemiring R) :
     (1 : R) ∈ S.toNonUnitalSubsemiring :=
   S.one_mem
 
 /-- Turn a non-unital subsemiring containing `1` into a subsemiring. -/
+@[simps]
 def NonUnitalSubsemiring.toSubsemiring (S : NonUnitalSubsemiring R) (h1 : (1 : R) ∈ S) :
     Subsemiring R :=
   { S with
@@ -235,8 +249,14 @@ section Subring
 variable {R : Type*} [Ring R]
 
 /-- Turn a `Subring` into a `NonUnitalSubring` by forgetting that it contains `1`. -/
+@[simps]
 def Subring.toNonUnitalSubring (S : Subring R) : NonUnitalSubring R :=
   { S with }
+
+@[simp]
+lemma Subring.mem_toNonUnitalSubring (S : Subring R) {x : R} :
+    x ∈ S.toNonUnitalSubring ↔ x ∈ S :=
+  Iff.rfl
 
 theorem Subring.one_mem_toNonUnitalSubring (S : Subring R) : (1 : R) ∈ S.toNonUnitalSubring :=
   S.one_mem
@@ -282,11 +302,17 @@ variable {R A : Type*} [CommSemiring R] [StarRing R] [Semiring A] [StarRing A]
 variable [Algebra R A] [StarModule R A]
 
 /-- Turn a `StarSubalgebra` into a `NonUnitalStarSubalgebra` by forgetting that it contains `1`. -/
+@[simps]
 def StarSubalgebra.toNonUnitalStarSubalgebra (S : StarSubalgebra R A) :
     NonUnitalStarSubalgebra R A :=
   { S with
     carrier := S.carrier
     smul_mem' := fun r _x hx => S.smul_mem hx r }
+
+@[simp]
+lemma StarSubalgebra.mem_toNonUnitalStarSubalgebra (S : StarSubalgebra R A) {x : A} :
+    x ∈ S.toNonUnitalStarSubalgebra ↔ x ∈ S :=
+  Iff.rfl
 
 theorem StarSubalgebra.one_mem_toNonUnitalStarSubalgebra (S : StarSubalgebra R A) :
     (1 : A) ∈ S.toNonUnitalStarSubalgebra :=

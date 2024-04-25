@@ -27,6 +27,22 @@ lemma closure_eq_one_union (s : Set M) :
 
 end Submonoid
 
+namespace Submodule
+
+variable {S R M : Type*} [CommSemiring R] [AddCommMonoid M] [Module R M]
+variable [SetLike S M] [AddSubmonoidClass S M] [SMulMemClass S R M]
+
+lemma coe_span_eq_self (s : S) : (span R (s : Set M) : Set M) = s := by
+  refine le_antisymm ?_ subset_span
+  let s' : Submodule R M :=
+    { carrier := s
+      add_mem' := add_mem
+      zero_mem' := zero_mem _
+      smul_mem' := SMulMemClass.smul_mem }
+  exact span_le (p := s') |>.mpr le_rfl
+
+end Submodule
+
 namespace NonUnitalAlgebra
 
 variable {R A : Type*} [CommSemiring R] [NonUnitalSemiring A] [Module R A]
@@ -104,6 +120,12 @@ lemma adjoin_eq_span (s : Set A) :
     (adjoin R s).toSubmodule = span R (Subsemigroup.closure (s ∪ star s)) := by
   rw [adjoin_toNonUnitalSubalgebra, NonUnitalAlgebra.adjoin_eq_span]
 
+@[simp]
+lemma span_eq_toSubmodule (s : NonUnitalStarSubalgebra R A) :
+    span R (s : Set A) = s.toSubmodule := by
+  rw [SetLike.ext'_iff, coe_span_eq_self]
+  simp
+
 end NonUnitalStarAlgebra
 
 namespace StarSubalgebra
@@ -127,6 +149,15 @@ lemma adjoin_nonUnitalStarSubalgebra_eq_span (s : NonUnitalStarSubalgebra R A) :
     ← Submodule.span_eq s.toSubmodule, span_union]
   simp
 
+lemma adjoin_nonUnitalStarSubalgebra_adjoin (s : Set A) :
+    adjoin R (NonUnitalStarAlgebra.adjoin R s : Set A) = adjoin R s := by
+  apply le_antisymm
+  · apply adjoin_le
+    -- need a lemma here
+    change NonUnitalStarAlgebra.adjoin R s ≤ (adjoin R s).toNonUnitalStarSubalgebra
+    exact NonUnitalStarAlgebra.adjoin_le <| subset_adjoin R s
+  · exact adjoin_le <| (NonUnitalStarAlgebra.subset_adjoin R s).trans <| subset_adjoin R _
+
 
 end StarSubalgebra
 
@@ -148,7 +179,7 @@ lemma foo (s : Set 𝕜) : Set.SeparatesPoints ((⇑) '' (adjoin 𝕜 {(.restric
   fun _ _ h ↦
     ⟨_, ⟨.restrict s (.id 𝕜), self_mem_adjoin_singleton 𝕜 _, rfl⟩, Subtype.val_injective.ne h ⟩
 
-open NonUnitalAlgebra
+open NonUnitalAlgebra in
 lemma bar (s : Set 𝕜) : Set.SeparatesPoints ((⇑) '' (adjoin 𝕜 {(.restrict s (.id 𝕜) : C(s, 𝕜))} : Set C(s, 𝕜))) :=
   fun _ _ h ↦
     ⟨_, ⟨.restrict s (.id 𝕜), self_mem_adjoin_singleton 𝕜 _, rfl⟩, Subtype.val_injective.ne h ⟩
@@ -172,6 +203,15 @@ def ContinuousMap.evalStarAlgHom {X : Type*} (R : Type*) [TopologicalSpace X] [C
   map_mul' := fun _ _ => rfl
   commutes' := fun _ => rfl
   map_star' := fun _ => rfl
+
+open NonUnitalStarAlgebra Submodule in
+lemma ContinuousMap.adjoin_id_eq_span_one_union (s : Set 𝕜) :
+    ((StarAlgebra.adjoin 𝕜 {(.restrict s (.id 𝕜) : C(s, 𝕜))}) : Set C(s, 𝕜)) =
+      span 𝕜 ({(1 : C(s, 𝕜))} ∪ (adjoin 𝕜 {(.restrict s (.id 𝕜) : C(s, 𝕜))})) := by
+  ext x
+  rw [SetLike.mem_coe, SetLike.mem_coe, ← StarSubalgebra.adjoin_nonUnitalStarSubalgebra_adjoin,
+    ← StarSubalgebra.mem_toSubalgebra, ← Subalgebra.mem_toSubmodule,
+    StarSubalgebra.adjoin_nonUnitalStarSubalgebra_eq_span]
 
 open NonUnitalAlgebra in
 lemma baz (s : Set 𝕜) (h0 : 0 ∈ s) :
