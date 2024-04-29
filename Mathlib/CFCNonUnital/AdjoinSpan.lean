@@ -126,6 +126,17 @@ lemma span_eq_toSubmodule (s : NonUnitalStarSubalgebra R A) :
   rw [SetLike.ext'_iff, coe_span_eq_self]
   simp
 
+lemma adjoin_induction' {R A : Type*} [CommSemiring R] [NonUnitalSemiring A] [Module R A]
+    [IsScalarTower R A A] [SMulCommClass R A A] [StarRing R] [StarRing A] [StarModule R A]
+    {s : Set A} {p : ∀ x, x ∈ adjoin R s → Prop} {a : A} (ha : a ∈ adjoin R s)
+    (mem : ∀ (x : A) (hx : x ∈ s), p x (subset_adjoin R s hx))
+    (add : ∀ x hx y hy, p x hx → p y hy → p (x + y) (add_mem hx hy))
+    (zero : p 0 (zero_mem _))
+    (mul : ∀ x hx y hy, p x hx → p y hy → p (x * y) (mul_mem hx hy))
+    (smul : ∀ (r : R) x hx, p x hx → p (r • x) (SMulMemClass.smul_mem r hx))
+    (star : ∀ x hx, p x hx → p (star x) (star_mem hx)) : p a ha :=
+  sorry -- I'm lazy, and why don't we have this?
+
 end NonUnitalStarAlgebra
 
 namespace StarSubalgebra
@@ -148,6 +159,10 @@ lemma adjoin_nonUnitalStarSubalgebra_eq_span (s : NonUnitalStarSubalgebra R A) :
     ← s.coe_toNonUnitalSubalgebra, Algebra.adjoin_nonUnitalSubalgebra_eq_span,
     ← Submodule.span_eq s.toSubmodule, span_union]
   simp
+
+lemma nonUnitalStarAlgebra_adjoin_le_adjoin_toNonUnitalStarSubalgebra (s : Set A) :
+    NonUnitalStarAlgebra.adjoin R s ≤ (adjoin R s).toNonUnitalStarSubalgebra :=
+  NonUnitalStarAlgebra.adjoin_le <| subset_adjoin R s
 
 lemma adjoin_nonUnitalStarSubalgebra_adjoin (s : Set A) :
     adjoin R (NonUnitalStarAlgebra.adjoin R s : Set A) = adjoin R s := by
@@ -193,6 +208,7 @@ def ContinuousMap.evalAlgHom {X : Type*} (R : Type*) [TopologicalSpace X] [CommS
   map_mul' := fun _ _ => rfl
   commutes' := fun _ => rfl
 
+@[simps]
 def ContinuousMap.evalStarAlgHom {X : Type*} (R : Type*) [TopologicalSpace X] [CommSemiring R]
     [TopologicalSpace R] [TopologicalSemiring R] [StarRing R] [ContinuousStar R] (x : X) :
     C(X, R) →⋆ₐ[R] R where
@@ -213,24 +229,49 @@ lemma ContinuousMap.adjoin_id_eq_span_one_union (s : Set 𝕜) :
     ← StarSubalgebra.mem_toSubalgebra, ← Subalgebra.mem_toSubmodule,
     StarSubalgebra.adjoin_nonUnitalStarSubalgebra_eq_span]
 
-open NonUnitalAlgebra in
-lemma baz (s : Set 𝕜) (h0 : 0 ∈ s) :
-    (Algebra.adjoin 𝕜 (adjoin 𝕜 {(.restrict s (.id 𝕜) : C(s, 𝕜))} : Set C(s, 𝕜)) ∩
-      RingHom.ker (ContinuousMap.evalAlgHom 𝕜 (⟨0, h0⟩ : s)) : Set C(s, 𝕜)) =
+open NonUnitalStarAlgebra Submodule Pointwise in
+lemma ContinuousMap.adjoin_id_eq_span_one_union' (s : Set 𝕜) :
+    ((StarAlgebra.adjoin 𝕜 {(.restrict s (.id 𝕜) : C(s, 𝕜))}) : Set C(s, 𝕜)) =
+      (span 𝕜 {(1 : C(s, 𝕜))} : Set C(s, 𝕜)) + (adjoin 𝕜 {(.restrict s (.id 𝕜) : C(s, 𝕜))} : Set C(s, 𝕜)) := by
+  ext x
+  rw [SetLike.mem_coe, ← StarSubalgebra.adjoin_nonUnitalStarSubalgebra_adjoin,
+    ← StarSubalgebra.mem_toSubalgebra, ← Subalgebra.mem_toSubmodule,
+    StarSubalgebra.adjoin_nonUnitalStarSubalgebra_eq_span, span_union, mem_sup, span_eq_toSubmodule]
+  simp [Set.mem_add]
+
+open NonUnitalStarAlgebra in
+lemma ContinuousMap.mem_ker_evalStarAlgHom_of_mem_nonUnitalStarAlgebraAdjoin_id
+    {s : Set 𝕜} (h0 : 0 ∈ s) {f : C(s, 𝕜)} (hf : f ∈ adjoin 𝕜 {.restrict s (.id 𝕜)}) :
+    f ∈ RingHom.ker (evalStarAlgHom 𝕜 (⟨0, h0⟩ : s)) := by
+  induction hf using NonUnitalStarAlgebra.adjoin_induction' with
+  | mem f hf =>
+    obtain rfl := Set.mem_singleton_iff.mp hf
+    rfl
+  | add f _ g _ hf hg => exact add_mem hf hg
+  | zero => exact zero_mem _
+  | mul f _ g _ _ hg => exact Ideal.mul_mem_left _ f hg
+  | smul r f _ hf =>
+    rw [RingHom.mem_ker] at hf ⊢
+    rw [map_smul, hf, smul_zero]
+  | star f _ hf =>
+    rw [RingHom.mem_ker] at hf ⊢
+    rw [map_star, hf, star_zero]
+
+open NonUnitalStarAlgebra Submodule in
+lemma ContinuousMap.ker_evalStarAlgHom_inter_adjoin_id (s : Set 𝕜) (h0 : 0 ∈ s) :
+    (StarAlgebra.adjoin 𝕜 {(.restrict s (.id 𝕜) : C(s, 𝕜))} : Set C(s, 𝕜)) ∩
+      RingHom.ker (evalStarAlgHom 𝕜 (⟨0, h0⟩ : s)) =
         adjoin 𝕜 {(.restrict s (.id 𝕜) : C(s, 𝕜))} := by
-  have := congr_arg ((↑) : _ → Set C(s, 𝕜)) <|
-    Algebra.adjoin_nonUnitalSubalgebra_eq_span (adjoin 𝕜 {(.restrict s (.id 𝕜) : C(s, 𝕜))})
-  simp only [Subalgebra.coe_toSubmodule] at this
-  rw [this]
   ext f
-  simp only [Set.mem_inter_iff, SetLike.mem_coe]
   constructor
-  · rintro ⟨hf, hker⟩
-    rw [mem_sup] at hf
-    obtain ⟨g, hg, f, hf, rfl⟩ := hf
-    simp only [mem_mk, NonUnitalSubsemiring.mem_toAddSubmonoid,
-      NonUnitalSubalgebra.mem_toNonUnitalSubsemiring] at hf
-    rw [RingHom.mem_ker] at hker
-    simp at hker
-    sorry
-  · sorry
+  · rintro ⟨hf₁, hf₂⟩
+    rw [SetLike.mem_coe] at hf₂ ⊢
+    simp_rw [adjoin_id_eq_span_one_union', Set.mem_add, SetLike.mem_coe, mem_span_singleton] at hf₁
+    obtain ⟨-, ⟨r, rfl⟩, f, hf, rfl⟩ := hf₁
+    have := mem_ker_evalStarAlgHom_of_mem_nonUnitalStarAlgebraAdjoin_id h0 hf
+    rw [RingHom.mem_ker, evalStarAlgHom_apply] at hf₂ this
+    rw [add_apply, this, add_zero, smul_apply, one_apply, smul_eq_mul, mul_one] at hf₂
+    rwa [hf₂, zero_smul, zero_add]
+  · simp only [Set.mem_inter_iff, SetLike.mem_coe]
+    refine fun hf ↦ ⟨?_, mem_ker_evalStarAlgHom_of_mem_nonUnitalStarAlgebraAdjoin_id h0 hf⟩
+    exact StarSubalgebra.nonUnitalStarAlgebra_adjoin_le_adjoin_toNonUnitalStarSubalgebra _ hf
