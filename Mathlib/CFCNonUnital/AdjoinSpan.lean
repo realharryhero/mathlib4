@@ -1,4 +1,5 @@
 import Mathlib
+import Mathlib.CFCNonUnital.ContinuousMapZeroMaterial
 
 open Submodule
 
@@ -87,6 +88,15 @@ lemma adjoin_eq_span (s : Set A) : (adjoin R s).toSubmodule = span R (Subsemigro
 
 end NonUnitalAlgebra
 
+open NonUnitalAlgebra in
+lemma NonUnitalSubalgebra.map_adjoin {F R A B : Type*} [CommSemiring R]
+    [NonUnitalNonAssocSemiring A] [NonUnitalNonAssocSemiring B] [Module R A] [Module R B]
+    [IsScalarTower R A A] [SMulCommClass R A A] [IsScalarTower R B B] [SMulCommClass R B B]
+    [FunLike F A B] [NonUnitalAlgHomClass F R A B] (f : F) (s : Set A) :
+    map f (adjoin R s) = adjoin R (f '' s) :=
+  Set.image_preimage.l_comm_of_u_comm (gc_map_comap f) NonUnitalAlgebra.gi.gc
+    NonUnitalAlgebra.gi.gc fun _t => rfl
+
 namespace Algebra
 
 variable {R A : Type*} [CommSemiring R] [Semiring A] [Algebra R A]
@@ -138,6 +148,26 @@ lemma adjoin_induction' {R A : Type*} [CommSemiring R] [NonUnitalSemiring A] [Mo
   sorry -- I'm lazy, and why don't we have this?
 
 end NonUnitalStarAlgebra
+
+open NonUnitalStarAlgebra in
+lemma NonUnitalStarSubalgebra.map_adjoin {F R A B : Type*} [CommSemiring R] [StarRing R]
+    [NonUnitalSemiring A] [StarRing A] [Module R A] [IsScalarTower R A A] [SMulCommClass R A A]
+    [NonUnitalSemiring B] [StarRing B] [Module R B] [IsScalarTower R B B] [SMulCommClass R B B]
+    [StarModule R A] [StarModule R B] [FunLike F A B] [NonUnitalAlgHomClass F R A B]
+    [NonUnitalStarAlgHomClass F R A B] (f : F) (s : Set A) :
+    map f (adjoin R s) = adjoin R (f '' s) :=
+  Set.image_preimage.l_comm_of_u_comm (gc_map_comap f) NonUnitalStarAlgebra.gi.gc
+    NonUnitalStarAlgebra.gi.gc fun _t => rfl
+
+open NonUnitalStarAlgebra in
+@[simp]
+lemma NonUnitalStarSubalgebra.map_adjoin_singleton {F R A B : Type*} [CommSemiring R] [StarRing R]
+    [NonUnitalSemiring A] [StarRing A] [Module R A] [IsScalarTower R A A] [SMulCommClass R A A]
+    [NonUnitalSemiring B] [StarRing B] [Module R B] [IsScalarTower R B B] [SMulCommClass R B B]
+    [StarModule R A] [StarModule R B] [FunLike F A B] [NonUnitalAlgHomClass F R A B]
+    [NonUnitalStarAlgHomClass F R A B] (f : F) (x : A) :
+    map f (adjoin R {x}) = adjoin R {f x} := by
+  simp [NonUnitalStarSubalgebra.map_adjoin]
 
 namespace StarSubalgebra
 
@@ -230,7 +260,7 @@ lemma ContinuousMap.adjoin_id_eq_span_one_union (s : Set 𝕜) :
     StarSubalgebra.adjoin_nonUnitalStarSubalgebra_eq_span]
 
 open NonUnitalStarAlgebra Submodule Pointwise in
-lemma ContinuousMap.adjoin_id_eq_span_one_union' (s : Set 𝕜) :
+lemma ContinuousMap.adjoin_id_eq_span_one_add (s : Set 𝕜) :
     ((StarAlgebra.adjoin 𝕜 {(.restrict s (.id 𝕜) : C(s, 𝕜))}) : Set C(s, 𝕜)) =
       (span 𝕜 {(1 : C(s, 𝕜))} : Set C(s, 𝕜)) + (adjoin 𝕜 {(.restrict s (.id 𝕜) : C(s, 𝕜))} : Set C(s, 𝕜)) := by
   ext x
@@ -266,7 +296,7 @@ lemma ContinuousMap.ker_evalStarAlgHom_inter_adjoin_id (s : Set 𝕜) (h0 : 0 �
   constructor
   · rintro ⟨hf₁, hf₂⟩
     rw [SetLike.mem_coe] at hf₂ ⊢
-    simp_rw [adjoin_id_eq_span_one_union', Set.mem_add, SetLike.mem_coe, mem_span_singleton] at hf₁
+    simp_rw [adjoin_id_eq_span_one_add, Set.mem_add, SetLike.mem_coe, mem_span_singleton] at hf₁
     obtain ⟨-, ⟨r, rfl⟩, f, hf, rfl⟩ := hf₁
     have := mem_ker_evalStarAlgHom_of_mem_nonUnitalStarAlgebraAdjoin_id h0 hf
     rw [RingHom.mem_ker, evalStarAlgHom_apply] at hf₂ this
@@ -275,3 +305,69 @@ lemma ContinuousMap.ker_evalStarAlgHom_inter_adjoin_id (s : Set 𝕜) (h0 : 0 �
   · simp only [Set.mem_inter_iff, SetLike.mem_coe]
     refine fun hf ↦ ⟨?_, mem_ker_evalStarAlgHom_of_mem_nonUnitalStarAlgebraAdjoin_id h0 hf⟩
     exact StarSubalgebra.nonUnitalStarAlgebra_adjoin_le_adjoin_toNonUnitalStarSubalgebra _ hf
+
+attribute [fun_prop] continuous_algebraMap ContinuousMap.continuous_eval_const
+
+-- the statement should be in terms of non unital subalgebras, but we lack API
+-- TODO : this is a bad name
+open RingHom Filter Topology in
+theorem AlgHom.closure_ker_inter {F S K A : Type*} [CommRing K] [Ring A] [Algebra K A]
+    [TopologicalSpace K] [T1Space K] [TopologicalSpace A] [ContinuousSub A] [ContinuousSMul K A]
+    [FunLike F A K] [AlgHomClass F K A K] [SetLike S A] [OneMemClass S A] [AddSubgroupClass S A]
+    [SMulMemClass S K A] (φ : F) (hφ : Continuous φ) (s : S) :
+    closure (s ∩ RingHom.ker φ) = closure s ∩ (ker φ : Set A) := by
+  refine subset_antisymm ?_ ?_
+  · simpa only [ker_eq, (isClosed_singleton.preimage hφ).closure_eq]
+      using closure_inter_subset_inter_closure s (ker φ : Set A)
+  · intro x ⟨hxs, (hxφ : φ x = 0)⟩
+    rw [mem_closure_iff_clusterPt, ClusterPt] at hxs
+    have : Tendsto (fun y ↦ y - φ y • 1) (𝓝 x ⊓ 𝓟 s) (𝓝 x) := by
+      conv => congr; rfl; rfl; rw [← sub_zero x, ← zero_smul K 1, ← hxφ]
+      exact Filter.tendsto_inf_left (Continuous.tendsto (by fun_prop) x)
+    refine mem_closure_of_tendsto this <| eventually_inf_principal.mpr ?_
+    filter_upwards [] with g hg using
+      ⟨sub_mem hg (SMulMemClass.smul_mem _ <| one_mem _), by simp [RingHom.mem_ker]⟩
+
+-- should generalize this
+open Polynomial in
+lemma ContinuousMap.restrict_id_eq_polynomial_toContinuousMap_X (s : Set 𝕜) :
+    restrict s (.id 𝕜) = Polynomial.X.toContinuousMapOn s := by
+  ext; simp
+
+open NonUnitalStarAlgebra in
+lemma ContinuousMap.ker_evalStarAlgHom_eq_closure_adjoin_id (s : Set 𝕜) (h0 : 0 ∈ s)
+    [CompactSpace s] :
+    (RingHom.ker (evalStarAlgHom 𝕜 (⟨0, h0⟩ : s)) : Set C(s, 𝕜)) =
+      closure (adjoin 𝕜 {(restrict s (.id 𝕜))}) := by
+  rw [← ker_evalStarAlgHom_inter_adjoin_id s h0,
+    AlgHom.closure_ker_inter (φ := evalStarAlgHom 𝕜 (X := s) ⟨0, h0⟩) (continuous_eval_const _) _]
+  convert (Set.univ_inter _).symm
+  rw [restrict_id_eq_polynomial_toContinuousMap_X, ← Polynomial.toContinuousMapOnAlgHom_apply,
+    ← polynomialFunctions.starClosure_eq_adjoin_X s]
+  congrm(($(polynomialFunctions.starClosure_topologicalClosure s) : Set C(s, 𝕜)))
+
+open ContinuousMapZero
+
+@[simps!]
+protected def ContinuousMapZero.id {s : Set 𝕜} [Zero s] (h0 : ((0 : s) : 𝕜) = 0) : C(s, 𝕜)₀ :=
+  ⟨.restrict s (.id 𝕜), h0⟩
+
+@[simp]
+lemma ContinuousMapZero.toContinuousMap_id {s : Set 𝕜} [Zero s] (h0 : ((0 : s) : 𝕜) = 0) :
+    (ContinuousMapZero.id h0 : C(s, 𝕜)) = .restrict s (.id 𝕜) :=
+  rfl
+
+open NonUnitalStarAlgebra in
+lemma ContinuousMapZero.closure_adjoin_id_eq_top {s : Set 𝕜} [Zero s]
+    (h0 : ((0 : s) : 𝕜) = 0) [CompactSpace s] :
+    closure (adjoin 𝕜 {(.id h0 : C(s, 𝕜)₀)} : Set C(s, 𝕜)₀) = Set.univ := by
+  have h0' : 0 ∈ s := h0 ▸ (0 : s).property
+  have : T2Space C(s, 𝕜)₀ := closedEmbedding_toContinuousMapHom.toEmbedding.t2Space
+  rw [← closedEmbedding_toContinuousMapHom.injective.preimage_image (closure _),
+    ← closedEmbedding_toContinuousMapHom.closure_image_eq, ← NonUnitalStarSubalgebra.coe_map,
+    NonUnitalStarSubalgebra.map_adjoin_singleton, toContinuousMapHom_apply, toContinuousMap_id h0,
+    ← ContinuousMap.ker_evalStarAlgHom_eq_closure_adjoin_id s h0']
+  apply Set.eq_univ_of_forall fun f ↦ ?_
+  simp only [Set.mem_preimage, toContinuousMapHom_apply, SetLike.mem_coe, RingHom.mem_ker,
+    ContinuousMap.evalStarAlgHom_apply, ContinuousMap.coe_coe]
+  rw [show ⟨0, h0'⟩ = (0 : s) by ext; exact h0.symm, _root_.map_zero f]

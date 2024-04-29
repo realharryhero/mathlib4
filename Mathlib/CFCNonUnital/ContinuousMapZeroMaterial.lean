@@ -99,6 +99,12 @@ instance instIsScalarTower' {X R : Type*} [Zero X] [TopologicalSpace X]
     IsScalarTower M C(X, R)₀ C(X, R)₀ where
   smul_assoc m f g := ext fun x ↦ smul_assoc m (f x) (g x)
 
+instance instStarModule {X R : Type*} [Zero X] [TopologicalSpace X]
+    [CommSemiring R] [StarRing R] [TopologicalSpace R] [TopologicalSemiring R] {M : Type*}
+    [SMulZeroClass M R] [ContinuousConstSMul M R] [Star M] [StarModule M R] [ContinuousStar R]:
+    StarModule M C(X, R)₀ where
+  star_smul r f := ext fun x ↦ star_smul r (f x)
+
 @[simp]
 lemma StarAlgHom.toFun_eq_coe {R A B : Type*} [CommSemiring R] [Semiring A] [Algebra R A] [Star A]
     [Semiring B] [Algebra R B] [Star B] (f : A →⋆ₐ[R] B) :
