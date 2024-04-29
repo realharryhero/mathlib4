@@ -3,7 +3,9 @@ Copyright (c) 2019 Scott Morrison. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Scott Morrison
 -/
-import Mathlib.CategoryTheory.MorphismProperty
+import Mathlib.CategoryTheory.Adjunction.Basic
+import Mathlib.CategoryTheory.MorphismProperty.Basic
+import Mathlib.CategoryTheory.Yoneda
 
 #align_import category_theory.adjunction.fully_faithful from "leanprover-community/mathlib"@"9e7c80f638149bfb3504ba8ff48dfdbfc949fb1a"
 
@@ -111,10 +113,10 @@ set_option linter.uppercaseLean3 false in
 #align category_theory.whisker_left_R_unit_iso_of_is_iso_counit CategoryTheory.whiskerLeftRUnitIsoOfIsIsoCounit
 
 /-- If the unit is an isomorphism, then the left adjoint is full-/
-noncomputable def lFullOfUnitIsIso [IsIso h.unit] : L.Full where
-  preimage {X Y} f := h.homEquiv _ (L.obj Y) f ≫ inv (h.unit.app Y)
+lemma L_full_of_unit_isIso [IsIso h.unit] : L.Full where
+  map_surjective {X Y} f := ⟨h.homEquiv _ (L.obj Y) f ≫ inv (h.unit.app Y), by simp⟩
 set_option linter.uppercaseLean3 false in
-#align category_theory.L_full_of_unit_is_iso CategoryTheory.lFullOfUnitIsIso
+#align category_theory.L_full_of_unit_is_iso CategoryTheory.L_full_of_unit_isIso
 
 /-- If the unit is an isomorphism, then the left adjoint is faithful-/
 theorem L_faithful_of_unit_isIso [IsIso h.unit] : L.Faithful :=
@@ -125,10 +127,10 @@ set_option linter.uppercaseLean3 false in
 #align category_theory.L_faithful_of_unit_is_iso CategoryTheory.L_faithful_of_unit_isIso
 
 /-- If the counit is an isomorphism, then the right adjoint is full-/
-noncomputable def rFullOfCounitIsIso [IsIso h.counit] : R.Full where
-  preimage {X Y} f := inv (h.counit.app X) ≫ (h.homEquiv (R.obj X) Y).symm f
+lemma R_full_of_counit_isIso [IsIso h.counit] : R.Full where
+  map_surjective {X Y} f := ⟨inv (h.counit.app X) ≫ (h.homEquiv (R.obj X) Y).symm f, by simp⟩
 set_option linter.uppercaseLean3 false in
-#align category_theory.R_full_of_counit_is_iso CategoryTheory.rFullOfCounitIsIso
+#align category_theory.R_full_of_counit_is_iso CategoryTheory.R_full_of_counit_isIso
 
 /-- If the counit is an isomorphism, then the right adjoint is faithful-/
 theorem R_faithful_of_counit_isIso [IsIso h.counit] : R.Faithful :=
