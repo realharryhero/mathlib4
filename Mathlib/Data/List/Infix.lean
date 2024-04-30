@@ -300,15 +300,7 @@ theorem prefix_take_le_iff {L : List (List (Option α))} (hm : m < L.length) :
         exact ⟨Nat.succ_le_succ, Nat.le_of_succ_le_succ⟩
 #align list.prefix_take_le_iff List.prefix_take_le_iff
 
-theorem cons_prefix_iff : a :: l₁ <+: b :: l₂ ↔ a = b ∧ l₁ <+: l₂ := by
-  constructor
-  · rintro ⟨L, hL⟩
-    simp only [cons_append] at hL
-    injection hL with hLLeft hLRight
-    exact ⟨hLLeft, ⟨L, hLRight⟩⟩
-  · rintro ⟨rfl, h⟩
-    rwa [prefix_cons_inj]
-#align list.cons_prefix_iff List.cons_prefix_iff
+#align list.cons_prefix_iff List.cons_prefix_cons
 
 protected theorem IsPrefix.map (h : l₁ <+: l₂) (f : α → β) : l₁.map f <+: l₂.map f := by
   induction' l₁ with hd tl hl generalizing l₂
