@@ -2,6 +2,24 @@ import Mathlib
 import Mathlib.CFCNonUnital.AdjoinSpan
 import Mathlib.CFCNonUnital.UnitizationL1Norm
 
+section MissingTopology
+
+variable {X Y Z : Type*} [TopologicalSpace X] [TopologicalSpace Y] [TopologicalSpace Z]
+variable {f : X → Y} {g : Y → Z}
+
+theorem Inducing.of_comp_iff (hg : Inducing g) : Inducing (g ∘ f) ↔ Inducing f := by
+  refine ⟨fun h ↦ ?_, hg.comp⟩
+  rw [inducing_iff, hg.induced, induced_compose, h.induced]
+
+theorem Embedding.of_comp_iff (hg : Embedding g) : Embedding (g ∘ f) ↔ Embedding f := by
+  simp_rw [embedding_iff, hg.toInducing.of_comp_iff, hg.inj.of_comp_iff f]
+
+theorem ClosedEmbedding.of_comp_iff (hg : ClosedEmbedding g) :
+    ClosedEmbedding (g ∘ f) ↔ ClosedEmbedding f := by
+  simp_rw [closedEmbedding_iff, hg.toEmbedding.of_comp_iff, Set.range_comp,
+    ← hg.closed_iff_image_closed]
+
+end MissingTopology
 section IsStarNormal
 
 lemma isStarNormal_iff {R : Type*} [Mul R] [Star R] {x : R} :
@@ -75,6 +93,45 @@ def homeo : σ ℂ (a : A⁺¹) ≃ₜ σₙ ℂ a :=
 def hom₂ : C(σₙ ℂ a, ℂ) ≃⋆ₐ[ℂ] C(σ ℂ (a : A⁺¹), ℂ) :=
   (homeo a).compStarAlgEquiv' ℂ ℂ
 
+def φ₁ : C(σₙ ℂ a, ℂ)₀ →⋆ₙₐ[ℂ] C(σₙ ℂ a, ℂ) := ContinuousMapZero.toContinuousMapHom
+def φ₂ : C(σₙ ℂ a, ℂ) ≃⋆ₐ[ℂ] C(σ ℂ (a : A⁺¹), ℂ) := Homeomorph.compStarAlgEquiv' ℂ ℂ <|
+      .setCongr <| (Unitization.quasispectrum_eq_spectrum_inr' ℂ ℂ a).symm
+noncomputable def φ₃ :  C(σ ℂ (a : A⁺¹), ℂ) →⋆ₐ[ℂ] A⁺¹ := cfcHom (Unitization.instIsStarNormal ℂ a)
+noncomputable def φ := ((φ₃ a : C(σ ℂ (a : A⁺¹), ℂ) →⋆ₙₐ[ℂ] A⁺¹).comp (φ₂ a)).comp (φ₁ a)
+
+lemma map_id_φ : φ a (ContinuousMapZero.id rfl) = a := cfcHom_id (Unitization.instIsStarNormal ℂ a)
+
+lemma closedEmbedding_φ : ClosedEmbedding (φ a) := by
+  simp only [φ, NonUnitalStarAlgHom.coe_comp]
+  refine ((cfcHom_closedEmbedding (Unitization.instIsStarNormal ℂ a)).comp ?_).comp
+    ContinuousMapZero.closedEmbedding_toContinuousMapHom
+  let e : C(σₙ ℂ a, ℂ) ≃ₜ C(σ ℂ (a : A⁺¹), ℂ) :=
+    { (φ₂ a : C(σₙ ℂ a, ℂ) ≃ C(σ ℂ (a : A⁺¹), ℂ)) with
+      continuous_toFun := StarAlgEquiv.isometry (φ₂ a) |>.continuous
+      continuous_invFun := StarAlgEquiv.isometry (φ₂ a).symm |>.continuous }
+  exact e.closedEmbedding
+
+lemma map_spec (f : C(σₙ ℂ a, ℂ)₀) : σ ℂ (φ a f) = Set.range f := by
+  rw [φ, NonUnitalStarAlgHom.comp_assoc, NonUnitalStarAlgHom.comp_apply, φ₃]
+  simp only [NonUnitalStarAlgHom.comp_apply, NonUnitalStarAlgHom.coe_coe]
+  rw [cfcHom_map_spectrum (Unitization.instIsStarNormal ℂ a) (R := ℂ) _]
+  ext x
+  constructor
+  · rintro ⟨x, rfl⟩
+    exact ⟨homeo a x, rfl⟩
+  · rintro ⟨x, rfl⟩
+    exact ⟨(homeo a).symm x, rfl⟩
+
+lemma isStarNormal_φ (f : C(σₙ ℂ a, ℂ)₀) : IsStarNormal (φ a f) :=
+  IsStarNormal.map (φ a) (hr := ⟨Commute.all (star f) f⟩)
+
+lemma mem_range_inr (f : C(σₙ ℂ a, ℂ)₀) :
+    φ a f ∈ NonUnitalStarAlgHom.range (Unitization.inrNonUnitalStarAlgHom ℂ A) := by
+
+  sorry
+
+
+#exit
 --noncomputable def hom₃ : C(σ ℂ (a : A⁺¹), ℂ) →⋆ₐ[ℂ] A⁺¹ :=
   --cfcHom (Unitization.instIsStarNormal ℂ a)
 
@@ -87,15 +144,17 @@ instance : NonUnitalContinuousFunctionalCalculus ℂ (IsStarNormal : A → Prop)
       .setCongr <| (Unitization.quasispectrum_eq_spectrum_inr' ℂ ℂ a).symm
     let φ₃ :  C(σ ℂ (a : A⁺¹), ℂ) →⋆ₐ[ℂ] A⁺¹ := cfcHom ha'
     let φ := ((φ₃ : C(σ ℂ (a : A⁺¹), ℂ) →⋆ₙₐ[ℂ] A⁺¹).comp φ₂).comp φ₁
-    have hφ₂ : φ (ContinuousMapZero.id rfl) = a := cfcHom_id ha' -- so cool, it just works!
-    have foo : CompactSpace (σₙ ℂ a) := sorry
-    have hφ₁ : ClosedEmbedding φ := by
-      simp only [φ, NonUnitalStarAlgHom.coe_comp]
-      refine ((cfcHom_closedEmbedding ha').comp ?_).comp
-        ContinuousMapZero.closedEmbedding_toContinuousMapHom
-      let e : C(σₙ ℂ a, ℂ) ≃ₜ C(σ ℂ (a : A⁺¹), ℂ) :=
-        { (φ₂ : C(σₙ ℂ a, ℂ) ≃ C(σ ℂ (a : A⁺¹), ℂ)) with
-          continuous_toFun := StarAlgEquiv.isometry φ₂ |>.continuous
-          continuous_invFun := StarAlgEquiv.isometry φ₂.symm |>.continuous }
-      exact e.closedEmbedding
+    have map_spec (f : C(σₙ ℂ a, ℂ)₀) : σₙ ℂ (φ f) = Set.range f := by
+
+      sorry
+    --have hφ₂ : φ (ContinuousMapZero.id rfl) = a := cfcHom_id ha' -- so cool, it just works!
+    --have hφ₁ : ClosedEmbedding φ := by
+      --simp only [φ, NonUnitalStarAlgHom.coe_comp]
+      --refine ((cfcHom_closedEmbedding ha').comp ?_).comp
+        --ContinuousMapZero.closedEmbedding_toContinuousMapHom
+      --let e : C(σₙ ℂ a, ℂ) ≃ₜ C(σ ℂ (a : A⁺¹), ℂ) :=
+        --{ (φ₂ : C(σₙ ℂ a, ℂ) ≃ C(σ ℂ (a : A⁺¹), ℂ)) with
+          --continuous_toFun := StarAlgEquiv.isometry φ₂ |>.continuous
+          --continuous_invFun := StarAlgEquiv.isometry φ₂.symm |>.continuous }
+      --exact e.closedEmbedding
     sorry
