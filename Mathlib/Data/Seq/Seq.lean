@@ -377,9 +377,9 @@ def IsBisimulation :=
 theorem eq_of_bisim (bisim : IsBisimulation R) {s₁ s₂} (r : s₁ ~ s₂) : s₁ = s₂ := by
   apply Subtype.eq
   apply Stream'.eq_of_bisim fun x y => ∃ s s' : Seq α, s.1 = x ∧ s'.1 = y ∧ R s s'
-  dsimp [Stream'.IsBisimulation]
-  intro t₁ t₂ e
-  exact
+  · dsimp [Stream'.IsBisimulation]
+    intro t₁ t₂ e
+    exact
     match t₁, t₂, e with
     | _, _, ⟨s, s', rfl, rfl, r⟩ => by
       suffices head s = head s' ∧ R (tail s) (tail s') from
@@ -401,9 +401,9 @@ theorem eq_of_bisim (bisim : IsBisimulation R) {s₁ s₂} (r : s₁ ~ s₂) : s
         rw [head_cons, head_cons, tail_cons, tail_cons]
         cases' this with h1 h2
         constructor
-        rw [h1]
-        exact h2
-  exact ⟨s₁, s₂, rfl, rfl, r⟩
+        · rw [h1]
+        · exact h2
+  · exact ⟨s₁, s₂, rfl, rfl, r⟩
 #align stream.seq.eq_of_bisim Stream'.Seq.eq_of_bisim
 
 end Bisim
@@ -837,7 +837,7 @@ theorem dropn_add (s : Seq α) (m) : ∀ n, drop s (m + n) = drop (drop s m) n
 #align stream.seq.dropn_add Stream'.Seq.dropn_add
 
 theorem dropn_tail (s : Seq α) (n) : drop (tail s) n = drop s (n + 1) := by
-  rw [add_comm]; symm; apply dropn_add
+  rw [Nat.add_comm]; symm; apply dropn_add
 #align stream.seq.dropn_tail Stream'.Seq.dropn_tail
 
 @[simp]
