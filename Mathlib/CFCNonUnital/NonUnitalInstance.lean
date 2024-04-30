@@ -1,0 +1,97 @@
+import Mathlib
+import Mathlib.CFCNonUnital.AdjoinSpan
+
+section IsStarNormal
+
+lemma isStarNormal_iff {R : Type*} [Mul R] [Star R] {x : R} :
+    IsStarNormal x ↔ star x * x = x * star x :=
+  ⟨fun ⟨h⟩ ↦ h.eq, (⟨·⟩)⟩
+
+lemma Unitization.isStarNormal_inr {R A : Type*} [Semiring R] [AddCommMonoid A]
+    [Mul A] [SMulWithZero R A] [StarAddMonoid R] [Star A] {a : A} :
+    IsStarNormal (a : Unitization R A) ↔ IsStarNormal a := by
+  simp only [isStarNormal_iff, ← inr_star, ← inr_mul, inr_injective.eq_iff]
+
+lemma Unitization.instIsStarNormal (R : Type*) {A : Type*} [Semiring R] [AddCommMonoid A]
+    [Mul A] [SMulWithZero R A] [StarAddMonoid R] [Star A] (a : A) [IsStarNormal a] :
+    IsStarNormal (a : Unitization R A) :=
+  Unitization.isStarNormal_inr.mpr ‹_›
+
+end IsStarNormal
+
+section QuasispectrumCompact
+
+variable {𝕜 A : Type*} [NormedField 𝕜] [NonUnitalNormedRing A] [NormedSpace 𝕜 A] [CompleteSpace A]
+variable [ProperSpace 𝕜] [IsScalarTower 𝕜 A A] [SMulCommClass 𝕜 A A]
+
+theorem quasispectrum.isCompact (a : A) : IsCompact (quasispectrum 𝕜 a) := by
+  rw []
+  sorry
+
+instance quasispectrum.instCompactSpace (a : A) : CompactSpace (quasispectrum 𝕜 a) := sorry
+
+instance quasispectrum.instCompactSpaceNNReal {A : Type*} [NormedRing A] [NormedAlgebra ℝ A] (a : A)
+    [CompactSpace (spectrum ℝ a)] : CompactSpace (spectrum NNReal a) := sorry
+
+end QuasispectrumCompact
+
+section ContinuousMapClass
+
+variable {F A B : Type*} [NormedRing A] [NormedAlgebra ℂ A] [CompleteSpace A] [StarRing A]
+  [CstarRing A] [NormedRing B] [NormedAlgebra ℂ B] [CompleteSpace B] [StarRing B] [CstarRing B]
+  [FunLike F A B] [AlgHomClass F ℂ A B] [StarAlgHomClass F ℂ A B]
+
+-- Analysis.NormedSpace.Star.Spectrum
+lemma StarAlgHom.lipschitzWith_one (φ : F) : LipschitzWith 1 φ := by
+  simp_rw [lipschitzWith_iff_norm_sub_le, ← map_sub φ, NNReal.coe_one, one_mul]
+  exact fun _ _ ↦ norm_apply_le φ _
+
+end ContinuousMapClass
+
+variable {A : Type*} [NonUnitalNormedRing A] [StarRing A] [CstarRing A] [CompleteSpace A]
+variable [NormedSpace ℂ A] [IsScalarTower ℂ A A] [SMulCommClass ℂ A A] [StarModule ℂ A]
+
+local postfix:max "⁺¹" => Unitization ℂ
+local notation "σₙ" => quasispectrum
+local notation "σ" => spectrum
+
+variable (a : A) [ha : IsStarNormal a]
+
+open scoped ContinuousMapZero
+
+
+--def hom₁ : C(σₙ ℂ a, ℂ)₀ →⋆ₙₐ[ℂ] C(σₙ ℂ a, ℂ) :=
+  --ContinuousMapZero.toContinuousMapHom
+
+---- I think `quasispectrum_eq_spectrum_inr` is stated incorrectly.
+---- it should hold for non-unital rings
+def homeo : σ ℂ (a : A⁺¹) ≃ₜ σₙ ℂ a :=
+  .setCongr <| (Unitization.quasispectrum_eq_spectrum_inr' ℂ ℂ a).symm
+
+def hom₂ : C(σₙ ℂ a, ℂ) ≃⋆ₐ[ℂ] C(σ ℂ (a : A⁺¹), ℂ) :=
+  (homeo a).compStarAlgEquiv' ℂ ℂ
+
+--noncomputable def hom₃ : C(σ ℂ (a : A⁺¹), ℂ) →⋆ₐ[ℂ] A⁺¹ :=
+  --cfcHom (Unitization.instIsStarNormal ℂ a)
+
+set_option synthInstance.maxHeartbeats 50000
+instance : NonUnitalContinuousFunctionalCalculus ℂ (IsStarNormal : A → Prop) where
+  exists_cfc_of_predicate a ha := by
+    have ha' : IsStarNormal (a : A⁺¹) := Unitization.instIsStarNormal ℂ a
+    let φ₁ : C(σₙ ℂ a, ℂ)₀ →⋆ₙₐ[ℂ] C(σₙ ℂ a, ℂ) := ContinuousMapZero.toContinuousMapHom
+    let φ₂ : C(σₙ ℂ a, ℂ) ≃⋆ₐ[ℂ] C(σ ℂ (a : A⁺¹), ℂ) := Homeomorph.compStarAlgEquiv' ℂ ℂ <|
+      .setCongr <| (Unitization.quasispectrum_eq_spectrum_inr' ℂ ℂ a).symm
+    let φ₃ :  C(σ ℂ (a : A⁺¹), ℂ) →⋆ₐ[ℂ] A⁺¹ := cfcHom ha'
+    let φ := ((φ₃ : C(σ ℂ (a : A⁺¹), ℂ) →⋆ₙₐ[ℂ] A⁺¹).comp φ₂).comp φ₁
+    have hφ₂ : φ (ContinuousMapZero.id rfl) = a := cfcHom_id ha' -- so cool, it just works!
+    have foo : CompactSpace (σₙ ℂ a) := sorry
+    have hφ₁ : ClosedEmbedding φ := by
+      simp only [φ, NonUnitalStarAlgHom.coe_comp]
+      refine ((cfcHom_closedEmbedding ha').comp ?_).comp
+        ContinuousMapZero.closedEmbedding_toContinuousMapHom
+      let e : C(σₙ ℂ a, ℂ) ≃ₜ C(σ ℂ (a : A⁺¹), ℂ) :=
+        { (φ₂ : C(σₙ ℂ a, ℂ) ≃ C(σ ℂ (a : A⁺¹), ℂ)) with
+          continuous_toFun := StarAlgEquiv.isometry φ₂ |>.continuous
+          continuous_invFun := StarAlgEquiv.isometry φ₂.symm |>.continuous }
+      exact e.closedEmbedding
+    sorry
