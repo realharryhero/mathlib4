@@ -68,7 +68,7 @@ lemma unitization_algebraMap (r : 𝕜) :
 
 /-- `WithLp.equiv` bundled as an algebra isomorphism with `Unitization 𝕜 A`. -/
 @[simps!]
-def unitizationAlgEquiv {R : Type*} [CommSemiring R] [Algebra R 𝕜] [DistribMulAction R A]
+def unitizationAlgEquiv (R : Type*) [CommSemiring R] [Algebra R 𝕜] [DistribMulAction R A]
     [IsScalarTower R 𝕜 A] : WithLp 1 (Unitization 𝕜 A) ≃ₐ[R] Unitization 𝕜 A :=
   { WithLp.equiv 1 (Unitization 𝕜 A) with
     map_mul' := fun _ _ ↦ rfl

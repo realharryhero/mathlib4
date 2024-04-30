@@ -1,5 +1,6 @@
 import Mathlib
 import Mathlib.CFCNonUnital.AdjoinSpan
+import Mathlib.CFCNonUnital.UnitizationL1Norm
 
 section IsStarNormal
 
@@ -25,13 +26,16 @@ variable {𝕜 A : Type*} [NormedField 𝕜] [NonUnitalNormedRing A] [NormedSpac
 variable [ProperSpace 𝕜] [IsScalarTower 𝕜 A A] [SMulCommClass 𝕜 A A]
 
 theorem quasispectrum.isCompact (a : A) : IsCompact (quasispectrum 𝕜 a) := by
-  rw []
-  sorry
+  rw [Unitization.quasispectrum_eq_spectrum_inr' 𝕜 𝕜,
+    ← AlgEquiv.spectrum_eq (WithLp.unitizationAlgEquiv 𝕜).symm (a : Unitization 𝕜 A)]
+  exact spectrum.isCompact _
 
-instance quasispectrum.instCompactSpace (a : A) : CompactSpace (quasispectrum 𝕜 a) := sorry
+instance quasispectrum.instCompactSpace (a : A) : CompactSpace (quasispectrum 𝕜 a) :=
+  isCompact_iff_compactSpace.mp <| quasispectrum.isCompact a
 
-instance quasispectrum.instCompactSpaceNNReal {A : Type*} [NormedRing A] [NormedAlgebra ℝ A] (a : A)
-    [CompactSpace (spectrum ℝ a)] : CompactSpace (spectrum NNReal a) := sorry
+-- we will need this one, but it can wait.
+--instance quasispectrum.instCompactSpaceNNReal {A : Type*} [NormedRing A] [NormedAlgebra ℝ A]
+   -- (a : A) [CompactSpace (spectrum ℝ a)] : CompactSpace (spectrum NNReal a) := sorry
 
 end QuasispectrumCompact
 
