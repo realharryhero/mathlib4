@@ -97,6 +97,15 @@ lemma NonUnitalSubalgebra.map_adjoin {F R A B : Type*} [CommSemiring R]
   Set.image_preimage.l_comm_of_u_comm (gc_map_comap f) NonUnitalAlgebra.gi.gc
     NonUnitalAlgebra.gi.gc fun _t => rfl
 
+open NonUnitalAlgebra in
+@[simp]
+lemma NonUnitalSubalgebra.map_adjoin_singleton {F R A B : Type*} [CommSemiring R]
+    [NonUnitalNonAssocSemiring A] [NonUnitalNonAssocSemiring B] [Module R A] [Module R B]
+    [IsScalarTower R A A] [SMulCommClass R A A] [IsScalarTower R B B] [SMulCommClass R B B]
+    [FunLike F A B] [NonUnitalAlgHomClass F R A B] (f : F) (x : A) :
+    map f (adjoin R {x}) = adjoin R {f x} := by
+  simp [NonUnitalSubalgebra.map_adjoin]
+
 namespace Algebra
 
 variable {R A : Type*} [CommSemiring R] [Semiring A] [Algebra R A]
