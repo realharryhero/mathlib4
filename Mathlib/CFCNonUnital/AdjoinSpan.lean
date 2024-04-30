@@ -366,13 +366,15 @@ lemma ContinuousMapZero.toContinuousMap_id {s : Set 𝕜} [Zero s] (h0 : ((0 : s
     (ContinuousMapZero.id h0 : C(s, 𝕜)) = .restrict s (.id 𝕜) :=
   rfl
 
+-- should we just use `Fact (0 ∈ s)` to get a `Zero s` instance? Then we wouldn't need these `h0`s.
 open NonUnitalStarAlgebra in
-lemma ContinuousMapZero.closure_adjoin_id_eq_top {s : Set 𝕜} [Zero s]
-    (h0 : ((0 : s) : 𝕜) = 0) [CompactSpace s] :
-    closure (adjoin 𝕜 {(.id h0 : C(s, 𝕜)₀)} : Set C(s, 𝕜)₀) = Set.univ := by
+lemma ContinuousMapZero.adjoin_id_dense {s : Set 𝕜} [Zero s] (h0 : ((0 : s) : 𝕜) = 0)
+    [CompactSpace s] : Dense (adjoin 𝕜 {(.id h0 : C(s, 𝕜)₀)} : Set C(s, 𝕜)₀) := by
   have h0' : 0 ∈ s := h0 ▸ (0 : s).property
+  -- should move this out elsewhere
   have : T2Space C(s, 𝕜)₀ := closedEmbedding_toContinuousMapHom.toEmbedding.t2Space
-  rw [← closedEmbedding_toContinuousMapHom.injective.preimage_image (closure _),
+  rw [dense_iff_closure_eq,
+    ← closedEmbedding_toContinuousMapHom.injective.preimage_image (closure _),
     ← closedEmbedding_toContinuousMapHom.closure_image_eq, ← NonUnitalStarSubalgebra.coe_map,
     NonUnitalStarSubalgebra.map_adjoin_singleton, toContinuousMapHom_apply, toContinuousMap_id h0,
     ← ContinuousMap.ker_evalStarAlgHom_eq_closure_adjoin_id s h0']

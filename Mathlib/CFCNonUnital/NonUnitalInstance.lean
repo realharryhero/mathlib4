@@ -82,16 +82,10 @@ variable (a : A) [ha : IsStarNormal a]
 open scoped ContinuousMapZero
 
 
---def hom₁ : C(σₙ ℂ a, ℂ)₀ →⋆ₙₐ[ℂ] C(σₙ ℂ a, ℂ) :=
-  --ContinuousMapZero.toContinuousMapHom
-
 ---- I think `quasispectrum_eq_spectrum_inr` is stated incorrectly.
 ---- it should hold for non-unital rings
 def homeo : σ ℂ (a : A⁺¹) ≃ₜ σₙ ℂ a :=
   .setCongr <| (Unitization.quasispectrum_eq_spectrum_inr' ℂ ℂ a).symm
-
-def hom₂ : C(σₙ ℂ a, ℂ) ≃⋆ₐ[ℂ] C(σ ℂ (a : A⁺¹), ℂ) :=
-  (homeo a).compStarAlgEquiv' ℂ ℂ
 
 def φ₁ : C(σₙ ℂ a, ℂ)₀ →⋆ₙₐ[ℂ] C(σₙ ℂ a, ℂ) := ContinuousMapZero.toContinuousMapHom
 def φ₂ : C(σₙ ℂ a, ℂ) ≃⋆ₐ[ℂ] C(σ ℂ (a : A⁺¹), ℂ) := Homeomorph.compStarAlgEquiv' ℂ ℂ <|
@@ -125,36 +119,64 @@ lemma map_spec (f : C(σₙ ℂ a, ℂ)₀) : σ ℂ (φ a f) = Set.range f := b
 lemma isStarNormal_φ (f : C(σₙ ℂ a, ℂ)₀) : IsStarNormal (φ a f) :=
   IsStarNormal.map (φ a) (hr := ⟨Commute.all (star f) f⟩)
 
+-- TODO: generalize this
+def Unitization.homeomorphProd : Unitization ℂ A ≃ₜ ℂ × A :=
+  { Unitization.addEquiv ℂ A with
+    continuous_toFun := continuous_induced_dom,
+    continuous_invFun := continuous_induced_rng.mpr continuous_id }
+
 lemma mem_range_inr (f : C(σₙ ℂ a, ℂ)₀) :
     φ a f ∈ NonUnitalStarAlgHom.range (Unitization.inrNonUnitalStarAlgHom ℂ A) := by
+  have h₁ := (closedEmbedding_φ a).continuous.range_subset_closure_image_dense
+    (ContinuousMapZero.adjoin_id_dense (s := σₙ ℂ a) rfl) ⟨f, rfl⟩
+  rw [← SetLike.mem_coe]
+  refine closure_minimal ?_ ?_ h₁
+  · rw [← NonUnitalStarSubalgebra.coe_map, SetLike.coe_subset_coe, NonUnitalStarSubalgebra.map_le]
+    apply NonUnitalStarAlgebra.adjoin_le
+    apply Set.singleton_subset_iff.mpr
+    rw [SetLike.mem_coe, NonUnitalStarSubalgebra.mem_comap, map_id_φ a]
+    exact ⟨a, rfl⟩
+  · have : Continuous (Unitization.fst (R := ℂ) (A := A)) :=
+      Unitization.homeomorphProd.continuous.fst
+    simp only [NonUnitalStarAlgHom.coe_range]
+    convert IsClosed.preimage this (isClosed_singleton (x := 0))
+    aesop
 
-  sorry
+@[simps!]
+def Unitization.inrRangeEquiv (R A : Type*) [CommSemiring R] [StarAddMonoid R]
+    [NonUnitalSemiring A] [Star A] [Module R A] [IsScalarTower R A A] [SMulCommClass R A A] :
+    A ≃⋆ₐ[R] NonUnitalStarAlgHom.range (inrNonUnitalStarAlgHom R A) :=
+  StarAlgEquiv.ofLeftInverse' (snd_inr R)
 
+noncomputable
+def φ' : C(σₙ ℂ a, ℂ)₀ →⋆ₙₐ[ℂ] NonUnitalStarAlgHom.range (Unitization.inrNonUnitalStarAlgHom ℂ A) :=
+  NonUnitalStarAlgHom.codRestrict (φ a) _ (mem_range_inr a)
 
-#exit
---noncomputable def hom₃ : C(σ ℂ (a : A⁺¹), ℂ) →⋆ₐ[ℂ] A⁺¹ :=
-  --cfcHom (Unitization.instIsStarNormal ℂ a)
+noncomputable def φ'' : C(σₙ ℂ a, ℂ)₀ →⋆ₙₐ[ℂ] A :=
+  NonUnitalStarAlgHomClass.toNonUnitalStarAlgHom (Unitization.inrRangeEquiv ℂ A).symm |>.comp (φ' a)
 
-set_option synthInstance.maxHeartbeats 50000
+lemma coe_φ'' (f : C(σₙ ℂ a, ℂ)₀) : φ'' a f = φ a f :=
+  congr(Subtype.val $((Unitization.inrRangeEquiv ℂ A).apply_symm_apply ⟨φ a f, mem_range_inr a f⟩))
+
+lemma Unitization.closedEmbedding_inr : ClosedEmbedding (inr : A → A⁺¹) :=
+  isometry_inr (𝕜 := ℂ) (A := A) |>.closedEmbedding
+
 instance : NonUnitalContinuousFunctionalCalculus ℂ (IsStarNormal : A → Prop) where
   exists_cfc_of_predicate a ha := by
-    have ha' : IsStarNormal (a : A⁺¹) := Unitization.instIsStarNormal ℂ a
-    let φ₁ : C(σₙ ℂ a, ℂ)₀ →⋆ₙₐ[ℂ] C(σₙ ℂ a, ℂ) := ContinuousMapZero.toContinuousMapHom
-    let φ₂ : C(σₙ ℂ a, ℂ) ≃⋆ₐ[ℂ] C(σ ℂ (a : A⁺¹), ℂ) := Homeomorph.compStarAlgEquiv' ℂ ℂ <|
-      .setCongr <| (Unitization.quasispectrum_eq_spectrum_inr' ℂ ℂ a).symm
-    let φ₃ :  C(σ ℂ (a : A⁺¹), ℂ) →⋆ₐ[ℂ] A⁺¹ := cfcHom ha'
-    let φ := ((φ₃ : C(σ ℂ (a : A⁺¹), ℂ) →⋆ₙₐ[ℂ] A⁺¹).comp φ₂).comp φ₁
-    have map_spec (f : C(σₙ ℂ a, ℂ)₀) : σₙ ℂ (φ f) = Set.range f := by
-
-      sorry
-    --have hφ₂ : φ (ContinuousMapZero.id rfl) = a := cfcHom_id ha' -- so cool, it just works!
-    --have hφ₁ : ClosedEmbedding φ := by
-      --simp only [φ, NonUnitalStarAlgHom.coe_comp]
-      --refine ((cfcHom_closedEmbedding ha').comp ?_).comp
-        --ContinuousMapZero.closedEmbedding_toContinuousMapHom
-      --let e : C(σₙ ℂ a, ℂ) ≃ₜ C(σ ℂ (a : A⁺¹), ℂ) :=
-        --{ (φ₂ : C(σₙ ℂ a, ℂ) ≃ C(σ ℂ (a : A⁺¹), ℂ)) with
-          --continuous_toFun := StarAlgEquiv.isometry φ₂ |>.continuous
-          --continuous_invFun := StarAlgEquiv.isometry φ₂.symm |>.continuous }
-      --exact e.closedEmbedding
-    sorry
+    refine ⟨φ'' a, ?closedEmbedding, ?map_id, ?map_spec, ?isStarNormal⟩
+    case closedEmbedding =>
+      apply Unitization.isometry_inr (𝕜 := ℂ) (A := A) |>.closedEmbedding |>.of_comp_iff.mp
+      have : Unitization.inr ∘ φ'' a = φ a := by ext1; rw [Function.comp_apply, coe_φ'']
+      exact this ▸ closedEmbedding_φ a
+    case map_id =>
+      apply Unitization.inr_injective (R := ℂ)
+      rw [coe_φ'']
+      exact map_id_φ a
+    case map_spec =>
+      intro f
+      rw [Unitization.quasispectrum_eq_spectrum_inr' ℂ ℂ, coe_φ'']
+      exact map_spec a f
+    case isStarNormal =>
+      intro f
+      rw [← Unitization.isStarNormal_inr (R := ℂ), coe_φ'']
+      exact isStarNormal_φ a f
