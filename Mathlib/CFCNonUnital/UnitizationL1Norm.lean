@@ -23,7 +23,6 @@ theorem uniformEmbedding_unitization_addEquiv_prod :
   comap_uniformity := rfl
   inj := (unitization_addEquiv_prod 𝕜 A).injective
 
-/-- `Unitization 𝕜 A` is complete whenever `𝕜` and `A` are also.  -/
 instance instCompleteSpace [CompleteSpace 𝕜] [CompleteSpace A] :
     CompleteSpace (WithLp 1 (Unitization 𝕜 A)) :=
   (completeSpace_congr (uniformEmbedding_unitization_addEquiv_prod 𝕜 A)).mpr CompleteSpace.prod
@@ -50,19 +49,31 @@ lemma unitization_mul (x y : WithLp 1 (Unitization 𝕜 A)) :
     WithLp.equiv 1 _ (x * y) = (WithLp.equiv 1 _ x) * (WithLp.equiv 1 _ y) :=
   rfl
 
--- should generalize this and the next two lemmas further to other `SMul` instances and whatnot.
-instance instUnitizationAlgebra : Algebra 𝕜 (WithLp 1 (Unitization 𝕜 A)) :=
-  inferInstanceAs (Algebra 𝕜 (Unitization 𝕜 A))
+instance instSMul {R : Type*} [SMul R 𝕜] [SMul R A] : SMul R (WithLp 1 (Unitization 𝕜 A)) :=
+  inferInstanceAs (SMul R (Unitization 𝕜 A))
 
-lemma unitization_smul (r : 𝕜) (x : WithLp 1 (Unitization 𝕜 A)) :
+lemma unitization_smul {R : Type*} [SMul R 𝕜] [SMul R A] (r : R) (x : WithLp 1 (Unitization 𝕜 A)) :
     WithLp.equiv 1 _ (r • x) = r • (WithLp.equiv 1 _ x) :=
   rfl
+
+instance {R : Type*} [CommSemiring R] [Algebra R 𝕜] [DistribMulAction R A] [IsScalarTower R 𝕜 A] :
+    Algebra R (WithLp 1 (Unitization 𝕜 A)) :=
+  inferInstanceAs (Algebra R (Unitization 𝕜 A))
 
 @[simp]
 lemma unitization_algebraMap (r : 𝕜) :
     WithLp.equiv 1 _ (algebraMap 𝕜 (WithLp 1 (Unitization 𝕜 A)) r) =
       algebraMap 𝕜 (Unitization 𝕜 A) r :=
   rfl
+
+/-- `WithLp.equiv` bundled as an algebra isomorphism with `Unitization 𝕜 A`. -/
+@[simps!]
+def unitizationAlgEquiv {R : Type*} [CommSemiring R] [Algebra R 𝕜] [DistribMulAction R A]
+    [IsScalarTower R 𝕜 A] : WithLp 1 (Unitization 𝕜 A) ≃ₐ[R] Unitization 𝕜 A :=
+  { WithLp.equiv 1 (Unitization 𝕜 A) with
+    map_mul' := fun _ _ ↦ rfl
+    map_add' := fun _ _ ↦ rfl
+    commutes' := fun _ ↦ rfl }
 
 noncomputable instance instUnitizationNormedRing : NormedRing (WithLp 1 (Unitization 𝕜 A)) where
   dist_eq := dist_eq_norm
