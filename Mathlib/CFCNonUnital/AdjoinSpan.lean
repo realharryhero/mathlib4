@@ -1,5 +1,7 @@
-import Mathlib
+import Mathlib.Algebra.Algebra.Subalgebra.Unitization
 import Mathlib.CFCNonUnital.ContinuousMapZeroMaterial
+import Mathlib.Tactic.Peel
+import Mathlib.Topology.ContinuousFunction.StoneWeierstrass
 
 open Submodule
 

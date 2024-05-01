@@ -1,5 +1,4 @@
 import Mathlib.Algebra.Algebra.Unitization
-import Mathlib.Analysis.NormedSpace.OperatorNorm.Mul
 import Mathlib.Analysis.NormedSpace.ProdLp
 
 variable (𝕜 A : Type*) [NormedField 𝕜] [NonUnitalNormedRing A]

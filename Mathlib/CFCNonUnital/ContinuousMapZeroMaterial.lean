@@ -1,4 +1,6 @@
-import Mathlib
+import Mathlib.Algebra.Algebra.Unitization
+import Mathlib.Topology.ContinuousFunction.ContinuousMapZero
+import Mathlib.Topology.Algebra.Algebra
 
 variable {X R : Type*} [TopologicalSpace X] [Zero X]
 variable [TopologicalSpace R] [CommRing R] [TopologicalRing R]
@@ -127,38 +129,3 @@ noncomputable def unitizationStarAlgEquiv [StarRing R] [ContinuousStar R] :
     simp only [StarAlgHom.toFun_eq_coe, starLift_apply_apply]
     simp [algebraMap_eq_inl]
   map_smul' r u := (starLift (toContinuousMapHom (X := X) (R := R))).map_smul r u
-
-open Polynomial
-
-example :
-    (fun f : C(R, R) ↦ f - algebraMap R C(R, R) (f 0)) '' ((⊤ : Subalgebra R R[X]).map toContinuousMapAlgHom) ⊆
-      NonUnitalAlgebra.adjoin R {(.id R : C(R, R))} := by
-  rintro - ⟨-, ⟨p, -, rfl⟩, rfl⟩
-  simp only [RingHom.coe_coe, SetLike.mem_coe]
-  induction p using Polynomial.induction_on with
-  | h_C r =>
-    have : Polynomial.toContinuousMap (C r) - (algebraMap R C(R, R)) (eval 0 (C r)) = 0 := by
-      ext; simp
-    exact this ▸ zero_mem _
-  | h_add p q hp hq =>
-    simp [add_sub_add_comm]
-    exact add_mem hp hq
-  | h_monomial n r h =>
-    sorry
-
-example :
-    ofContinuousMap (X := R) (R := R) '' (Subalgebra.map toContinuousMapAlgHom (⊤ : Subalgebra R R[X])) ⊆
-      NonUnitalAlgebra.adjoin R {(⟨.id R, rfl⟩ : C(R, R)₀)} := by
-  rintro - ⟨-, ⟨p, -, rfl⟩, rfl⟩
-  simp only [RingHom.coe_coe, SetLike.mem_coe]
-  induction p using Polynomial.induction_on with
-  | h_C r =>
-    have : ofContinuousMap (X := R) (R := R) (Polynomial.toContinuousMap (C r)) = 0 := by
-      ext; simp
-    exact this ▸ zero_mem _
-  | h_add p q hp hq => aesop
-  | h_monomial n r h =>
-    rw [pow_succ', ← mul_assoc, map_mul, ← smul_eq_mul]
-    simp only [toContinuousMapAlgHom_apply]
-    lift (Polynomial.X.toContinuousMap : C(R, R)) to C(R, R)₀ using (by simp) with foo
-    sorry
