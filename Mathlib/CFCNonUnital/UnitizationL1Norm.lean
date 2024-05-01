@@ -1,6 +1,21 @@
 import Mathlib.Algebra.Algebra.Unitization
 import Mathlib.Analysis.NormedSpace.ProdLp
 
+/-! # Unitization equipped with the $L^1$ norm
+
+In another file, the `Unitization 𝕜 A` of a non-unital normed `𝕜`-algebra `A` is equipped with the
+norm inherited as the pullback via a map (closely related to) the left-regular representation of the
+algebra on itself.
+
+However, this construction is only valid (and an isometry) when `A` is a `RegularNormedAlgebra`.
+Sometimes it is useful to consider the unitization of a non-unital algebra with the $L^1$ norm
+instead. This file provides that norm on the type synonym `WithLp 1 (Unitization 𝕜 A)`, along
+with the algebra isomomorphism between `Unitization 𝕜 A` and `WithLp 1 (Unitization 𝕜 A)`.
+
+One application of this is a stragihtforward proof that the quasispectrum of an element in a
+non-untal Banach algebra is compact, which can be established by passing to the unitization.
+-/
+
 variable (𝕜 A : Type*) [NormedField 𝕜] [NonUnitalNormedRing A]
 variable [NormedSpace 𝕜 A] [IsScalarTower 𝕜 A A] [SMulCommClass 𝕜 A A]
 
@@ -17,14 +32,17 @@ noncomputable instance instUnitizationNormedAddCommGroup :
   NormedAddCommGroup.induced (WithLp 1 (Unitization 𝕜 A)) (WithLp 1 (𝕜 × A))
     (unitization_addEquiv_prod 𝕜 A) (AddEquiv.injective _)
 
-theorem uniformEmbedding_unitization_addEquiv_prod :
-    UniformEmbedding (unitization_addEquiv_prod 𝕜 A) where
-  comap_uniformity := rfl
-  inj := (unitization_addEquiv_prod 𝕜 A).injective
+/-- Bundle `WithLp.unitization_addEquiv_prod` as a `UniformEquiv`. -/
+noncomputable def uniformEquiv_unitization_addEquiv_prod :
+    WithLp 1 (Unitization 𝕜 A) ≃ᵤ WithLp 1 (𝕜 × A) :=
+  { unitization_addEquiv_prod 𝕜 A with
+    uniformContinuous_invFun := uniformContinuous_comap' uniformContinuous_id
+    uniformContinuous_toFun := uniformContinuous_iff.mpr le_rfl }
 
 instance instCompleteSpace [CompleteSpace 𝕜] [CompleteSpace A] :
     CompleteSpace (WithLp 1 (Unitization 𝕜 A)) :=
-  (completeSpace_congr (uniformEmbedding_unitization_addEquiv_prod 𝕜 A)).mpr CompleteSpace.prod
+  completeSpace_congr (uniformEquiv_unitization_addEquiv_prod 𝕜 A).uniformEmbedding |>.mpr
+    CompleteSpace.prod
 
 variable {𝕜 A}
 
@@ -39,6 +57,18 @@ lemma unitization_norm_def (x : WithLp 1 (Unitization 𝕜 A)) :
 lemma unitization_nnnorm_def (x : WithLp 1 (Unitization 𝕜 A)) :
     ‖x‖₊ = ‖(WithLp.equiv 1 _ x).fst‖₊ + ‖(WithLp.equiv 1 _ x).snd‖₊ :=
   Subtype.ext <| unitization_norm_def x
+
+lemma unitization_norm_inr (x : A) : ‖(WithLp.equiv 1 (Unitization 𝕜 A)).symm x‖ = ‖x‖ := by
+  simp [unitization_norm_def]
+
+lemma unitization_nnnorm_inr (x : A) : ‖(WithLp.equiv 1 (Unitization 𝕜 A)).symm x‖₊ = ‖x‖₊ := by
+  simp [unitization_nnnorm_def]
+
+lemma unitization_isometry_inr :
+    Isometry (fun x : A ↦ (WithLp.equiv 1 (Unitization 𝕜 A)).symm x) :=
+  AddMonoidHomClass.isometry_of_norm
+    ((WithLp.linearEquiv 1 𝕜 (Unitization 𝕜 A)).symm.comp <| Unitization.inrHom 𝕜 A)
+    unitization_norm_inr
 
 instance instUnitizationRing : Ring (WithLp 1 (Unitization 𝕜 A)) :=
   inferInstanceAs (Ring (Unitization 𝕜 A))
