@@ -22,6 +22,23 @@ theorem ClosedEmbedding.of_comp_iff (hg : ClosedEmbedding g) :
     ← hg.closed_iff_image_closed]
 
 end MissingTopology
+
+section MissingUniformity
+
+variable {α β γ : Type*} [UniformSpace α] [UniformSpace β] [UniformSpace γ] {g : β → γ} {f : α → β}
+
+theorem UniformInducing.of_comp_iff (hg : UniformInducing g) :
+    UniformInducing (g ∘ f) ↔ UniformInducing f := by
+  refine ⟨fun h ↦ ?_, hg.comp⟩
+  rw [uniformInducing_iff, ← hg.comap_uniformity, Filter.comap_comap, ← h.comap_uniformity,
+    Function.comp, Function.comp]
+
+theorem UniformEmbedding.of_comp_iff (hg : UniformEmbedding g) :
+    UniformEmbedding (g ∘ f) ↔ UniformEmbedding f := by
+  simp_rw [uniformEmbedding_iff, hg.toUniformInducing.of_comp_iff, hg.inj.of_comp_iff f]
+
+end MissingUniformity
+
 section IsStarNormal
 
 lemma isStarNormal_iff {R : Type*} [Mul R] [Star R] {x : R} :
