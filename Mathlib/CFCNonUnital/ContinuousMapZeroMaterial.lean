@@ -90,34 +90,6 @@ lemma smul_coe (f : C(X, R)) (g₀ : C(X, R)₀) : f • (g₀ : C(X, R)) = ↑(
 @[simp] lemma coe_smul' (g : C(X, R)) (f : C(X, R)₀) : ⇑(g • f) = ⇑g • ⇑f := rfl
 @[simp] lemma coe_star [StarRing R] [ContinuousStar R] (f : C(X, R)₀) : ⇑(star f) = star ⇑f := rfl
 
-
-@[simps!]
-noncomputable def ofContinuousMap : C(X, R) →L[R] C(X, R)₀ where
-  toFun f := ⟨f - algebraMap R C(X, R) (f 0), by simp⟩
-  map_add' f g := by ext; simp [sub_add_sub_comm]
-  map_smul' r f := by ext; simp [mul_sub]
-  cont := by
-    simp only [continuous_induced_rng, Function.comp]
-    exact continuous_id.sub <| ContinuousMap.continuous_const'.comp <|
-      ContinuousMap.continuous_eval_const (0 : X)
-
-lemma surjective_ofContinuousMap : Function.Surjective (ofContinuousMap (X := X) (R := R)) :=
-  fun f ↦ ⟨f, by ext; simp⟩
-
--- missing instance!
-instance [LocallyCompactSpace X] : TopologicalSemiring C(X, R) := by exact TopologicalSemiring.mk
-
--- missing `fun_prop` attributes!
-attribute [fun_prop] continuous_algebraMap ContinuousMap.continuous_eval_const
-
-lemma ofContinuousMap_of_map_zero (f₀ : C(X, R)₀) :
-    ofContinuousMap (X := X) (R := R) f₀ = f₀ := by
-  ext; simp
-
-lemma ofContinuousMap_of_map_zero' (f : C(X, R)) (hf : f 0 = 0) :
-    ofContinuousMap (X := X) (R := R) f = ⟨f, hf⟩ :=
-  ofContinuousMap_of_map_zero ⟨f, hf⟩
-
 instance instCanLift : CanLift C(X, R) C(X, R)₀ (↑) (fun f ↦ f 0 = 0) where
   prf f hf := ⟨⟨f, hf⟩, rfl⟩
 
@@ -188,12 +160,15 @@ section Ring
 variable {X R : Type*} [TopologicalSpace X] [Zero X]
 variable [TopologicalSpace R] [CommRing R] [TopologicalRing R]
 
--- this is not a continuous linear map in general unless `X` is locally compact. Or is it?
 @[simps!]
-noncomputable def ofContinuousMap : C(X, R) →ₗ[R] C(X, R)₀ where
+noncomputable def ofContinuousMap : C(X, R) →L[R] C(X, R)₀ where
   toFun f := ⟨f - algebraMap R C(X, R) (f 0), by simp⟩
   map_add' f g := by ext; simp [sub_add_sub_comm]
   map_smul' r f := by ext; simp [mul_sub]
+  cont := by
+    simp only [continuous_induced_rng, Function.comp]
+    exact continuous_id.sub <| ContinuousMap.continuous_const'.comp <|
+      ContinuousMap.continuous_eval_const (0 : X)
 
 lemma surjective_ofContinuousMap : Function.Surjective (ofContinuousMap (X := X) (R := R)) :=
   fun f ↦ ⟨f, by ext; simp⟩
@@ -203,14 +178,6 @@ instance [LocallyCompactSpace X] : TopologicalSemiring C(X, R) := by exact Topol
 
 -- missing `fun_prop` attributes!
 attribute [fun_prop] continuous_algebraMap ContinuousMap.continuous_eval_const
-
--- we don't bundle this above because it requires `X` to be locally compact.
-@[fun_prop]
-lemma continuous_ofContinuousMap [LocallyCompactSpace X] :
-    Continuous (ofContinuousMap (X := X) (R := R)) := by
-  simp only [ofContinuousMap, LinearMap.coe_mk, AddHom.coe_mk, continuous_induced_rng,
-    Function.comp]
-  fun_prop
 
 lemma ofContinuousMap_of_map_zero (f₀ : C(X, R)₀) :
     ofContinuousMap (X := X) (R := R) f₀ = f₀ := by
