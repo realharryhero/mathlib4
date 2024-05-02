@@ -2,7 +2,7 @@ import Std.Data.List.Basic
 import Mathlib.Tactic.Propose
 import Mathlib.Tactic.GuardHypNums
 import Mathlib.Algebra.Associated
-import Mathlib.Data.Set.Basic
+import Mathlib.Data.Set.Subsingleton
 
 -- For debugging, you may find these options useful:
 -- set_option trace.Tactic.propose true
@@ -60,7 +60,7 @@ info: Try this: have : List.Disjoint M L := List.disjoint_symm w
 info: Try this: have : a ∉ M := foo L M w m
 -/
 #guard_msgs in
-example (K L M : List α) (w : L.Disjoint M) (m : a ∈ L) : True := by
+example (_K L M : List α) (w : L.Disjoint M) (m : a ∈ L) : True := by
   have?! using w
   guard_hyp List.disjoint_symm : List.Disjoint M L := _root_.List.disjoint_symm w
   have : a ∉ M := by assumption
