@@ -1,8 +1,59 @@
 import Mathlib.Algebra.Algebra.Unitization
 import Mathlib.Topology.ContinuousFunction.ContinuousMapZero
 import Mathlib.Topology.Algebra.Algebra
+import Mathlib.Topology.IsLocalHomeomorph -- because of badly placed toHomeomeomorph_of_surjective
 
-variable {X R : Type*} [TopologicalSpace X] [Zero X]
+open Set Topology TopologicalSpace Function
+
+theorem Set.exists_image2_iff {α β γ : Type*} {f : α → β → γ} {s : Set α} {t : Set β}
+    {p : γ → Prop}  :
+    (∃ z ∈ image2 f s t, p z) ↔ ∃ x ∈ s, ∃ y ∈ t, p (f x y) := by
+  simp only [mem_image2, exists_exists_and_exists_and_eq_and]
+
+section MissingHomeomorph
+
+variable {X Y Z : Type*} [TopologicalSpace X] [TopologicalSpace Y] [TopologicalSpace Z]
+
+@[simps]
+def ContinuousMap.inl : C(X, X ⊕ Y) where
+  toFun := Sum.inl
+
+@[simps]
+def ContinuousMap.inr : C(Y, X ⊕ Y) where
+  toFun := Sum.inr
+
+@[simps]
+def ContinuousMap.sumElim (f : C(X, Z) × C(Y, Z)) : C(X ⊕ Y, Z) where
+  toFun := Sum.elim f.1 f.2
+
+def Homeomorph.sumCompl {s : Set X} [DecidablePred (· ∈ s)] (hs : IsClopen s) :
+    s ⊕ (sᶜ : Set X) ≃ₜ X :=
+  .homeomorphOfContinuousOpen (Equiv.Set.sumCompl s)
+    (by rw [continuous_sum_dom]; exact ⟨continuous_subtype_val, continuous_subtype_val⟩)
+    (by
+      rw [isOpenMap_sum]
+      exact ⟨hs.isOpen.isOpenMap_subtype_val, hs.compl.isOpen.isOpenMap_subtype_val⟩)
+
+variable (X Y Z) in
+@[simps]
+def ContinuousMap.sumEquiv :
+    C(X, Z) × C(Y, Z) ≃ C(X ⊕ Y, Z) where
+  toFun := ContinuousMap.sumElim
+  invFun f := ⟨f.comp .inl, f.comp .inr⟩
+  left_inv f := rfl
+  right_inv f := ext <| by rintro (x|y) <;> rfl
+
+variable (X Y Z) in
+def ContinuousMap.sumHomeomorph :
+    C(X, Z) × C(Y, Z) ≃ₜ C(X ⊕ Y, Z) where
+  toEquiv := ContinuousMap.sumEquiv X Y Z
+  continuous_toFun := continuous_compactOpen.mpr fun K hK U hU ↦ by
+    sorry
+  continuous_invFun := sorry
+
+end MissingHomeomorph
+
+variable {X Y R : Type*} [TopologicalSpace X] [Zero X]
 variable [TopologicalSpace R] [CommRing R] [TopologicalRing R]
 
 namespace ContinuousMapZero
@@ -23,12 +74,15 @@ lemma smul_coe (f : C(X, R)) (g₀ : C(X, R)₀) : f • (g₀ : C(X, R)) = ↑(
 @[simp] lemma coe_smul (r : R) (f : C(X, R)₀) : ⇑(r • f) = r • f := rfl
 @[simp] lemma coe_smul' (g : C(X, R)) (f : C(X, R)₀) : ⇑(g • f) = ⇑g • ⇑f := rfl
 
--- this is not a continuous linear map in general unless `X` is locally compact. Or is it?
 @[simps!]
-noncomputable def ofContinuousMap : C(X, R) →ₗ[R] C(X, R)₀ where
+noncomputable def ofContinuousMap : C(X, R) →L[R] C(X, R)₀ where
   toFun f := ⟨f - algebraMap R C(X, R) (f 0), by simp⟩
   map_add' f g := by ext; simp [sub_add_sub_comm]
   map_smul' r f := by ext; simp [mul_sub]
+  cont := by
+    simp only [continuous_induced_rng, Function.comp]
+    exact continuous_id.sub <| ContinuousMap.continuous_const'.comp <|
+      ContinuousMap.continuous_eval_const (0 : X)
 
 lemma surjective_ofContinuousMap : Function.Surjective (ofContinuousMap (X := X) (R := R)) :=
   fun f ↦ ⟨f, by ext; simp⟩
@@ -38,14 +92,6 @@ instance [LocallyCompactSpace X] : TopologicalSemiring C(X, R) := by exact Topol
 
 -- missing `fun_prop` attributes!
 attribute [fun_prop] continuous_algebraMap ContinuousMap.continuous_eval_const
-
--- we don't bundle this above because it requires `X` to be locally compact.
-@[fun_prop]
-lemma continuous_ofContinuousMap [LocallyCompactSpace X] :
-    Continuous (ofContinuousMap (X := X) (R := R)) := by
-  simp only [ofContinuousMap, LinearMap.coe_mk, AddHom.coe_mk, continuous_induced_rng,
-    Function.comp]
-  fun_prop
 
 lemma ofContinuousMap_of_map_zero (f₀ : C(X, R)₀) :
     ofContinuousMap (X := X) (R := R) f₀ = f₀ := by
@@ -57,6 +103,17 @@ lemma ofContinuousMap_of_map_zero' (f : C(X, R)) (hf : f 0 = 0) :
 
 instance instCanLift : CanLift C(X, R) C(X, R)₀ (↑) (fun f ↦ f 0 = 0) where
   prf f hf := ⟨⟨f, hf⟩, rfl⟩
+
+lemma closedEmbedding_precomp_toContinuousMap_of_almost_surj [T1Space X] [TopologicalSpace Y]
+    {i : Y → X} (hi₁ : ClosedEmbedding i) (hi₂ : range i ∪ {0} = univ) :
+    ClosedEmbedding (fun f : C(X, R)₀ ↦ f.toContinuousMap.comp ⟨i, hi₁.continuous⟩) := by
+  set φ : C(X, R)₀ → C(Y, R) := fun f ↦ f.toContinuousMap.comp ⟨i, hi₁.continuous⟩
+  by_cases h0 : 0 ∈ range i
+  · have : Surjective i := sorry
+    set I : Y ≃ₜ X := hi₁.toEmbedding.toHomeomeomorph_of_surjective this
+    sorry
+  · have : IsClopen {0} := sorry
+    sorry
 
 @[simps]
 def toContinuousMapHom [StarRing R] [ContinuousStar R] : C(X, R)₀ →⋆ₙₐ[R] C(X, R) where

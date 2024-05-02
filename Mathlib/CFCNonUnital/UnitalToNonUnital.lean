@@ -13,10 +13,11 @@ lemma ContinuousFunctionalCalculus.toNonUnital : NonUnitalContinuousFunctionalCa
     let f : C(spectrum R a, quasispectrum R a) :=
       ⟨_, continuous_inclusion <| spectrum_subset_quasispectrum R a⟩
     let ψ := ContinuousMap.compStarAlgHom' R R f
-    let ψ' := ((cfcHom ha (R := R) : C(spectrum R a, R) →⋆ₙₐ[R] A).comp
-      (ψ : C(quasispectrum R a, R) →⋆ₙₐ[R] C(spectrum R a, R))).comp e
+    let ψ' := (cfcHom ha (R := R) : C(spectrum R a, R) →⋆ₙₐ[R] A).comp <|
+      (ψ : C(quasispectrum R a, R) →⋆ₙₐ[R] C(spectrum R a, R)).comp e
     refine ⟨ψ', ?closedEmbedding, ?map_id, ?map_spectrum, ?predicate⟩
-    case closedEmbedding => sorry
+    case closedEmbedding =>
+      constructor
     case map_id => exact cfcHom_id ha
     case map_spectrum =>
       intro f
