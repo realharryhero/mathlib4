@@ -49,6 +49,9 @@ variable {R S A : Type*} [Semifield R] [Field S] [NonUnitalRing A]
   [Module S A] [IsScalarTower S A A] [SMulCommClass S A A]
   [Algebra R S] [IsScalarTower R S A] [SMulCommClass R S A]
 
+protected theorem map_zero {f : S → R} {a : A} (h : QuasispectrumRestricts a f) : f 0 = 0 := by
+  rw [← h.left_inv 0, map_zero (algebraMap R S)]
+
 theorem of_subset_range_algebraMap (a : A) (f : S → R) (hf : f.LeftInverse (algebraMap R S))
     (h : quasispectrum S a ⊆ Set.range (algebraMap R S)) : QuasispectrumRestricts a f where
   rightInvOn := fun s hs => by obtain ⟨r, rfl⟩ := h hs; rw [hf r]
