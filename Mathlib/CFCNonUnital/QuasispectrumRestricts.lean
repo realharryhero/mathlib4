@@ -1,5 +1,11 @@
 import Mathlib.Algebra.Algebra.Quasispectrum
 
+------------------------------------------------------------------------------
+/-
+COMBINED VERSION OF ENTIRE FILE PR https://github.com/leanprover-community/mathlib4/pull/12643
+-/
+------------------------------------------------------------------------------
+
 lemma mem_quasispectrum_iff {R A : Type*} [Semifield R] [Ring A]
     [Algebra R A] {a : A} {x : R} :
     x ∈ quasispectrum R a ↔ x = 0 ∨ x ∈ spectrum R a := by

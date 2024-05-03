@@ -278,6 +278,7 @@ instance IsSelfAdjoint.instNonUnitalContinuousFunctionalCalculus
 end SelfAdjoint
 
 namespace QuasispectrumRestricts
+-- PR #12643 https://github.com/leanprover-community/mathlib4/pull/12643
 
 variable {A : Type*} [NonUnitalRing A]
 

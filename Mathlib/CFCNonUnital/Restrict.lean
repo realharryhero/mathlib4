@@ -94,6 +94,7 @@ namespace QuasispectrumRestricts
 local notation "σₙ" => quasispectrum
 open ContinuousMapZero
 
+-- PR #12643 https://github.com/leanprover-community/mathlib4/pull/12643
 lemma compactSpace {R S A : Type*} [Semifield R] [Field S] [NonUnitalRing A]
     [Algebra R S] [Module R A] [Module S A] [IsScalarTower S A A] [SMulCommClass S A A]
     [IsScalarTower R S A] [TopologicalSpace R] [TopologicalSpace S] {a : A} (f : C(S, R))
