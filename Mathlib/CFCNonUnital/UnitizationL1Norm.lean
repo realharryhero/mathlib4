@@ -21,6 +21,13 @@ variable [NormedSpace 𝕜 A] [IsScalarTower 𝕜 A A] [SMulCommClass 𝕜 A A]
 
 namespace WithLp
 
+/-
+------------------------------------------------------------------------------
+
+THIS WHOLE FILE HAS A PR: #12582 (https://github.com/leanprover-community/mathlib4/pull/12582)
+
+------------------------------------------------------------------------------
+-/
 open Unitization
 
 /-- The natural map between `Unitization 𝕜 A` and `𝕜 × A`, transferred to their `WithLp 1`
