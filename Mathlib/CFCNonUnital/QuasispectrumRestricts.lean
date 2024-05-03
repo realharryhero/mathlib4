@@ -23,6 +23,20 @@ structure QuasispectrumRestricts
   /-- `f` is a left inverse of `algebraMap R S`. -/
   left_inv : Function.LeftInverse f (algebraMap R S)
 
+lemma quasispectrumRestricts_iff
+    {R S A : Type*} [CommSemiring R] [CommSemiring S] [NonUnitalRing A]
+    [Module R A] [Module S A] [Algebra R S] (a : A) (f : S → R) :
+    QuasispectrumRestricts a f ↔ (quasispectrum S a).RightInvOn f (algebraMap R S) ∧
+      Function.LeftInverse f (algebraMap R S) :=
+  ⟨fun ⟨h₁, h₂⟩ ↦ ⟨h₁, h₂⟩, fun ⟨h₁, h₂⟩ ↦ ⟨h₁, h₂⟩⟩
+
+lemma spectrumRestricts_iff
+    {R S A : Type*} [CommSemiring R] [CommSemiring S] [Ring A] [Algebra R A] [Algebra S A]
+    [Algebra R S] (a : A) (f : S → R) :
+    SpectrumRestricts a f ↔ (spectrum S a).RightInvOn f (algebraMap R S) ∧
+      Function.LeftInverse f (algebraMap R S) :=
+  ⟨fun ⟨h₁, h₂⟩ ↦ ⟨h₁, h₂⟩, fun ⟨h₁, h₂⟩ ↦ ⟨h₁, h₂⟩⟩
+
 @[simp]
 theorem quasispectrum.algebraMap_mem_iff (S : Type*) {R A : Type*} [Semifield R] [Field S]
     [NonUnitalRing A] [Algebra R S] [Module S A] [IsScalarTower S A A]
@@ -93,5 +107,24 @@ protected lemma comp {R₁ R₂ R₃ A : Type*} [Semifield R₁] [Field R₂] [F
     congrm(⇑$(IsScalarTower.algebraMap_eq R₁ R₂ R₃))
 
 end NonUnital
+
+theorem quasispectrumRestricts_iff_spectrumRestricts_inr {R S A : Type*} [Semifield R] [Field S]
+    [NonUnitalRing A] [Algebra R S] [Module R A] [Module S A] [IsScalarTower S A A]
+    [SMulCommClass S A A] [IsScalarTower R S A] (a : A) (f : S → R) :
+    QuasispectrumRestricts a f ↔ SpectrumRestricts (a : Unitization S A) f := by
+  rw [quasispectrumRestricts_iff, spectrumRestricts_iff,
+    ← Unitization.quasispectrum_eq_spectrum_inr']
+
+theorem quasispectrumRestricts_iff_spectrumRestricts {R S A : Type*} [Semifield R] [Semifield S]
+    [Ring A] [Algebra R S] [Algebra R A] [Algebra S A] [IsScalarTower S A A]
+    [SMulCommClass S A A] [IsScalarTower R S A] (a : A) (f : S → R) :
+    QuasispectrumRestricts a f ↔ SpectrumRestricts a f := by
+  rw [quasispectrumRestricts_iff, spectrumRestricts_iff, quasispectrum_eq_spectrum_union_zero]
+  refine and_congr_left fun h ↦ ?_
+  refine ⟨(Set.RightInvOn.mono · (Set.subset_union_left _ _)), fun h' x hx ↦ ?_⟩
+  simp only [Set.union_singleton, Set.mem_insert_iff] at hx
+  obtain (rfl | hx) := hx
+  · simpa using h 0
+  · exact h' hx
 
 end QuasispectrumRestricts
