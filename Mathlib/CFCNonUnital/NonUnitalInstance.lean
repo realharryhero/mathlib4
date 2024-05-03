@@ -41,7 +41,7 @@ theorem UniformEmbedding.of_comp_iff (hg : UniformEmbedding g) :
 
 end MissingUniformity
 
-section IsStarNormal
+section IsStarNormal -- PR: #12641 https://github.com/leanprover-community/mathlib4/pull/12641
 
 lemma isStarNormal_iff {R : Type*} [Mul R] [Star R] {x : R} :
     IsStarNormal x ↔ star x * x = x * star x :=
