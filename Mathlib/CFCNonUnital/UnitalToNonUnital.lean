@@ -3,7 +3,9 @@ import Mathlib.CFCNonUnital.ContinuousMapZeroMaterial
 
 section Generic
 
-variable {R A : Type*} {p : A → Prop} [Field R] [StarRing R] [MetricSpace R]
+open ContinuousMapZero
+
+variable {R A : Type*} {p : A → Prop} [Field R] [StarRing R] [MetricSpace R] [CompleteSpace R]
 variable [TopologicalRing R] [ContinuousStar R] [Ring A] [StarRing A] [TopologicalSpace A]
 variable [Algebra R A] [ContinuousFunctionalCalculus R p]
 
@@ -17,7 +19,13 @@ lemma ContinuousFunctionalCalculus.toNonUnital : NonUnitalContinuousFunctionalCa
       (ψ : C(quasispectrum R a, R) →⋆ₙₐ[R] C(spectrum R a, R)).comp e
     refine ⟨ψ', ?closedEmbedding, ?map_id, ?map_spectrum, ?predicate⟩
     case closedEmbedding =>
-      constructor
+      suffices ClosedEmbedding (ψ ∘ e) from (cfcHom_closedEmbedding ha).comp this
+      have : CompleteSpace C(quasispectrum R a, R)₀ := sorry
+      suffices UniformEmbedding (ψ ∘ e) from sorry -- in a PR, uses completeness
+      suffices UniformInducing (ψ ∘ e) from sorry -- should be this.uniformEmbedding
+      have : ClosedEmbedding f := sorry
+      refine uniformInducing_precomp_toContinuousMap_of_almost_surj this ?_
+      sorry
     case map_id => exact cfcHom_id ha
     case map_spectrum =>
       intro f

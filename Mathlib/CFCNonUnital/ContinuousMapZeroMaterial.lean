@@ -3,7 +3,7 @@ import Mathlib.Topology.ContinuousFunction.ContinuousMapZero
 import Mathlib.Topology.Algebra.Algebra
 import Mathlib.Topology.IsLocalHomeomorph -- because of badly placed toHomeomeomorph_of_surjective
 
-open Set Topology TopologicalSpace Function
+open Set Topology TopologicalSpace Function Uniformity
 
 theorem Set.exists_image2_iff {α β γ : Type*} {f : α → β → γ} {s : Set α} {t : Set β}
     {p : γ → Prop}  :
@@ -53,10 +53,72 @@ def ContinuousMap.sumHomeomorph :
 
 end MissingHomeomorph
 
-variable {X Y R : Type*} [TopologicalSpace X] [Zero X]
-variable [TopologicalSpace R] [CommRing R] [TopologicalRing R]
+section MissingCompactOpen
 
+namespace ContinuousMap
+
+variable {X₁ X₂ Y : Type*} (Z : Type*) {i₁ : X₁ → Y} {i₂ : X₂ → Y}
+    [TopologicalSpace X₁] [TopologicalSpace X₂] [TopologicalSpace Y]
+    [UniformSpace Z]
+
+-- TODO:
+-- 1) make proof cleaner (do we really need bases ? One inequality should be easy at least)
+-- 2) generalize to UniformOnFun
+-- 3) can we do a purely topological statement ?
+lemma foo (hi₁ : ClosedEmbedding i₁) (hi₂ : ClosedEmbedding i₂) (hi : range i₁ ∪ range i₂ = univ) :
+    (inferInstance : UniformSpace C(Y, Z)) =
+      (.comap (fun f ↦ f.comp ⟨i₁, hi₁.continuous⟩) inferInstance)
+      ⊓ (.comap (fun f ↦ f.comp ⟨i₂, hi₂.continuous⟩) inferInstance) := UniformSpace.ext <| by
+  rw [@inf_uniformity C(Y, Z) (.comap _ _) (.comap _ _), uniformity_comap, uniformity_comap]
+  refine hasBasis_compactConvergenceUniformity.ext
+    (hasBasis_compactConvergenceUniformity.comap _ |>.inf <|
+      hasBasis_compactConvergenceUniformity.comap _) ?_ ?_
+  · rintro ⟨K, U⟩ ⟨hK, hU⟩
+    refine ⟨⟨⟨i₁ ⁻¹' K, U⟩, ⟨i₂ ⁻¹' K, U⟩⟩,
+      ⟨⟨hi₁.isCompact_preimage hK, hU⟩, ⟨hi₂.isCompact_preimage hK, hU⟩⟩,
+      fun ⟨f, g⟩ ⟨hfg₁, hfg₂⟩ y hy ↦ ?_⟩
+    have : y ∈ range i₁ ∪ range i₂ := hi.ge trivial
+    rcases this with ⟨x₁, rfl⟩ | ⟨x₂, rfl⟩
+    · exact hfg₁ x₁ hy
+    · exact hfg₂ x₂ hy
+  · rintro ⟨⟨K₁, U₁⟩, ⟨K₂, U₂⟩⟩ ⟨⟨hK₁, hU₁⟩, ⟨hK₂, hU₂⟩⟩
+    exact ⟨⟨i₁ '' K₁ ∪ i₂ '' K₂, U₁ ∩ U₂⟩,
+      ⟨hK₁.image hi₁.continuous |>.union <| hK₂.image hi₂.continuous, Filter.inter_mem hU₁ hU₂⟩,
+      fun ⟨f, g⟩ hfg ↦
+        ⟨fun x₁ hx₁ ↦ inter_subset_left _ U₂ <| hfg (i₁ x₁) <| .inl <| mem_image_of_mem _ hx₁,
+          fun x₂ hx₂ ↦ inter_subset_right U₁ _ <| hfg (i₂ x₂) <| .inr <| mem_image_of_mem _ hx₂⟩⟩
+
+end ContinuousMap
+
+end MissingCompactOpen
 namespace ContinuousMapZero
+
+section Uniform
+
+variable {X Y R : Type*} [TopologicalSpace X] [Zero X]
+variable [UniformSpace R] [Zero R]
+
+protected instance instUniformSpace : UniformSpace C(X, R)₀ := .comap toContinuousMap inferInstance
+
+
+
+-- TODO: clean a bit
+lemma uniformInducing_precomp_toContinuousMap_of_almost_surj [T1Space X] [TopologicalSpace Y]
+    {i : Y → X} (hi₁ : ClosedEmbedding i) (hi₂ : range i ∪ {0} = univ) :
+    UniformInducing (fun f : C(X, R)₀ ↦ f.toContinuousMap.comp ⟨i, hi₁.continuous⟩) where
+  comap_uniformity := by
+    have := ContinuousMap.foo R hi₁ (isClosed_singleton (x := 0)).closedEmbedding_subtype_val
+      (by simpa using hi₂)
+    simp_rw [ContinuousMapZero.instUniformSpace, this, uniformity_comap,
+      @inf_uniformity _ (.comap _ _) (.comap _ _), uniformity_comap, Filter.comap_inf,
+      Filter.comap_comap]
+    refine .symm <| inf_eq_left.mpr <| le_top.trans <| eq_top_iff.mp ?_
+    have : ∀ U ∈ 𝓤 (C(({0} : Set X), R)), (0, 0) ∈ U := fun U hU ↦ refl_mem_uniformity hU
+    convert Filter.comap_const_of_mem this with ⟨f, g⟩ <;>
+    ext ⟨x, rfl⟩ <;>
+    [exact map_zero f; exact map_zero g]
+
+end Uniform
 
 section Semiring
 
@@ -92,17 +154,6 @@ lemma smul_coe (f : C(X, R)) (g₀ : C(X, R)₀) : f • (g₀ : C(X, R)) = ↑(
 
 instance instCanLift : CanLift C(X, R) C(X, R)₀ (↑) (fun f ↦ f 0 = 0) where
   prf f hf := ⟨⟨f, hf⟩, rfl⟩
-
-lemma closedEmbedding_precomp_toContinuousMap_of_almost_surj [T1Space X] [TopologicalSpace Y]
-    {i : Y → X} (hi₁ : ClosedEmbedding i) (hi₂ : range i ∪ {0} = univ) :
-    ClosedEmbedding (fun f : C(X, R)₀ ↦ f.toContinuousMap.comp ⟨i, hi₁.continuous⟩) := by
-  set φ : C(X, R)₀ → C(Y, R) := fun f ↦ f.toContinuousMap.comp ⟨i, hi₁.continuous⟩
-  by_cases h0 : 0 ∈ range i
-  · have : Surjective i := sorry
-    set I : Y ≃ₜ X := hi₁.toEmbedding.toHomeomeomorph_of_surjective this
-    sorry
-  · have : IsClopen {0} := sorry
-    sorry
 
 @[simps]
 def toContinuousMapHom [StarRing R] [ContinuousStar R] : C(X, R)₀ →⋆ₙₐ[R] C(X, R) where
