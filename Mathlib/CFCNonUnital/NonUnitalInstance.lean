@@ -5,7 +5,7 @@ import Mathlib.CFCNonUnital.Restrict
 import Mathlib.CFCNonUnital.UnitizationL1Norm
 import Mathlib.Topology.ContinuousFunction.NonUnitalFunctionalCalculus
 
-section MissingTopology
+section MissingTopology -- PR: #12639 https://github.com/leanprover-community/mathlib4/pull/12639
 
 variable {X Y Z : Type*} [TopologicalSpace X] [TopologicalSpace Y] [TopologicalSpace Z]
 variable {f : X → Y} {g : Y → Z}
@@ -24,7 +24,8 @@ theorem ClosedEmbedding.of_comp_iff (hg : ClosedEmbedding g) :
 
 end MissingTopology
 
-section MissingUniformity
+section MissingUniformity -- PR: #12639 https://github.com/leanprover-community/mathlib4/pull/12639
+
 
 variable {α β γ : Type*} [UniformSpace α] [UniformSpace β] [UniformSpace γ] {g : β → γ} {f : α → β}
 
