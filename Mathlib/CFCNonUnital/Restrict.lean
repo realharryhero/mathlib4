@@ -20,6 +20,7 @@ def restrictScalars (f : A →ₙₐ[S] B) : A →ₙₐ[R] B :=
   { (f : A →ₙ+* B) with
     map_smul' := fun r x ↦ by have := map_smul f (r • 1) x; simpa }
 
+@[simp]
 lemma restrictScalars_apply (f : A →ₙₐ[S] B) (x : A) : f.restrictScalars R x = f x := rfl
 
 lemma coe_restrictScalars (f : A →ₙₐ[S] B) : (f.restrictScalars R : A →ₙ+* B) = f := rfl
@@ -43,6 +44,7 @@ def restrictScalars (f : A →⋆ₙₐ[S] B) : A →⋆ₙₐ[R] B :=
   { (f : A →ₙₐ[S] B).restrictScalars R with
     map_star' := map_star f }
 
+@[simp]
 lemma restrictScalars_apply (f : A →⋆ₙₐ[S] B) (x : A) : f.restrictScalars R x = f x := rfl
 
 lemma coe_restrictScalars (f : A →⋆ₙₐ[S] B) : (f.restrictScalars R : A →ₙ+* B) = f := rfl
@@ -166,7 +168,7 @@ protected theorem cfc (f : C(S, R)) (h_isom : Isometry (algebraMap R S))
     case hom_id => exact ((h a).mp ha).2.nonUnitalStarAlgHom_id <| cfcₙHom_id ((h a).mp ha).1
     case hom_map_spectrum =>
       intro g
-      rw [nonUnitalStarAlgHom_apply, NonUnitalStarAlgHom.restrictScalars_apply]
+      rw [nonUnitalStarAlgHom_apply]
       simp only [← @quasispectrum.preimage_algebraMap (R := R) S, cfcₙHom_map_quasispectrum]
       ext x
       constructor
@@ -189,7 +191,7 @@ protected theorem cfc (f : C(S, R)) (h_isom : Isometry (algebraMap R S))
       rw [h]
       refine ⟨cfcₙHom_predicate _ _, ?_⟩
       refine { rightInvOn := fun s hs ↦ ?_, left_inv := ((h a).mp ha).2.left_inv }
-      rw [nonUnitalStarAlgHom_apply, NonUnitalStarAlgHom.restrictScalars_apply,
+      rw [nonUnitalStarAlgHom_apply,
         cfcₙHom_map_quasispectrum] at hs
       obtain ⟨r, rfl⟩ := hs
       simp [((h a).mp ha).2.left_inv _]
@@ -210,7 +212,7 @@ lemma cfc_eq_restrict (f : C(S, R)) (h_isom : Isometry (algebraMap R S)) {a : A}
   by_cases hg : ContinuousOn g (σₙ R a) ∧ g 0 = 0
   · obtain ⟨hg, hg0⟩ := hg
     rw [cfcₙ_apply g a, cfcₙHom_eq_restrict f h_isom hpa hqa h, nonUnitalStarAlgHom_apply,
-      NonUnitalStarAlgHom.restrictScalars_apply, cfcₙHom_eq_cfcₙ_extend 0]
+      cfcₙHom_eq_cfcₙ_extend 0]
     apply cfcₙ_congr fun x hx ↦ ?_
     lift x to σₙ S a using hx
     simp [Function.comp, Subtype.val_injective.extend_apply]
