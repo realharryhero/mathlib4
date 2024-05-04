@@ -9,7 +9,7 @@ import Mathlib.Topology.Algebra.Algebra
 import Mathlib.Topology.ContinuousFunction.Compact
 import Mathlib.Topology.ContinuousFunction.NonUnitalFunctionalCalculus
 
-namespace NonUnitalAlgHom -- missing for non-unital algebra homomorphisms
+namespace NonUnitalAlgHom -- PR #12657 https://github.com/leanprover-community/mathlib4/pull/12657
 
 variable (R : Type*) {S A B : Type*} [Monoid R] [Monoid S]
     [NonUnitalNonAssocSemiring A] [NonUnitalNonAssocSemiring B] [MulAction R S]
@@ -33,7 +33,7 @@ theorem restrictScalars_injective :
 
 end NonUnitalAlgHom
 
-namespace NonUnitalStarAlgHom -- missing for non-unital star algebra homomorphisms
+namespace NonUnitalStarAlgHom -- PR https://github.com/leanprover-community/mathlib4/pull/12657
 
 variable (R : Type*) {S A B : Type*} [Monoid R] [Monoid S] [Star A] [Star B]
     [NonUnitalNonAssocSemiring A] [NonUnitalNonAssocSemiring B] [MulAction R S]
