@@ -118,7 +118,6 @@ theorem borel_eq_generateFrom_isClosed [TopologicalSpace α] :
 section OrderTopology
 
 variable (α)
-
 variable [TopologicalSpace α] [SecondCountableTopology α] [LinearOrder α] [OrderTopology α]
 
 theorem borel_eq_generateFrom_Iio : borel α = .generateFrom (range Iio) := by
@@ -321,9 +320,10 @@ theorem IsOpen.measurableSet (h : IsOpen s) : MeasurableSet s :=
   OpensMeasurableSpace.borel_le _ <| GenerateMeasurable.basic _ h
 #align is_open.measurable_set IsOpen.measurableSet
 
-instance (priority := 500) {s : Set α} [HasCountableSeparatingOn α IsOpen s] :
-    HasCountableSeparatingOn α MeasurableSet s :=
-  .mono (fun _ ↦ IsOpen.measurableSet) Subset.rfl
+instance (priority := 1000) {s : Set α} [h : HasCountableSeparatingOn α IsOpen s] :
+    CountablySeparated s := by
+    rw [CountablySeparated.subtype_iff]
+    exact .mono (fun _ ↦ IsOpen.measurableSet) Subset.rfl
 
 @[measurability]
 theorem measurableSet_interior : MeasurableSet (interior s) :=
@@ -419,6 +419,14 @@ theorem MeasurableSet.nhdsWithin_isMeasurablyGenerated {s : Set α} (hs : Measur
   Filter.inf_isMeasurablyGenerated _ _
 #align measurable_set.nhds_within_is_measurably_generated MeasurableSet.nhdsWithin_isMeasurablyGenerated
 
+instance (priority := 100) OpensMeasurableSpace.separatesPoints [T0Space α] :
+    SeparatesPoints α := by
+  rw [separatesPoints_iff]
+  intro x y hxy
+  apply Inseparable.eq
+  rw [inseparable_iff_forall_open]
+  exact fun s hs => hxy _ hs.measurableSet
+
 -- see Note [lower instance priority]
 instance (priority := 100) OpensMeasurableSpace.toMeasurableSingletonClass [T1Space α] :
     MeasurableSingletonClass α :=
@@ -432,7 +440,7 @@ instance Pi.opensMeasurableSpace {ι : Type*} {π : ι → Type*} [Countable ι]
   constructor
   have : Pi.topologicalSpace = .generateFrom { t | ∃ (s : ∀ a, Set (π a)) (i : Finset ι),
       (∀ a ∈ i, s a ∈ countableBasis (π a)) ∧ t = pi (↑i) s } := by
-    rw [funext fun a => @eq_generateFrom_countableBasis (π a) _ _, pi_generateFrom_eq]
+    simp only [funext fun a => @eq_generateFrom_countableBasis (π a) _ _, pi_generateFrom_eq]
   rw [borel_eq_generateFrom_of_subbasis this]
   apply generateFrom_le
   rintro _ ⟨s, i, hi, rfl⟩
@@ -1030,7 +1038,7 @@ protected theorem Homeomorph.measurable (h : α ≃ₜ γ) : Measurable h :=
   h.continuous.measurable
 #align homeomorph.measurable Homeomorph.measurable
 
-/-- A homeomorphism between two Borel spaces is a measurable equivalence.-/
+/-- A homeomorphism between two Borel spaces is a measurable equivalence. -/
 def Homeomorph.toMeasurableEquiv (h : γ ≃ₜ γ₂) : γ ≃ᵐ γ₂ where
   measurable_toFun := h.measurable
   measurable_invFun := h.symm.measurable
@@ -1146,7 +1154,7 @@ lemma MeasurableEmbedding.borelSpace {α β : Type*} [MeasurableSpace α] [Topol
   have : MeasurableSpace.comap e (borel β) = ‹_› := by simpa [hβ.measurable_eq] using h'e.comap_eq
   rw [← this, ← borel_comap, h''e.induced]
 
-instance _root_.ULift.instBorelSpace [BorelSpace α] : BorelSpace (ULift α) :=
+instance _root_.ULift.instBorelSpace : BorelSpace (ULift α) :=
   MeasurableEquiv.ulift.measurableEmbedding.borelSpace Homeomorph.ulift.inducing
 
 instance DiscreteMeasurableSpace.toBorelSpace {α : Type*} [TopologicalSpace α] [DiscreteTopology α]
@@ -1162,12 +1170,12 @@ protected theorem Embedding.measurableEmbedding {f : α → β} (h₁ : Embeddin
 
 protected theorem ClosedEmbedding.measurableEmbedding {f : α → β} (h : ClosedEmbedding f) :
     MeasurableEmbedding f :=
-  h.toEmbedding.measurableEmbedding h.closed_range.measurableSet
+  h.toEmbedding.measurableEmbedding h.isClosed_range.measurableSet
 #align closed_embedding.measurable_embedding ClosedEmbedding.measurableEmbedding
 
 protected theorem OpenEmbedding.measurableEmbedding {f : α → β} (h : OpenEmbedding f) :
     MeasurableEmbedding f :=
-  h.toEmbedding.measurableEmbedding h.open_range.measurableSet
+  h.toEmbedding.measurableEmbedding h.isOpen_range.measurableSet
 #align open_embedding.measurable_embedding OpenEmbedding.measurableEmbedding
 
 section LinearOrder
@@ -1637,7 +1645,7 @@ instance Rat.borelSpace : BorelSpace ℚ :=
   ⟨borel_eq_top_of_countable.symm⟩
 #align rat.borel_space Rat.borelSpace
 
-/- Instances on `Real` and `Complex` are special cases of `IsROrC` but without these instances,
+/- Instances on `Real` and `Complex` are special cases of `RCLike` but without these instances,
 Lean fails to prove `BorelSpace (ι → ℝ)`, so we leave them here. -/
 instance Real.measurableSpace : MeasurableSpace ℝ :=
   borel ℝ
@@ -1681,8 +1689,8 @@ theorem measure_eq_measure_preimage_add_measure_tsum_Ico_zpow [MeasurableSpace �
       ∑' n : ℤ, μ (s ∩ f ⁻¹' Ico ((t : ℝ≥0∞) ^ n) ((t : ℝ≥0∞) ^ (n + 1))) := by
   have A : μ s = μ (s ∩ f ⁻¹' {0}) + μ (s ∩ f ⁻¹' Ioi 0) := by
     rw [← measure_union]
-    · rw [← inter_distrib_left, ← preimage_union, singleton_union, Ioi_insert, ← _root_.bot_eq_zero,
-        Ici_bot, preimage_univ, inter_univ]
+    · rw [← inter_union_distrib_left, ← preimage_union, singleton_union, Ioi_insert,
+        ← _root_.bot_eq_zero, Ici_bot, preimage_univ, inter_univ]
     · exact disjoint_singleton_left.mpr not_mem_Ioi_self
         |>.preimage f |>.inter_right' s |>.inter_left' s
     · exact hs.inter (hf measurableSet_Ioi)
@@ -1704,15 +1712,13 @@ theorem measure_eq_measure_preimage_add_measure_tsum_Ico_zpow [MeasurableSpace �
     rw [← measure_iUnion,
       ENNReal.Ioo_zero_top_eq_iUnion_Ico_zpow (ENNReal.one_lt_coe_iff.2 ht) ENNReal.coe_ne_top,
       preimage_iUnion, inter_iUnion]
-    · intro i j
-      simp only [Function.onFun]
-      intro hij
+    · intro i j hij
       wlog h : i < j generalizing i j
       · exact (this hij.symm (hij.lt_or_lt.resolve_left h)).symm
       refine disjoint_left.2 fun x hx h'x => lt_irrefl (f x) ?_
       calc
         f x < (t : ℝ≥0∞) ^ (i + 1) := hx.2.2
-        _ ≤ (t : ℝ≥0∞) ^ j := (ENNReal.zpow_le_of_le (ENNReal.one_le_coe_iff.2 ht.le) h)
+        _ ≤ (t : ℝ≥0∞) ^ j := ENNReal.zpow_le_of_le (ENNReal.one_le_coe_iff.2 ht.le) h
         _ ≤ f x := h'x.2.1
     · intro n
       exact hs.inter (hf measurableSet_Ico)
@@ -1722,7 +1728,6 @@ theorem measure_eq_measure_preimage_add_measure_tsum_Ico_zpow [MeasurableSpace �
 section PseudoMetricSpace
 
 variable [PseudoMetricSpace α] [MeasurableSpace α] [OpensMeasurableSpace α]
-
 variable [MeasurableSpace β] {x : α} {ε : ℝ}
 
 open Metric
@@ -1792,7 +1797,6 @@ end PseudoMetricSpace
 section PseudoEMetricSpace
 
 variable [PseudoEMetricSpace α] [MeasurableSpace α] [OpensMeasurableSpace α]
-
 variable [MeasurableSpace β] {x : α} {ε : ℝ≥0∞}
 
 open EMetric
@@ -1899,6 +1903,27 @@ theorem tendsto_measure_cthickening_of_isCompact [MetricSpace α] [MeasurableSpa
   tendsto_measure_cthickening_of_isClosed
     ⟨1, zero_lt_one, hs.isBounded.cthickening.measure_lt_top.ne⟩ hs.isClosed
 #align tendsto_measure_cthickening_of_is_compact tendsto_measure_cthickening_of_isCompact
+
+/-- If a measurable space is countably generated and separates points, it arises as
+the borel sets of some second countable t4 topology (i.e. a separable metrizable one). -/
+theorem exists_borelSpace_of_countablyGenerated_of_separatesPoints (α : Type*)
+    [m : MeasurableSpace α] [CountablyGenerated α] [SeparatesPoints α] :
+    ∃ τ : TopologicalSpace α, SecondCountableTopology α ∧ T4Space α ∧ BorelSpace α := by
+  rcases measurableEquiv_nat_bool_of_countablyGenerated α with ⟨s, ⟨f⟩⟩
+  letI := induced f inferInstance
+  let F := f.toEquiv.toHomeomorphOfInducing $ inducing_induced _
+  exact ⟨inferInstance, F.secondCountableTopology, F.symm.t4Space,
+    MeasurableEmbedding.borelSpace f.measurableEmbedding F.inducing⟩
+
+/-- If a measurable space on `α` is countably generated and separates points, there is some
+second countable t4 topology on `α` (i.e. a separable metrizable one) for which every
+open set is measurable. -/
+theorem exists_opensMeasurableSpace_of_countablySeparated (α : Type*)
+    [m : MeasurableSpace α] [CountablySeparated α] :
+    ∃ τ : TopologicalSpace α, SecondCountableTopology α ∧ T4Space α ∧ OpensMeasurableSpace α := by
+  rcases exists_countablyGenerated_le_of_countablySeparated α with ⟨m', _, _, m'le⟩
+  rcases exists_borelSpace_of_countablyGenerated_of_separatesPoints (m := m') with ⟨τ, _, _, τm'⟩
+  exact ⟨τ, ‹_›, ‹_›, @OpensMeasurableSpace.mk _ _ m (τm'.measurable_eq.symm.le.trans m'le)⟩
 
 namespace Real
 
@@ -2079,6 +2104,9 @@ theorem aemeasurable_coe_nnreal_real_iff {f : α → ℝ≥0} {μ : Measure α} 
     AEMeasurable (fun x => f x : α → ℝ) μ ↔ AEMeasurable f μ :=
   ⟨fun h => by simpa only [Real.toNNReal_coe] using h.real_toNNReal, AEMeasurable.coe_nnreal_real⟩
 #align ae_measurable_coe_nnreal_real_iff aemeasurable_coe_nnreal_real_iff
+
+@[deprecated] -- 2024-03-02
+alias aEMeasurable_coe_nnreal_real_iff := aemeasurable_coe_nnreal_real_iff
 
 /-- The set of finite `ℝ≥0∞` numbers is `MeasurableEquiv` to `ℝ≥0`. -/
 def MeasurableEquiv.ennrealEquivNNReal : { r : ℝ≥0∞ | r ≠ ∞ } ≃ᵐ ℝ≥0 :=
