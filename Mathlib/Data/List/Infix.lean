@@ -307,7 +307,7 @@ protected theorem IsPrefix.map (h : l₁ <+: l₂) (f : α → β) : l₁.map f 
   · simp only [nil_prefix, map_nil]
   · cases' l₂ with hd₂ tl₂
     · simpa only using eq_nil_of_prefix_nil h
-    · rw [cons_prefix_iff] at h
+    · rw [cons_prefix_cons] at h
       simp only [List.map_cons, h, prefix_cons_inj, hl, map]
 #align list.is_prefix.map List.IsPrefix.map
 
@@ -317,7 +317,7 @@ protected theorem IsPrefix.filterMap (h : l₁ <+: l₂) (f : α → Option β) 
   · simp only [nil_prefix, filterMap_nil]
   · cases' l₂ with hd₂ tl₂
     · simpa only using eq_nil_of_prefix_nil h
-    · rw [cons_prefix_iff] at h
+    · rw [cons_prefix_cons] at h
       rw [← @singleton_append _ hd₁ _, ← @singleton_append _ hd₂ _, filterMap_append,
         filterMap_append, h.left, prefix_append_right_inj]
       exact hl h.right
