@@ -396,8 +396,8 @@ instance OrderDual.instCompletelyDistribLattice [CompletelyDistribLattice α] :
   __ := instCoframe
   iInf_iSup_eq _ := iSup_iInf_eq (α := α)
 
-instance Prod.instCompletelyDistribLattice [CompletelyDistribLattice α] [CompletelyDistribLattice β] :
-    CompletelyDistribLattice (α × β) where
+instance Prod.instCompletelyDistribLattice [CompletelyDistribLattice α]
+    [CompletelyDistribLattice β] : CompletelyDistribLattice (α × β) where
   __ := instFrame
   __ := instCoframe
   iInf_iSup_eq f := by ext <;> simp [fst_iSup, fst_iInf, snd_iSup, snd_iInf, iInf_iSup_eq]
@@ -423,8 +423,8 @@ instance Prod.instCompleteBooleanAlgebra [CompleteBooleanAlgebra α] [CompleteBo
   __ := instBooleanAlgebra
   __ := instCompleteDistribLattice
 
-instance Pi.instCompleteBooleanAlgebra {ι : Type*} {π : ι → Type*} [∀ i, CompleteBooleanAlgebra (π i)] :
-    CompleteBooleanAlgebra (∀ i, π i) where
+instance Pi.instCompleteBooleanAlgebra {ι : Type*} {π : ι → Type*}
+    [∀ i, CompleteBooleanAlgebra (π i)] : CompleteBooleanAlgebra (∀ i, π i) where
   __ := instBooleanAlgebra
   __ := instCompleteDistribLattice
 #align pi.complete_boolean_algebra Pi.instCompleteBooleanAlgebra
@@ -520,8 +520,7 @@ section lift
 
 -- See note [reducible non-instances]
 /-- Pullback an `Order.Frame` along an injection. -/
-@[reducible]
-protected def Function.Injective.frame [Sup α] [Inf α] [SupSet α] [InfSet α] [Top α] [Bot α]
+protected abbrev Function.Injective.frame [Sup α] [Inf α] [SupSet α] [InfSet α] [Top α] [Bot α]
     [HasCompl α] [HImp α] [Frame β] (f : α → β) (hf : Injective f)
     (map_sup : ∀ a b, f (a ⊔ b) = f a ⊔ f b) (map_inf : ∀ a b, f (a ⊓ b) = f a ⊓ f b)
     (map_sSup : ∀ s, f (sSup s) = ⨆ a ∈ s, f a) (map_sInf : ∀ s, f (sInf s) = ⨅ a ∈ s, f a)
@@ -539,7 +538,7 @@ protected def Function.Injective.frame [Sup α] [Inf α] [SupSet α] [InfSet α]
 -- See note [reducible non-instances]
 /-- Pullback an `Order.Coframe` along an injection. -/
 @[reducible]
-protected def Function.Injective.coframe [Sup α] [Inf α] [SupSet α] [InfSet α] [Top α] [Bot α]
+protected abbrev Function.Injective.coframe [Sup α] [Inf α] [SupSet α] [InfSet α] [Top α] [Bot α]
     [HNot α] [SDiff α] [Coframe β] (f : α → β) (hf : Injective f)
     (map_sup : ∀ a b, f (a ⊔ b) = f a ⊔ f b) (map_inf : ∀ a b, f (a ⊓ b) = f a ⊓ f b)
     (map_sSup : ∀ s, f (sSup s) = ⨆ a ∈ s, f a) (map_sInf : ∀ s, f (sInf s) = ⨅ a ∈ s, f a)
@@ -557,7 +556,7 @@ protected def Function.Injective.coframe [Sup α] [Inf α] [SupSet α] [InfSet �
 -- See note [reducible non-instances]
 /-- Pullback a `CompleteDistribLattice` along an injection. -/
 @[reducible]
-protected def Function.Injective.completeDistribLattice [Sup α] [Inf α] [SupSet α] [InfSet α]
+protected abbrev Function.Injective.completeDistribLattice [Sup α] [Inf α] [SupSet α] [InfSet α]
     [Top α] [Bot α] [HasCompl α] [HImp α] [HNot α] [SDiff α] [CompleteDistribLattice β] (f : α → β)
     (hf : Injective f)
     (map_sup : ∀ a b, f (a ⊔ b) = f a ⊔ f b) (map_inf : ∀ a b, f (a ⊓ b) = f a ⊓ f b)
@@ -573,7 +572,7 @@ protected def Function.Injective.completeDistribLattice [Sup α] [Inf α] [SupSe
 -- See note [reducible non-instances]
 /-- Pullback a `CompletelyDistribLattice` along an injection. -/
 @[reducible]
-protected def Function.Injective.completelyDistribLattice [Sup α] [Inf α] [SupSet α] [InfSet α]
+protected abbrev Function.Injective.completelyDistribLattice [Sup α] [Inf α] [SupSet α] [InfSet α]
     [Top α] [Bot α] [HasCompl α] [HImp α] [HNot α] [SDiff α] [CompletelyDistribLattice β]
     (f : α → β) (hf : Injective f)
     (map_sup : ∀ a b, f (a ⊔ b) = f a ⊔ f b) (map_inf : ∀ a b, f (a ⊓ b) = f a ⊓ f b)
@@ -591,7 +590,7 @@ protected def Function.Injective.completelyDistribLattice [Sup α] [Inf α] [Sup
 -- See note [reducible non-instances]
 /-- Pullback a `CompleteBooleanAlgebra` along an injection. -/
 @[reducible]
-protected def Function.Injective.completeBooleanAlgebra [Sup α] [Inf α] [SupSet α] [InfSet α]
+protected abbrev Function.Injective.completeBooleanAlgebra [Sup α] [Inf α] [SupSet α] [InfSet α]
     [Top α] [Bot α] [HasCompl α] [HImp α] [HNot α] [SDiff α] [CompleteBooleanAlgebra β] (f : α → β)
     (hf : Injective f) (map_sup : ∀ a b, f (a ⊔ b) = f a ⊔ f b)
     (map_inf : ∀ a b, f (a ⊓ b) = f a ⊓ f b) (map_sSup : ∀ s, f (sSup s) = ⨆ a ∈ s, f a)
@@ -607,11 +606,12 @@ protected def Function.Injective.completeBooleanAlgebra [Sup α] [Inf α] [SupSe
 -- See note [reducible non-instances]
 /-- Pullback a `CompleteAtomicBooleanAlgebra` along an injection. -/
 @[reducible]
-protected def Function.Injective.completeAtomicBooleanAlgebra [Sup α] [Inf α] [SupSet α] [InfSet α]
-    [Top α] [Bot α] [HasCompl α] [HImp α] [HNot α] [SDiff α] [CompleteAtomicBooleanAlgebra β]
-    (f : α → β) (hf : Injective f) (map_sup : ∀ a b, f (a ⊔ b) = f a ⊔ f b)
-    (map_inf : ∀ a b, f (a ⊓ b) = f a ⊓ f b) (map_sSup : ∀ s, f (sSup s) = ⨆ a ∈ s, f a)
-    (map_sInf : ∀ s, f (sInf s) = ⨅ a ∈ s, f a) (map_top : f ⊤ = ⊤) (map_bot : f ⊥ = ⊥)
+protected abbrev Function.Injective.completeAtomicBooleanAlgebra [Sup α] [Inf α] [SupSet α]
+    [InfSet α] [Top α] [Bot α] [HasCompl α] [HImp α] [HNot α] [SDiff α]
+    [CompleteAtomicBooleanAlgebra β] (f : α → β) (hf : Injective f)
+    (map_sup : ∀ a b, f (a ⊔ b) = f a ⊔ f b) (map_inf : ∀ a b, f (a ⊓ b) = f a ⊓ f b)
+    (map_sSup : ∀ s, f (sSup s) = ⨆ a ∈ s, f a) (map_sInf : ∀ s, f (sInf s) = ⨅ a ∈ s, f a)
+    (map_top : f ⊤ = ⊤) (map_bot : f ⊥ = ⊥)
     (map_compl : ∀ a, f aᶜ = (f a)ᶜ) (map_himp : ∀ a b, f (a ⇨ b) = f a ⇨ f b)
     (map_hnot : ∀ a, f (￢a) = ￢f a) (map_sdiff : ∀ a b, f (a \ b) = f a \ f b) :
     CompleteAtomicBooleanAlgebra α where
