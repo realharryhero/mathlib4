@@ -503,7 +503,7 @@ end Lattice
 end Finset
 
 namespace Mathlib.Meta
-open Lean Elab Term Meta Std.ExtendedBinder
+open Lean Elab Term Meta Batteries.ExtendedBinder
 
 /-- Elaborate set builder notation for `Finset`.
 

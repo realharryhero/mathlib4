@@ -2584,7 +2584,7 @@ def filter (s : Finset α) : Finset α :=
 end Finset.Filter
 
 namespace Mathlib.Meta
-open Lean Elab Term Meta Std.ExtendedBinder
+open Lean Elab Term Meta Batteries.ExtendedBinder
 
 /-- Return `true` if `expectedType?` is `some (Finset ?α)`, throws `throwUnsupportedSyntax` if it is
 `some (Finset ?α)`, and returns `false` otherwise. -/
