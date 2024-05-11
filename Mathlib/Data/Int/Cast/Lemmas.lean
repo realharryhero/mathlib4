@@ -107,11 +107,6 @@ lemma cast_comm (n : ℤ) (x : α) : n * x = x * n := (cast_commute ..).eq
 lemma commute_cast (a : α) (n : ℤ) : Commute a n := (cast_commute ..).symm
 #align int.commute_cast Int.commute_cast
 
-end NonAssocRing
-
-section Ring
-variable [Ring α]
-
 @[simp] lemma _root_.zsmul_eq_mul (a : α) : ∀ n : ℤ, n • a = n * a
   | (n : ℕ) => by rw [natCast_zsmul, nsmul_eq_mul, Int.cast_natCast]
   | -[n+1] => by simp [Nat.cast_succ, neg_add_rev, Int.cast_negSucc, add_mul]
@@ -121,7 +116,7 @@ lemma _root_.zsmul_eq_mul' (a : α) (n : ℤ) : n • a = a * n := by
   rw [zsmul_eq_mul, (n.cast_commute a).eq]
 #align zsmul_eq_mul' zsmul_eq_mul'
 
-end Ring
+end NonAssocRing
 
 theorem cast_mono [OrderedRing α] : Monotone (fun x : ℤ => (x : α)) := by
   intro m n h

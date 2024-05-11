@@ -63,5 +63,5 @@ theorem Ideal.Quotient.index_eq_zero {R : Type*} [CommRing R] (I : Ideal R) :
   split_ifs with hq; swap
   · simp
   letI : Fintype (R ⧸ I) := @Fintype.ofFinite _ hq
-  exact CharP.cast_card_eq_zero (R ⧸ I)
+  exact Nat.cast_card_eq_zero (R ⧸ I)
 #align ideal.quotient.index_eq_zero Ideal.Quotient.index_eq_zero
