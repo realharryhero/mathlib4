@@ -5,6 +5,12 @@ import Mathlib.Topology.ContinuousFunction.StoneWeierstrass
 
 open Submodule
 
+
+-----------------
+/-
+Everything prior to the material about continuous maps has been PR'ed as #12889
+-/
+-----------------
 namespace Submonoid
 
 variable {M : Type*} [Monoid M]
@@ -112,12 +118,12 @@ namespace Algebra
 
 variable {R A : Type*} [CommSemiring R] [Semiring A] [Algebra R A]
 
-lemma adjoin_nonUnitalSubalgebra_eq_span_union (s : NonUnitalSubalgebra R A) :
-    Subalgebra.toSubmodule (adjoin R (s : Set A)) = span R ({1} ∪ s) := by
-  rw [adjoin_eq_span, Submonoid.closure_eq_one_union, span_union, span_union,
-    ← span_span (R := R) (s := (Subsemigroup.closure (s : Set A) : Set A)),
-    ← NonUnitalAlgebra.adjoin_eq_span, NonUnitalAlgebra.adjoin_eq,
-    NonUnitalSubalgebra.coe_toSubmodule]
+--lemma adjoin_nonUnitalSubalgebra_eq_span_union (s : NonUnitalSubalgebra R A) :
+    --Subalgebra.toSubmodule (adjoin R (s : Set A)) = span R ({1} ∪ s) := by
+  --rw [adjoin_eq_span, Submonoid.closure_eq_one_union, span_union, span_union,
+    --← span_span (R := R) (s := (Subsemigroup.closure (s : Set A) : Set A)),
+    --← NonUnitalAlgebra.adjoin_eq_span, NonUnitalAlgebra.adjoin_eq,
+    --NonUnitalSubalgebra.coe_toSubmodule]
 
 lemma adjoin_nonUnitalSubalgebra_eq_span (s : NonUnitalSubalgebra R A) :
     Subalgebra.toSubmodule (adjoin R (s : Set A)) = span R {1} ⊔ s.toSubmodule := by
@@ -224,21 +230,6 @@ variable {X : Type*} [TopologicalSpace X] {𝕜 : Type*} [RCLike 𝕜]
 -- annoying, things break below without this.
 instance : IsScalarTower 𝕜 C(X, 𝕜) C(X, 𝕜) := @IsScalarTower.right _ C(X, 𝕜) _ _ _
 instance : SMulCommClass 𝕜 C(X, 𝕜) C(X, 𝕜) := @Algebra.to_smulCommClass _ C(X, 𝕜) _ _ _
-
-lemma Set.SeparatesPoints_monotone {α β : Type*} {s t : Set (α → β)}
-    (h : s.SeparatesPoints) (h_sub : s ⊆ t) : t.SeparatesPoints := by
-  peel h with x y hxy f _
-  exact And.imp_left (@h_sub f) this
-
-open NonUnitalStarAlgebra in
-lemma foo (s : Set 𝕜) : Set.SeparatesPoints ((⇑) '' (adjoin 𝕜 {(.restrict s (.id 𝕜) : C(s, 𝕜))} : Set C(s, 𝕜))) :=
-  fun _ _ h ↦
-    ⟨_, ⟨.restrict s (.id 𝕜), self_mem_adjoin_singleton 𝕜 _, rfl⟩, Subtype.val_injective.ne h ⟩
-
-open NonUnitalAlgebra in
-lemma bar (s : Set 𝕜) : Set.SeparatesPoints ((⇑) '' (adjoin 𝕜 {(.restrict s (.id 𝕜) : C(s, 𝕜))} : Set C(s, 𝕜))) :=
-  fun _ _ h ↦
-    ⟨_, ⟨.restrict s (.id 𝕜), self_mem_adjoin_singleton 𝕜 _, rfl⟩, Subtype.val_injective.ne h ⟩
 
 def ContinuousMap.evalAlgHom {X : Type*} (R : Type*) [TopologicalSpace X] [CommSemiring R]
     [TopologicalSpace R] [TopologicalSemiring R] (x : X) : C(X, R) →ₐ[R] R where
