@@ -8,3 +8,4 @@ This file is ignored by `Shake`:
 -/
 
 import Mathlib.Tactic.Lint
+import Mathlib.Tactic.StyleLinters
