@@ -30,7 +30,7 @@ The main definitions are
    topology of weak convergence.
  * `MeasureTheory.FiniteMeasure.map`: The push-forward `f* μ` of a finite measure `μ` on `Ω`
    along a measurable function `f : Ω → Ω'`.
- * `MeasureTheory.FiniteMeasure.mapClm`: The push-forward along a given continuous `f : Ω → Ω'`
+ * `MeasureTheory.FiniteMeasure.mapCLM`: The push-forward along a given continuous `f : Ω → Ω'`
    as a continuous linear map `f* : FiniteMeasure Ω →L[ℝ≥0] FiniteMeasure Ω'`.
 
 ## Main results
@@ -121,7 +121,7 @@ def _root_.MeasureTheory.FiniteMeasure (Ω : Type*) [MeasurableSpace Ω] : Type 
   { μ : Measure Ω // IsFiniteMeasure μ }
 #align measure_theory.finite_measure MeasureTheory.FiniteMeasure
 
--- porting note: as with other subtype synonyms (e.g., `ℝ≥0`, we need a new function for the
+-- Porting note: as with other subtype synonyms (e.g., `ℝ≥0`, we need a new function for the
 -- coercion instead of relying on `Subtype.val`.
 /-- Coercion from `MeasureTheory.FiniteMeasure Ω` to `MeasureTheory.Measure Ω`. -/
 @[coe]
@@ -141,9 +141,8 @@ instance instFunLike : FunLike (FiniteMeasure Ω) (Set Ω) (fun _ => ℝ≥0) wh
     cases μ₁; cases μ₂; congr; ext s
     apply (ENNReal.toNNReal_eq_toNNReal_iff' _ _).mp (congr_fun h s) <;> exact measure_ne_top _ _
 
-lemma coeFn_eq_toNNReal_coeFn_toMeasure (ν : FiniteMeasure Ω) :
-    (ν : Set Ω → ℝ≥0) = fun s ↦ ((ν : Measure Ω) s).toNNReal := rfl
-#align measure_theory.finite_measure.coe_fn_eq_to_nnreal_coe_fn_to_measure MeasureTheory.FiniteMeasure.coeFn_eq_toNNReal_coeFn_toMeasure
+-- Porting note: now a syntactic tautology because of the way coercions work in Lean 4
+#noalign measure_theory.finite_measure.coe_fn_eq_to_nnreal_coe_fn_to_measure
 
 @[simp]
 theorem ennreal_coeFn_eq_coeFn_toMeasure (ν : FiniteMeasure Ω) (s : Set Ω) :
@@ -241,9 +240,8 @@ theorem coe_smul (c : R) (μ : FiniteMeasure Ω) : ↑(c • μ) = c • (μ : M
   rfl
 #align measure_theory.finite_measure.coe_smul MeasureTheory.FiniteMeasure.coe_smul
 
-@[simp, norm_cast]
-theorem coeFn_zero : (⇑(0 : FiniteMeasure Ω) : Set Ω → ℝ≥0) = (0 : Set Ω → ℝ≥0) := by
-  funext; rfl
+@[norm_cast]
+theorem coeFn_zero : (⇑(0 : FiniteMeasure Ω) : Set Ω → ℝ≥0) = (0 : Set Ω → ℝ≥0) := rfl
 #align measure_theory.finite_measure.coe_fn_zero MeasureTheory.FiniteMeasure.coeFn_zero
 
 @[simp, norm_cast]
@@ -271,7 +269,7 @@ def toMeasureAddMonoidHom : FiniteMeasure Ω →+ Measure Ω where
 instance {Ω : Type*} [MeasurableSpace Ω] : Module ℝ≥0 (FiniteMeasure Ω) :=
   Function.Injective.module _ toMeasureAddMonoidHom toMeasure_injective coe_smul
 
--- porting note: `@[simp]` breaks the LHS of `coeFn_smul`
+-- Porting note: `@[simp]` breaks the LHS of `coeFn_smul`
 theorem coeFn_smul_apply [IsScalarTower R ℝ≥0 ℝ≥0] (c : R) (μ : FiniteMeasure Ω) (s : Set Ω) :
     (c • μ) s = c • μ s := by
   rw [coeFn_smul, Pi.smul_apply]
@@ -337,7 +335,7 @@ theorem testAgainstNN_coe_eq {μ : FiniteMeasure Ω} {f : Ω →ᵇ ℝ≥0} :
 
 theorem testAgainstNN_const (μ : FiniteMeasure Ω) (c : ℝ≥0) :
     μ.testAgainstNN (BoundedContinuousFunction.const Ω c) = c * μ.mass := by
-  simp [← ENNReal.coe_eq_coe]
+  simp [← ENNReal.coe_inj]
 #align measure_theory.finite_measure.test_against_nn_const MeasureTheory.FiniteMeasure.testAgainstNN_const
 
 theorem testAgainstNN_mono (μ : FiniteMeasure Ω) {f g : Ω →ᵇ ℝ≥0} (f_le_g : (f : Ω → ℝ≥0) ≤ g) :
@@ -381,7 +379,7 @@ variable [OpensMeasurableSpace Ω]
 
 theorem testAgainstNN_add (μ : FiniteMeasure Ω) (f₁ f₂ : Ω →ᵇ ℝ≥0) :
     μ.testAgainstNN (f₁ + f₂) = μ.testAgainstNN f₁ + μ.testAgainstNN f₂ := by
-  simp only [← ENNReal.coe_eq_coe, BoundedContinuousFunction.coe_add, ENNReal.coe_add, Pi.add_apply,
+  simp only [← ENNReal.coe_inj, BoundedContinuousFunction.coe_add, ENNReal.coe_add, Pi.add_apply,
     testAgainstNN_coe_eq]
   exact lintegral_add_left (BoundedContinuousFunction.measurable_coe_ennreal_comp _) _
 #align measure_theory.finite_measure.test_against_nn_add MeasureTheory.FiniteMeasure.testAgainstNN_add
@@ -389,7 +387,7 @@ theorem testAgainstNN_add (μ : FiniteMeasure Ω) (f₁ f₂ : Ω →ᵇ ℝ≥0
 theorem testAgainstNN_smul [IsScalarTower R ℝ≥0 ℝ≥0] [PseudoMetricSpace R] [Zero R]
     [BoundedSMul R ℝ≥0] (μ : FiniteMeasure Ω) (c : R) (f : Ω →ᵇ ℝ≥0) :
     μ.testAgainstNN (c • f) = c • μ.testAgainstNN f := by
-  simp only [← ENNReal.coe_eq_coe, BoundedContinuousFunction.coe_smul, testAgainstNN_coe_eq,
+  simp only [← ENNReal.coe_inj, BoundedContinuousFunction.coe_smul, testAgainstNN_coe_eq,
     ENNReal.coe_smul]
   simp_rw [← smul_one_smul ℝ≥0∞ c (f _ : ℝ≥0∞), ← smul_one_smul ℝ≥0∞ c (lintegral _ _ : ℝ≥0∞),
     smul_eq_mul]
@@ -465,14 +463,14 @@ theorem toWeakDualBCNN_continuous : Continuous (@toWeakDualBCNN Ω _ _ _) :=
   continuous_induced_dom
 #align measure_theory.finite_measure.to_weak_dual_bcnn_continuous MeasureTheory.FiniteMeasure.toWeakDualBCNN_continuous
 
-/- Integration of (nonnegative bounded continuous) test functions against finite Borel measures
+/-- Integration of (nonnegative bounded continuous) test functions against finite Borel measures
 depends continuously on the measure. -/
 theorem continuous_testAgainstNN_eval (f : Ω →ᵇ ℝ≥0) :
     Continuous fun μ : FiniteMeasure Ω => μ.testAgainstNN f := by
   show Continuous ((fun φ : WeakDual ℝ≥0 (Ω →ᵇ ℝ≥0) => φ f) ∘ toWeakDualBCNN)
   refine Continuous.comp ?_ (toWeakDualBCNN_continuous (Ω := Ω))
-  exact @WeakBilin.eval_continuous _ _ _ _ _ _ ContinuousLinearMap.module _ _ _ _
-  /- porting note: without explicitly providing `ContinuousLinearMap.module`, TC synthesis times
+  exact WeakBilin.eval_continuous (𝕜 := ℝ≥0) (E := (Ω →ᵇ ℝ≥0) →L[ℝ≥0] ℝ≥0) _ _
+  /- porting note: without explicitly providing `𝕜` and `E` TC synthesis times
   out trying to find `Module ℝ≥0 ((Ω →ᵇ ℝ≥0) →L[ℝ≥0] ℝ≥0)`, but it can find it with enough time:
   `set_option synthInstance.maxHeartbeats 47000` was sufficient. -/
 #align measure_theory.finite_measure.continuous_test_against_nn_eval MeasureTheory.FiniteMeasure.continuous_testAgainstNN_eval
@@ -565,7 +563,7 @@ lemma injective_toWeakDualBCNN :
   intro μ ν hμν
   apply ext_of_forall_lintegral_eq
   intro f
-  have key := congr_fun (congrArg FunLike.coe hμν) f
+  have key := congr_fun (congrArg DFunLike.coe hμν) f
   apply (ENNReal.toNNReal_eq_toNNReal_iff' ?_ ?_).mp key
   · exact (lintegral_lt_top_of_nnreal μ f).ne
   · exact (lintegral_lt_top_of_nnreal ν f).ne
@@ -803,7 +801,7 @@ lemma continuous_map {f : Ω → Ω'} (f_cont : Continuous f) :
 
 /-- The push-forward of a finite measure by a continuous function between Borel spaces as
 a continuous linear map. -/
-noncomputable def mapClm {f : Ω → Ω'} (f_cont : Continuous f) :
+noncomputable def mapCLM {f : Ω → Ω'} (f_cont : Continuous f) :
     FiniteMeasure Ω →L[ℝ≥0] FiniteMeasure Ω' where
   toFun := fun ν ↦ ν.map f
   map_add' := map_add f_cont.measurable
