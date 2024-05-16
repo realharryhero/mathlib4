@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Johan Commelin
 -/
 import Mathlib.Algebra.Group.Basic
-import Mathlib.Algebra.GroupWithZero.Hom
 import Mathlib.Algebra.GroupWithZero.NeZero
 import Mathlib.Algebra.Group.OrderSynonym
 import Mathlib.Data.Int.Defs
@@ -212,22 +211,6 @@ lemma sq_eq_zero_iff : a ^ 2 = 0 ↔ a = 0 := pow_eq_zero_iff two_ne_zero
 #align pow_eq_zero_iff' pow_eq_zero_iff'
 
 end MonoidWithZero
-
-section CommMonoidWithZero
-variable [CommMonoidWithZero M₀] {n : ℕ} (hn : n ≠ 0)
-
-/-- We define `x ↦ x^n` (for positive `n : ℕ`) as a `MonoidWithZeroHom` -/
-def powMonoidWithZeroHom : M₀ →*₀ M₀ :=
-  { powMonoidHom n with map_zero' := zero_pow hn }
-#align pow_monoid_with_zero_hom powMonoidWithZeroHom
-
-@[simp] lemma coe_powMonoidWithZeroHom : (powMonoidWithZeroHom hn : M₀ → M₀) = fun x ↦ x ^ n := rfl
-#align coe_pow_monoid_with_zero_hom coe_powMonoidWithZeroHom
-
-@[simp] lemma powMonoidWithZeroHom_apply (a : M₀) : powMonoidWithZeroHom hn a = a ^ n := rfl
-#align pow_monoid_with_zero_hom_apply powMonoidWithZeroHom_apply
-
-end CommMonoidWithZero
 
 section CancelMonoidWithZero
 
