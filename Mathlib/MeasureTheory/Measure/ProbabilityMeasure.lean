@@ -120,7 +120,7 @@ instance [Inhabited Ω] : Inhabited (ProbabilityMeasure Ω) :=
 -- coercion instead of relying on `Subtype.val`.
 /-- Coercion from `MeasureTheory.ProbabilityMeasure Ω` to `MeasureTheory.Measure Ω`. -/
 @[coe]
-abbrev toMeasure : ProbabilityMeasure Ω → Measure Ω := Subtype.val
+def toMeasure : ProbabilityMeasure Ω → Measure Ω := Subtype.val
 
 /-- A probability measure can be interpreted as a measure. -/
 instance : Coe (ProbabilityMeasure Ω) (MeasureTheory.Measure Ω) where
@@ -129,7 +129,7 @@ instance : Coe (ProbabilityMeasure Ω) (MeasureTheory.Measure Ω) where
 instance (μ : ProbabilityMeasure Ω) : IsProbabilityMeasure (μ : Measure Ω) :=
   μ.prop
 
-instance instFunLike : FunLike (ProbabilityMeasure Ω) (Set Ω) (fun _ => ℝ≥0) where
+instance instFunLike : FunLike (ProbabilityMeasure Ω) (Set Ω) ℝ≥0 where
   coe μ s := ((μ : Measure Ω) s).toNNReal
   coe_injective' μ₁ μ₂ h := by
     cases μ₁; cases μ₂; congr; ext s
@@ -364,13 +364,10 @@ def normalize : ProbabilityMeasure Ω :=
 @[simp]
 theorem self_eq_mass_mul_normalize (s : Set Ω) : μ s = μ.mass * μ.normalize s := by
   obtain rfl | h := eq_or_ne μ 0
-  · simp only [zero_mass, coeFn_zero, Pi.zero_apply, zero_mul]
+  · simp
   have mass_nonzero : μ.mass ≠ 0 := by rwa [μ.mass_nonzero_iff]
-  simp only [normalize, dif_neg mass_nonzero, ENNReal.toNNReal_mul, Subtype.coe_mk,
-    ProbabilityMeasure.coeFn_eq_toNNReal_coeFn_toMeasure, ENNReal.toNNReal_coe,
-    MeasureTheory.Measure.coe_nnreal_smul_apply, mul_inv_cancel_left₀ mass_nonzero,
-    FiniteMeasure.coeFn_eq_toNNReal_coeFn_toMeasure]
-
+  simp [normalize, dif_neg mass_nonzero, ProbabilityMeasure.coeFn_eq_toNNReal_coeFn_toMeasure,
+    mul_inv_cancel_left₀ mass_nonzero, FiniteMeasure.coeFn_eq_toNNReal_coeFn_toMeasure]
 #align measure_theory.finite_measure.self_eq_mass_mul_normalize MeasureTheory.FiniteMeasure.self_eq_mass_mul_normalize
 
 theorem self_eq_mass_smul_normalize : μ = μ.mass • μ.normalize.toFiniteMeasure := by

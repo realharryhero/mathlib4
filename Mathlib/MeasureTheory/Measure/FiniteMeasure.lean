@@ -141,8 +141,9 @@ instance instFunLike : FunLike (FiniteMeasure Ω) (Set Ω) ℝ≥0 where
     cases μ₁; cases μ₂; congr; ext s
     apply (ENNReal.toNNReal_eq_toNNReal_iff' _ _).mp (congr_fun h s) <;> exact measure_ne_top _ _
 
--- Porting note: now a syntactic tautology because of the way coercions work in Lean 4
-#noalign measure_theory.finite_measure.coe_fn_eq_to_nnreal_coe_fn_to_measure
+lemma coeFn_eq_toNNReal_coeFn_toMeasure (ν : FiniteMeasure Ω) :
+    (ν : Set Ω → ℝ≥0) = fun s ↦ ((ν : Measure Ω) s).toNNReal := rfl
+#align measure_theory.finite_measure.coe_fn_eq_to_nnreal_coe_fn_to_measure MeasureTheory.FiniteMeasure.coeFn_eq_toNNReal_coeFn_toMeasure
 
 @[simp]
 theorem ennreal_coeFn_eq_coeFn_toMeasure (ν : FiniteMeasure Ω) (s : Set Ω) :
@@ -240,7 +241,7 @@ theorem coe_smul (c : R) (μ : FiniteMeasure Ω) : ↑(c • μ) = c • (μ : M
   rfl
 #align measure_theory.finite_measure.coe_smul MeasureTheory.FiniteMeasure.coe_smul
 
-@[norm_cast]
+@[simp, norm_cast]
 theorem coeFn_zero : (⇑(0 : FiniteMeasure Ω) : Set Ω → ℝ≥0) = (0 : Set Ω → ℝ≥0) := rfl
 #align measure_theory.finite_measure.coe_fn_zero MeasureTheory.FiniteMeasure.coeFn_zero
 
