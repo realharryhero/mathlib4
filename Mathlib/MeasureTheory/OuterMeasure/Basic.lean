@@ -234,7 +234,7 @@ theorem coe_fn_injective : Injective fun (μ : OuterMeasure α) (s : Set α) => 
 
 @[ext]
 theorem ext {μ₁ μ₂ : OuterMeasure α} (h : ∀ s, μ₁ s = μ₂ s) : μ₁ = μ₂ :=
-  FunLike.ext _ _ h
+  coe_fn_injective <| funext h
 #align measure_theory.outer_measure.ext MeasureTheory.OuterMeasure.ext
 
 /-- A version of `MeasureTheory.OuterMeasure.ext` that assumes `μ₁ s = μ₂ s` on all *nonempty*
@@ -326,11 +326,11 @@ end SMul
 
 instance instMulAction [Monoid R] [MulAction R ℝ≥0∞] [IsScalarTower R ℝ≥0∞ ℝ≥0∞] :
     MulAction R (OuterMeasure α) :=
-  Injective.mulAction _ FunLike.coe_injective coe_smul
+  Injective.mulAction _ coe_fn_injective coe_smul
 #align measure_theory.outer_measure.mul_action MeasureTheory.OuterMeasure.instMulAction
 
 instance addCommMonoid : AddCommMonoid (OuterMeasure α) :=
-  Injective.addCommMonoid (show OuterMeasure α → Set α → ℝ≥0∞ from _) FunLike.coe_injective rfl
+  Injective.addCommMonoid (show OuterMeasure α → Set α → ℝ≥0∞ from _) coe_fn_injective rfl
     (fun _ _ => rfl) fun _ _ => rfl
 #align measure_theory.outer_measure.add_comm_monoid MeasureTheory.OuterMeasure.addCommMonoid
 
@@ -344,12 +344,12 @@ def coeFnAddMonoidHom : OuterMeasure α →+ Set α → ℝ≥0∞ where
 
 instance instDistribMulAction [Monoid R] [DistribMulAction R ℝ≥0∞] [IsScalarTower R ℝ≥0∞ ℝ≥0∞] :
     DistribMulAction R (OuterMeasure α) :=
-  Injective.distribMulAction coeFnAddMonoidHom FunLike.coe_injective coe_smul
+  Injective.distribMulAction coeFnAddMonoidHom coe_fn_injective coe_smul
 #align measure_theory.outer_measure.distrib_mul_action MeasureTheory.OuterMeasure.instDistribMulAction
 
 instance instModule [Semiring R] [Module R ℝ≥0∞] [IsScalarTower R ℝ≥0∞ ℝ≥0∞] :
     Module R (OuterMeasure α) :=
-  Injective.module R coeFnAddMonoidHom FunLike.coe_injective coe_smul
+  Injective.module R coeFnAddMonoidHom coe_fn_injective coe_smul
 #align measure_theory.outer_measure.module MeasureTheory.OuterMeasure.instModule
 
 instance instBot : Bot (OuterMeasure α) :=
@@ -440,8 +440,8 @@ def map {β} (f : α → β) : OuterMeasure α →ₗ[ℝ≥0∞] OuterMeasure �
       empty := m.empty
       mono := fun {s t} h => m.mono (preimage_mono h)
       iUnion_nat := fun s => by simp; apply m.iUnion_nat fun i => f ⁻¹' s i }
-  map_add' m₁ m₂ := FunLike.coe_injective rfl
-  map_smul' c m := FunLike.coe_injective rfl
+  map_add' m₁ m₂ := coe_fn_injective rfl
+  map_smul' c m := coe_fn_injective rfl
 #align measure_theory.outer_measure.map MeasureTheory.OuterMeasure.map
 
 @[simp]
