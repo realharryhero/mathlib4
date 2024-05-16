@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Damiano Testa
 -/
 import Mathlib.Algebra.Group.Even
-import Mathlib.Algebra.GroupPower.Ring
 import Mathlib.Data.Nat.Cast.Basic
 import Mathlib.Data.Nat.Cast.Commute
 import Mathlib.Data.Set.Defs
@@ -52,7 +51,7 @@ section DivisionMonoid
 variable [DivisionMonoid α] [HasDistribNeg α] {a : α} {n : ℤ}
 
 lemma Even.neg_zpow : Even n → ∀ a : α, (-a) ^ n = a ^ n := by
-  rintro ⟨c, rfl⟩ a; exact zpow_bit0_neg _ _
+  rintro ⟨c, rfl⟩ a; simp_rw [← Int.two_mul, zpow_mul, zpow_two, neg_mul_neg]
 #align even.neg_zpow Even.neg_zpow
 
 lemma Even.neg_one_zpow (h : Even n) : (-1 : α) ^ n = 1 := by rw [h.neg_zpow, one_zpow]
