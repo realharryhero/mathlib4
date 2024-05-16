@@ -125,7 +125,7 @@ def _root_.MeasureTheory.FiniteMeasure (Ω : Type*) [MeasurableSpace Ω] : Type 
 -- coercion instead of relying on `Subtype.val`.
 /-- Coercion from `MeasureTheory.FiniteMeasure Ω` to `MeasureTheory.Measure Ω`. -/
 @[coe]
-abbrev toMeasure : FiniteMeasure Ω → Measure Ω := Subtype.val
+def toMeasure : FiniteMeasure Ω → Measure Ω := Subtype.val
 
 /-- A finite measure can be interpreted as a measure. -/
 instance instCoe : Coe (FiniteMeasure Ω) (MeasureTheory.Measure Ω) where
@@ -135,7 +135,7 @@ instance isFiniteMeasure (μ : FiniteMeasure Ω) : IsFiniteMeasure (μ : Measure
   μ.prop
 #align measure_theory.finite_measure.is_finite_measure MeasureTheory.FiniteMeasure.isFiniteMeasure
 
-instance instFunLike : FunLike (FiniteMeasure Ω) (Set Ω) (fun _ => ℝ≥0) where
+instance instFunLike : FunLike (FiniteMeasure Ω) (Set Ω) ℝ≥0 where
   coe μ s := ((μ : Measure Ω) s).toNNReal
   coe_injective' μ₁ μ₂ h := by
     cases μ₁; cases μ₂; congr; ext s
@@ -246,13 +246,13 @@ theorem coeFn_zero : (⇑(0 : FiniteMeasure Ω) : Set Ω → ℝ≥0) = (0 : Set
 
 @[simp, norm_cast]
 theorem coeFn_add (μ ν : FiniteMeasure Ω) : (⇑(μ + ν) : Set Ω → ℝ≥0) = (⇑μ + ⇑ν : Set Ω → ℝ≥0) := by
-  funext; simp [← ENNReal.coe_eq_coe]
+  funext; simp [← ENNReal.coe_inj]
 #align measure_theory.finite_measure.coe_fn_add MeasureTheory.FiniteMeasure.coeFn_add
 
 @[simp, norm_cast]
 theorem coeFn_smul [IsScalarTower R ℝ≥0 ℝ≥0] (c : R) (μ : FiniteMeasure Ω) :
     (⇑(c • μ) : Set Ω → ℝ≥0) = c • (⇑μ : Set Ω → ℝ≥0) := by
-  funext; simp [← ENNReal.coe_eq_coe, ENNReal.coe_smul]
+  funext; simp [← ENNReal.coe_inj, ENNReal.coe_smul]
 #align measure_theory.finite_measure.coe_fn_smul MeasureTheory.FiniteMeasure.coeFn_smul
 
 instance instAddCommMonoid : AddCommMonoid (FiniteMeasure Ω) :=
