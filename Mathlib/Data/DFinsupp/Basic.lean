@@ -15,7 +15,7 @@ import Mathlib.GroupTheory.GroupAction.BigOperators
 /-!
 # Dependent functions with finite support
 
-For a non-dependent version see `data/finsupp.lean`.
+For a non-dependent version see `Mathlib/Data/Finsupp.lean`.
 
 ## Notation
 
@@ -38,11 +38,6 @@ there are two ways to sum a `DFinsupp`: with `DFinsupp.sum` which works over an 
 but requires recomputation of the support and therefore a `Decidable` argument; and with
 `DFinsupp.sumAddHom` which requires an additive morphism, using its properties to show that
 summing over a superset of the support is sufficient.
-
-`Finsupp` takes an altogether different approach here; it uses `Classical.Decidable` and declares
-the `Add` instance as noncomputable. This design difference is independent of the fact that
-`DFinsupp` is dependently-typed and `Finsupp` is not; in future, we may want to align these two
-definitions, or introduce two more definitions for the other combinations of decisions.
 -/
 
 
@@ -134,8 +129,8 @@ bundled:
 
 * `DFinsupp.mapRange.addMonoidHom`
 * `DFinsupp.mapRange.addEquiv`
-* `dfinsupp.mapRange.linearMap`
-* `dfinsupp.mapRange.linearEquiv`
+* `DFinsupp.mapRange.linearMap`
+* `DFinsupp.mapRange.linearEquiv`
 -/
 def mapRange (f : ∀ i, β₁ i → β₂ i) (hf : ∀ i, f i 0 = 0) (x : Π₀ i, β₁ i) : Π₀ i, β₂ i :=
   ⟨fun i => f i (x i),
@@ -269,8 +264,7 @@ instance [∀ i, AddMonoid (β i)] : AddMonoid (Π₀ i, β i) :=
   DFunLike.coe_injective.addMonoid _ coe_zero coe_add fun _ _ => coe_nsmul _ _
 
 /-- Coercion from a `DFinsupp` to a pi type is an `AddMonoidHom`. -/
-def coeFnAddMonoidHom [∀ i, AddZeroClass (β i)] : (Π₀ i, β i) →+ ∀ i, β i
-    where
+def coeFnAddMonoidHom [∀ i, AddZeroClass (β i)] : (Π₀ i, β i) →+ ∀ i, β i where
   toFun := (⇑)
   map_zero' := coe_zero
   map_add' := coe_add
@@ -394,10 +388,13 @@ end Algebra
 section FilterAndSubtypeDomain
 
 /-- `Filter p f` is the function which is `f i` if `p i` is true and 0 otherwise. -/
-def filter [∀ i, Zero (β i)] (p : ι → Prop) [DecidablePred p] (x : Π₀ i, β i) : Π₀ i, β i :=
-  ⟨fun i => if p i then x i else 0,
+def filter [∀ i, Zero (β i)] (p : ι → Prop) [DecidablePred p] (x : Π₀ i, β i) : Π₀ i, β i where
+  toFun i := if p i then x i else 0
+  support' :=
     x.support'.map fun xs =>
-      ⟨xs.1, fun i => (xs.prop i).imp_right fun H : x i = 0 => by simp only [H, ite_self]⟩⟩
+      ⟨xs.1.filter p, fun i => by
+        rw [Classical.or_iff_not_imp_right]; simp
+        exact fun hi hx => ⟨(xs.prop i).resolve_right hx, hi⟩⟩
 #align dfinsupp.filter DFinsupp.filter
 
 @[simp]
@@ -456,8 +453,7 @@ def filterAddMonoidHom [∀ i, AddZeroClass (β i)] (p : ι → Prop) [Decidable
 /-- `DFinsupp.filter` as a `LinearMap`. -/
 @[simps]
 def filterLinearMap [Semiring γ] [∀ i, AddCommMonoid (β i)] [∀ i, Module γ (β i)] (p : ι → Prop)
-    [DecidablePred p] : (Π₀ i, β i) →ₗ[γ] Π₀ i, β i
-    where
+    [DecidablePred p] : (Π₀ i, β i) →ₗ[γ] Π₀ i, β i where
   toFun := filter p
   map_add' := filter_add p
   map_smul' := filter_smul p
@@ -481,13 +477,14 @@ theorem filter_sub [∀ i, AddGroup (β i)] (p : ι → Prop) [DecidablePred p] 
 /-- `subtypeDomain p f` is the restriction of the finitely supported function
   `f` to the subtype `p`. -/
 def subtypeDomain [∀ i, Zero (β i)] (p : ι → Prop) [DecidablePred p] (x : Π₀ i, β i) :
-    Π₀ i : Subtype p, β i :=
-  ⟨fun i => x (i : ι),
+    Π₀ i : Subtype p, β i where
+  toFun i := x (i : ι)
+  support' :=
     x.support'.map fun xs =>
       ⟨(Multiset.filter p xs.1).attach.map fun j => ⟨j.1, (Multiset.mem_filter.1 j.2).2⟩, fun i =>
         (xs.prop i).imp_left fun H =>
           Multiset.mem_map.2
-            ⟨⟨i, Multiset.mem_filter.2 ⟨H, i.2⟩⟩, Multiset.mem_attach _ _, Subtype.eta _ _⟩⟩⟩
+            ⟨⟨i, Multiset.mem_filter.2 ⟨H, i.2⟩⟩, Multiset.mem_attach _ _, Subtype.eta _ _⟩⟩
 #align dfinsupp.subtype_domain DFinsupp.subtypeDomain
 
 @[simp]
@@ -608,8 +605,7 @@ instance uniqueOfIsEmpty [IsEmpty ι] : Unique (Π₀ i, β i) :=
 /-- Given `Fintype ι`, `equivFunOnFintype` is the `Equiv` between `Π₀ i, β i` and `Π i, β i`.
   (All dependent functions on a finite type are finitely supported.) -/
 @[simps apply]
-def equivFunOnFintype [Fintype ι] : (Π₀ i, β i) ≃ ∀ i, β i
-    where
+def equivFunOnFintype [Fintype ι] : (Π₀ i, β i) ≃ ∀ i, β i where
   toFun := (⇑)
   invFun f := ⟨f, Trunc.mk ⟨Finset.univ.1, fun _ => Or.inl <| Finset.mem_univ_val _⟩⟩
   left_inv _ := DFunLike.coe_injective rfl
@@ -1062,8 +1058,8 @@ theorem mk_sub [∀ i, AddGroup (β i)] {s : Finset ι} {x y : ∀ i : (↑s : S
 
 /-- If `s` is a subset of `ι` then `mk_addGroupHom s` is the canonical additive
 group homomorphism from $\prod_{i\in s}\beta_i$ to $\prod_{\mathtt{i : \iota}}\beta_i.$-/
-def mkAddGroupHom [∀ i, AddGroup (β i)] (s : Finset ι) : (∀ i : (s : Set ι), β ↑i) →+ Π₀ i : ι, β i
-    where
+def mkAddGroupHom [∀ i, AddGroup (β i)] (s : Finset ι) :
+    (∀ i : (s : Set ι), β ↑i) →+ Π₀ i : ι, β i where
   toFun := mk s
   map_zero' := mk_zero
   map_add' _ _ := mk_add
@@ -1094,7 +1090,7 @@ section SupportBasic
 
 variable [∀ i, Zero (β i)] [∀ (i) (x : β i), Decidable (x ≠ 0)]
 
-/-- Set `{i | f x ≠ 0}` as a `Finset`. -/
+/-- Set `{ i | f i ≠ 0 }` as a `Finset`. -/
 def support (f : Π₀ i, β i) : Finset ι :=
   (f.support'.lift fun xs => (Multiset.toFinset xs.1).filter fun i => f i ≠ 0) <| by
     rintro ⟨sx, hx⟩ ⟨sy, hy⟩
@@ -1328,11 +1324,12 @@ open Finset
 
 variable {κ : Type*}
 
-/-- Reindexing (and possibly removing) terms of a dfinsupp. -/
+/-- Reindexing (and possibly removing) terms of a `DFinsupp`. -/
 noncomputable def comapDomain [∀ i, Zero (β i)] (h : κ → ι) (hh : Function.Injective h)
     (f : Π₀ i, β i) : Π₀ k, β (h k) where
   toFun x := f (h x)
   support' :=
+    haveI := Classical.decEq ι
     f.support'.map fun s =>
       ⟨((Multiset.toFinset s.1).preimage h (hh.injOn _)).val, fun x =>
         (s.prop (h x)).imp_left fun hx => mem_preimage.mpr <| Multiset.mem_toFinset.mpr hx⟩
@@ -1376,7 +1373,7 @@ theorem comapDomain_single [DecidableEq κ] [∀ i, Zero (β i)] (h : κ → ι)
   · rw [single_eq_of_ne hik.symm, single_eq_of_ne (hh.ne hik.symm)]
 #align dfinsupp.comap_domain_single DFinsupp.comapDomain_single
 
-/-- A computable version of comap_domain when an explicit left inverse is provided. -/
+/-- A computable version of `comapDomain` when an explicit left inverse is provided. -/
 def comapDomain' [∀ i, Zero (β i)] (h : κ → ι) {h' : ι → κ} (hh' : Function.LeftInverse h' h)
     (f : Π₀ i, β i) : Π₀ k, β (h k) where
   toFun x := f (h x)
@@ -1430,8 +1427,7 @@ theorem comapDomain'_single [DecidableEq ι] [DecidableEq κ] [∀ i, Zero (β i
 
 This is the dfinsupp version of `Equiv.piCongrLeft'`. -/
 @[simps apply]
-def equivCongrLeft [∀ i, Zero (β i)] (h : ι ≃ κ) : (Π₀ i, β i) ≃ Π₀ k, β (h.symm k)
-    where
+def equivCongrLeft [∀ i, Zero (β i)] (h : ι ≃ κ) : (Π₀ i, β i) ≃ Π₀ k, β (h.symm k) where
   toFun := comapDomain' h.symm h.right_inv
   invFun f :=
     mapRange (fun i => Equiv.cast <| congr_arg β <| h.symm_apply_apply i)
@@ -2179,8 +2175,7 @@ theorem mapRange_add (f : ∀ i, β₁ i → β₂ i) (hf : ∀ i, f i 0 = 0)
 
 /-- `DFinsupp.mapRange` as an `AddMonoidHom`. -/
 @[simps apply]
-def mapRange.addMonoidHom (f : ∀ i, β₁ i →+ β₂ i) : (Π₀ i, β₁ i) →+ Π₀ i, β₂ i
-    where
+def mapRange.addMonoidHom (f : ∀ i, β₁ i →+ β₂ i) : (Π₀ i, β₁ i) →+ Π₀ i, β₂ i where
   toFun := mapRange (fun i x => f i x) fun i => (f i).map_zero
   map_zero' := mapRange_zero _ _
   map_add' := mapRange_add _ (fun i => (f i).map_zero) fun i => (f i).map_add
