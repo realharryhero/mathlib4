@@ -6,7 +6,7 @@ Authors: Mario Carneiro, Scott Morrison, Ainsley Pahljina
 import Mathlib.Algebra.Order.Group.Basic
 import Mathlib.Algebra.Order.Ring.Abs
 import Mathlib.Algebra.Order.Ring.Basic
-import Mathlib.Data.Nat.Parity
+import Mathlib.Algebra.Ring.Nat
 import Mathlib.Data.ZMod.Basic
 import Mathlib.GroupTheory.OrderOfElement
 import Mathlib.RingTheory.Fintype
