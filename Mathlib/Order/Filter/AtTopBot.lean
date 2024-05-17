@@ -5,7 +5,6 @@ Authors: Johannes Hölzl, Jeremy Avigad, Yury Kudryashov, Patrick Massot
 -/
 import Mathlib.Algebra.BigOperators.Basic
 import Mathlib.Algebra.Order.Field.Defs
-import Mathlib.Algebra.Order.Group.Basic
 import Mathlib.Algebra.Order.Group.Instances
 import Mathlib.Algebra.Order.Group.MinMax
 import Mathlib.Algebra.Order.Ring.Basic
