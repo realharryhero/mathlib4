@@ -5,9 +5,9 @@ Authors: Kyle Miller
 -/
 import Mathlib.Algebra.Order.Ring.CharZero
 import Mathlib.Data.Finset.Prod
+import Mathlib.Data.SetLike.Basic
 import Mathlib.Data.Sym.Basic
 import Mathlib.Data.Sym.Sym2.Init
-import Mathlib.Data.SetLike.Basic
 
 #align_import data.sym.sym2 from "leanprover-community/mathlib"@"8631e2d5ea77f6c13054d9151d82b83069680cb1"
 

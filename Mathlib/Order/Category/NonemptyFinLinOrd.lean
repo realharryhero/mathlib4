@@ -4,13 +4,13 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Johan Commelin
 -/
 import Mathlib.Algebra.Order.Ring.CharZero
-import Mathlib.Data.Fintype.Order
-import Mathlib.Data.Set.Finite
-import Mathlib.Order.Category.FinPartOrd
-import Mathlib.Order.Category.LinOrd
 import Mathlib.CategoryTheory.Limits.Shapes.Images
 import Mathlib.CategoryTheory.Limits.Shapes.RegularMono
+import Mathlib.Data.Fintype.Order
+import Mathlib.Data.Set.Finite
 import Mathlib.Data.Set.Subsingleton
+import Mathlib.Order.Category.FinPartOrd
+import Mathlib.Order.Category.LinOrd
 
 #align_import order.category.NonemptyFinLinOrd from "leanprover-community/mathlib"@"fa4a805d16a9cd9c96e0f8edeb57dc5a07af1a19"
 
