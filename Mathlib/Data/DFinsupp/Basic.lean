@@ -517,8 +517,7 @@ variable (γ β)
 /-- `subtypeDomain` but as an `AddMonoidHom`. -/
 @[simps]
 def subtypeDomainAddMonoidHom [∀ i, AddZeroClass (β i)] (p : ι → Prop) [DecidablePred p] :
-    (Π₀ i : ι, β i) →+ Π₀ i : Subtype p, β i
-    where
+    (Π₀ i : ι, β i) →+ Π₀ i : Subtype p, β i where
   toFun := subtypeDomain p
   map_zero' := subtypeDomain_zero
   map_add' := subtypeDomain_add
@@ -528,8 +527,7 @@ def subtypeDomainAddMonoidHom [∀ i, AddZeroClass (β i)] (p : ι → Prop) [De
 /-- `DFinsupp.subtypeDomain` as a `LinearMap`. -/
 @[simps]
 def subtypeDomainLinearMap [Semiring γ] [∀ i, AddCommMonoid (β i)] [∀ i, Module γ (β i)]
-    (p : ι → Prop) [DecidablePred p] : (Π₀ i, β i) →ₗ[γ] Π₀ i : Subtype p, β i
-    where
+    (p : ι → Prop) [DecidablePred p] : (Π₀ i, β i) →ₗ[γ] Π₀ i : Subtype p, β i where
   toFun := subtypeDomain p
   map_add' := subtypeDomain_add
   map_smul' := subtypeDomain_smul
@@ -894,8 +892,7 @@ variable (β)
 
 /-- `DFinsupp.single` as an `AddMonoidHom`. -/
 @[simps]
-def singleAddHom (i : ι) : β i →+ Π₀ i, β i
-    where
+def singleAddHom (i : ι) : β i →+ Π₀ i, β i where
   toFun := single i
   map_zero' := single_zero i
   map_add' := single_add i
@@ -904,8 +901,7 @@ def singleAddHom (i : ι) : β i →+ Π₀ i, β i
 
 /-- `DFinsupp.erase` as an `AddMonoidHom`. -/
 @[simps]
-def eraseAddHom (i : ι) : (Π₀ i, β i) →+ Π₀ i, β i
-    where
+def eraseAddHom (i : ι) : (Π₀ i, β i) →+ Π₀ i, β i where
   toFun := erase i
   map_zero' := erase_zero i
   map_add' := erase_add i
@@ -1605,8 +1601,7 @@ theorem sigmaUncurry_single [∀ i j, Zero (δ i j)]
 This is the dfinsupp version of `Equiv.piCurry`. -/
 def sigmaCurryEquiv [∀ i j, Zero (δ i j)]
     [∀ i, DecidableEq (α i)] [∀ i j (x : δ i j), Decidable (x ≠ 0)] :
-    (Π₀ i : Σi, _, δ i.1 i.2) ≃ Π₀ (i) (j), δ i j
-    where
+    (Π₀ i : Σi, _, δ i.1 i.2) ≃ Π₀ (i) (j), δ i j where
   toFun := sigmaCurry
   invFun := sigmaUncurry
   left_inv f := by
@@ -1670,8 +1665,8 @@ theorem extendWith_zero [DecidableEq ι] [∀ i, Zero (α i)] (x : α none) :
 
 This is the dfinsupp version of `Equiv.piOptionEquivProd`. -/
 @[simps]
-noncomputable def equivProdDFinsupp [∀ i, Zero (α i)] : (Π₀ i, α i) ≃ α none × Π₀ i, α (some i)
-    where
+noncomputable def equivProdDFinsupp [∀ i, Zero (α i)] :
+    (Π₀ i, α i) ≃ α none × Π₀ i, α (some i) where
   toFun f := (f none, comapDomain some (Option.some_injective _) f)
   invFun f := f.2.extendWith f.1
   left_inv f := by
@@ -2031,8 +2026,8 @@ theorem sumAddHom_comm {ι₁ ι₂ : Sort _} {β₁ : ι₁ → Type*} {β₂ :
 
 /-- The `DFinsupp` version of `Finsupp.liftAddHom`,-/
 @[simps apply symm_apply]
-def liftAddHom [∀ i, AddZeroClass (β i)] [AddCommMonoid γ] : (∀ i, β i →+ γ) ≃+ ((Π₀ i, β i) →+ γ)
-    where
+def liftAddHom [∀ i, AddZeroClass (β i)] [AddCommMonoid γ] :
+    (∀ i, β i →+ γ) ≃+ ((Π₀ i, β i) →+ γ) where
   toFun := sumAddHom
   invFun F i := F.comp (singleAddHom β i)
   left_inv x := by ext; simp

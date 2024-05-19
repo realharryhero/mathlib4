@@ -509,8 +509,7 @@ theorem sumAddHom_coe [AddZeroClass M] [(x : M) → Decidable (x ≠ 0)] [AddCom
 
 /-- The canonical isomorphism between families of additive monoid homomorphisms `α → (M →+ N)`
 and monoid homomorphisms `(α →₀ M) →+ N`. -/
-def liftAddHom [AddZeroClass M] [AddCommMonoid N] :
-    (α → M →+ N) ≃+ ((α →₀ M) →+ N) where
+def liftAddHom [AddZeroClass M] [AddCommMonoid N] : (α → M →+ N) ≃+ ((α →₀ M) →+ N) where
   toFun := Finsupp.sumAddHom
   invFun F x := F.comp (singleAddHom x)
   left_inv F := by ext; simp
