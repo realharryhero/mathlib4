@@ -17,6 +17,10 @@ import Mathlib.Logic.Basic
 
 * `Set.center`: the center of a magma
 * `Set.addCenter`: the center of an additive magma
+* `Set.centralizer`: the centralizer of a subset of a magma
+* `Set.addCentralizer`: the centralizer of a subset of an additive magma
+
+## See also
 
 See `Mathlib.GroupTheory.Subsemigroup.Center` for the definition of the center as a subsemigroup:
 * `Subsemigroup.center`: the center of a semigroup
@@ -25,13 +29,20 @@ See `Mathlib.GroupTheory.Subsemigroup.Center` for the definition of the center a
 We provide `Submonoid.center`, `AddSubmonoid.center`, `Subgroup.center`, `AddSubgroup.center`,
 `Subsemiring.center`, and `Subring.center` in other files.
 
+See `Mathlib.GroupTheory.Subsemigroup.Centralizer` for the definition of the centralizer
+as a subsemigroup:
+* `Subsemigroup.centralizer`: the centralizer of a subset of a semigroup
+* `AddSubsemigroup.centralizer`: the centralizer of a subset of an additive semigroup
+
+We provide `Monoid.centralizer`, `AddMonoid.centralizer`, `Subgroup.centralizer`, and
+`AddSubgroup.centralizer` in other files.
 -/
 
 assert_not_exists Finset
 assert_not_exists MonoidWithZero
 assert_not_exists Subsemigroup
 
-variable {M : Type*}
+variable {M : Type*} {S T : Set M}
 
 /-- Conditions for an element to be additively central -/
 structure IsAddCentral [Add M] (z : M) : Prop where
@@ -77,15 +88,25 @@ end IsMulCentral
 
 namespace Set
 
-section Mul
-variable (M) [Mul M]
+/-! ### Center -/
 
+section Mul
+variable [Mul M]
+
+variable (M) in
 /-- The center of a magma. -/
 @[to_additive addCenter " The center of an additive magma. "]
 def center : Set M :=
   { z | IsMulCentral z }
 #align set.center Set.center
 #align set.add_center Set.addCenter
+
+variable (S) in
+/-- The centralizer of a subset of a magma. -/
+@[to_additive addCentralizer " The centralizer of a subset of an additive magma. "]
+def centralizer [Mul M] : Set M := {c | ∀ m ∈ S, m * c = c * m}
+#align set.centralizer Set.centralizer
+#align set.add_centralizer Set.addCentralizer
 
 -- Porting note: The `to_additive` version used to be `mem_addCenter` without the iff
 @[to_additive mem_addCenter_iff]
@@ -94,7 +115,10 @@ theorem mem_center_iff {z : M} : z ∈ center M ↔ IsMulCentral z :=
 #align set.mem_center_iff Set.mem_center_iff
 #align set.mem_add_center Set.mem_addCenter_iff
 
-variable {M}
+@[to_additive mem_addCentralizer]
+lemma mem_centralizer_iff [Mul M] {c : M} : c ∈ centralizer S ↔ ∀ m ∈ S, m * c = c * m := Iff.rfl
+#align set.mem_centralizer_iff Set.mem_centralizer_iff
+#align set.mem_add_centralizer Set.mem_addCentralizer
 
 @[to_additive (attr := simp) add_mem_addCenter]
 theorem mul_mem_center [Mul M] {z₁ z₂ : M} (hz₁ : z₁ ∈ Set.center M) (hz₂ : z₂ ∈ Set.center M) :
@@ -122,10 +146,21 @@ theorem mul_mem_center [Mul M] {z₁ z₂ : M} (hz₁ : z₁ ∈ Set.center M) (
 #align set.mul_mem_center Set.mul_mem_center
 #align set.add_mem_add_center Set.add_mem_addCenter
 
+@[to_additive addCenter_subset_addCentralizer]
+lemma center_subset_centralizer (S : Set M) : Set.center M ⊆ S.centralizer :=
+  fun _ hx m _ ↦ (hx.comm m).symm
+#align set.center_subset_centralizer Set.center_subset_centralizer
+#align set.add_center_subset_add_centralizer Set.addCenter_subset_addCentralizer
+
+@[to_additive (attr := gcongr) addCentralizer_subset]
+lemma centralizer_subset (h : S ⊆ T) : centralizer T ⊆ centralizer S := fun _ ht s hs ↦ ht s (h hs)
+#align set.centralizer_subset Set.centralizer_subset
+#align set.add_centralizer_subset Set.addCentralizer_subset
+
 end Mul
 
 section Semigroup
-variable [Semigroup M]
+variable [Semigroup M] {a b : M}
 
 @[to_additive]
 theorem _root_.Semigroup.mem_center_iff {z : M} :
@@ -133,13 +168,39 @@ theorem _root_.Semigroup.mem_center_iff {z : M} :
   fun h ↦ ⟨fun _ ↦ (Commute.eq (h _)).symm, fun _ _ ↦ (mul_assoc z _ _).symm,
   fun _ _ ↦ mul_assoc _ z _, fun _ _ ↦ mul_assoc _ _ z⟩ ⟩
 
-variable (M)
+@[to_additive (attr := simp) add_mem_addCentralizer]
+lemma mul_mem_centralizer (ha : a ∈ centralizer S) (hb : b ∈ centralizer S) :
+    a * b ∈ centralizer S := fun g hg ↦ by
+  rw [mul_assoc, ← hb g hg, ← mul_assoc, ha g hg, mul_assoc]
+#align set.mul_mem_centralizer Set.mul_mem_centralizer
+#align set.add_mem_add_centralizer Set.add_mem_addCentralizer
+
+@[to_additive (attr := simp) addCentralizer_eq_top_iff_subset]
+theorem centralizer_eq_top_iff_subset : centralizer S = Set.univ ↔ S ⊆ center M :=
+  eq_top_iff.trans <| ⟨
+    fun h _ hx ↦ Semigroup.mem_center_iff.mpr fun _ ↦ by rw [h trivial _ hx],
+    fun h _ _ _ hm ↦ (h hm).comm _⟩
+#align set.centralizer_eq_top_iff_subset Set.centralizer_eq_top_iff_subset
+#align set.add_centralizer_eq_top_iff_subset Set.addCentralizer_eq_top_iff_subset
+
+@[to_additive (attr := simp) addCentralizer_univ]
+lemma centralizer_univ : centralizer univ = center M :=
+  Subset.antisymm (fun _ ha ↦ Semigroup.mem_center_iff.mpr fun b ↦ ha b (Set.mem_univ b))
+  fun _ ha b _ ↦ (ha.comm b).symm
+#align set.centralizer_univ Set.centralizer_univ
+#align set.add_centralizer_univ Set.addCentralizer_univ
 
 -- TODO Add `instance : Decidable (IsMulCentral a)` for `instance decidableMemCenter [Mul M]`
 @[to_additive decidableMemAddCenter]
 instance decidableMemCenter [∀ a : M, Decidable <| ∀ b : M, b * a = a * b] :
     DecidablePred (· ∈ center M) := fun _ => decidable_of_iff' _ (Semigroup.mem_center_iff)
 #align set.decidable_mem_center Set.decidableMemCenter
+
+@[to_additive decidableMemAddCentralizer]
+instance decidableMemCentralizer [Mul M] [∀ a : M, Decidable <| ∀ b ∈ S, b * a = a * b] :
+    DecidablePred (· ∈ centralizer S) := fun _ ↦ decidable_of_iff' _ mem_centralizer_iff
+#align set.decidable_mem_centralizer Set.decidableMemCentralizer
+#align set.decidable_mem_add_centralizer Set.decidableMemAddCentralizer
 
 end Semigroup
 
@@ -152,9 +213,17 @@ theorem center_eq_univ [CommSemigroup M] : center M = univ :=
 #align set.center_eq_univ Set.center_eq_univ
 #align set.add_center_eq_univ Set.addCenter_eq_univ
 
+@[to_additive (attr := simp) addCentralizer_eq_univ]
+lemma centralizer_eq_univ [CommSemigroup M] : centralizer S = univ :=
+  eq_univ_of_forall fun _ _ _ ↦ mul_comm _ _
+#align set.centralizer_eq_univ Set.centralizer_eq_univ
+#align set.add_centralizer_eq_univ Set.addCentralizer_eq_univ
+
 end CommSemigroup
 
-variable (M) in
+section MulOneClass
+variable [MulOneClass M]
+
 @[to_additive (attr := simp) zero_mem_addCenter]
 theorem one_mem_center [MulOneClass M] : (1 : M) ∈ Set.center M where
   comm _  := by rw [one_mul, mul_one]
@@ -163,6 +232,13 @@ theorem one_mem_center [MulOneClass M] : (1 : M) ∈ Set.center M where
   right_assoc _ _ := by rw [mul_one, mul_one]
 #align set.one_mem_center Set.one_mem_center
 #align set.zero_mem_add_center Set.zero_mem_addCenter
+
+@[to_additive (attr := simp) zero_mem_addCentralizer]
+lemma one_mem_centralizer : (1 : M) ∈ centralizer S := by simp [mem_centralizer_iff]
+#align set.one_mem_centralizer Set.one_mem_centralizer
+#align set.zero_mem_add_centralizer Set.zero_mem_addCentralizer
+
+end MulOneClass
 
 section Monoid
 variable [Monoid M]
@@ -212,4 +288,22 @@ theorem div_mem_center (ha : a ∈ Set.center M) (hb : b ∈ Set.center M) : a /
 @[deprecated (since := "2024-05-19")] alias div_mem_center₀ := div_mem_center
 
 end DivisionMonoid
+
+section Group
+variable [Group M] {a b : M}
+
+@[to_additive (attr := simp) neg_mem_addCentralizer]
+lemma inv_mem_centralizer (ha : a ∈ centralizer S) : a⁻¹ ∈ centralizer S :=
+  fun g hg ↦ by rw [mul_inv_eq_iff_eq_mul, mul_assoc, eq_inv_mul_iff_mul_eq, ha g hg]
+#align set.inv_mem_centralizer Set.inv_mem_centralizer
+#align set.neg_mem_add_centralizer Set.neg_mem_addCentralizer
+
+@[to_additive (attr := simp) sub_mem_addCentralizer]
+lemma div_mem_centralizer (ha : a ∈ centralizer S) (hb : b ∈ centralizer S) :
+    a / b ∈ centralizer S := by
+  simpa only [div_eq_mul_inv] using mul_mem_centralizer ha (inv_mem_centralizer hb)
+#align set.div_mem_centralizer Set.div_mem_centralizer
+#align set.sub_mem_add_centralizer Set.sub_mem_addCentralizer
+
+end Group
 end Set

@@ -19,15 +19,25 @@ assert_not_exists Subsemigroup
 variable {M₀ G₀ : Type*}
 
 namespace Set
+section MulZeroClass
+variable [MulZeroClass M₀] {s : Set M₀}
 
-@[simp] lemma zero_mem_center [MulZeroClass M₀] : (0 : M₀) ∈ center M₀ where
+@[simp] lemma zero_mem_center : (0 : M₀) ∈ center M₀ where
   comm _ := by rw [zero_mul, mul_zero]
   left_assoc _ _ := by rw [zero_mul, zero_mul, zero_mul]
   mid_assoc _ _ := by rw [mul_zero, zero_mul, mul_zero]
   right_assoc _ _ := by rw [mul_zero, mul_zero, mul_zero]
 #align set.zero_mem_center Set.zero_mem_center
 
-lemma center_units_subset [GroupWithZero G₀] : center G₀ˣ ⊆ ((↑) : G₀ˣ → G₀) ⁻¹' center G₀ := by
+@[simp] lemma zero_mem_centralizer : (0 : M₀) ∈ centralizer s := by simp [mem_centralizer_iff]
+#align set.zero_mem_centralizer Set.zero_mem_centralizer
+
+end MulZeroClass
+
+section GroupWithZero
+variable [GroupWithZero G₀] {s : Set G₀} {a b : G₀}
+
+lemma center_units_subset : center G₀ˣ ⊆ ((↑) : G₀ˣ → G₀) ⁻¹' center G₀ := by
   simp_rw [subset_def, mem_preimage, _root_.Semigroup.mem_center_iff]
   intro u hu a
   obtain rfl | ha := eq_or_ne a 0
@@ -36,8 +46,22 @@ lemma center_units_subset [GroupWithZero G₀] : center G₀ˣ ⊆ ((↑) : G₀
 #align set.center_units_subset Set.center_units_subset
 
 /-- In a group with zero, the center of the units is the preimage of the center. -/
-lemma center_units_eq [GroupWithZero G₀] : center G₀ˣ = ((↑) : G₀ˣ → G₀) ⁻¹' center G₀ :=
+lemma center_units_eq : center G₀ˣ = ((↑) : G₀ˣ → G₀) ⁻¹' center G₀ :=
   center_units_subset.antisymm subset_center_units
 #align set.center_units_eq Set.center_units_eq
 
+@[simp] lemma inv_mem_centralizer₀ (ha : a ∈ centralizer s) : a⁻¹ ∈ centralizer s := by
+  obtain rfl | ha₀ := eq_or_ne a 0
+  · rw [inv_zero]
+    exact zero_mem_centralizer
+  · rintro c hc
+    rw [mul_inv_eq_iff_eq_mul₀ ha₀, mul_assoc, eq_inv_mul_iff_mul_eq₀ ha₀, ha c hc]
+#align set.inv_mem_centralizer₀ Set.inv_mem_centralizer₀
+
+@[simp] lemma div_mem_centralizer₀ (ha : a ∈ centralizer s) (hb : b ∈ centralizer s) :
+    a / b ∈ centralizer s := by
+  simpa only [div_eq_mul_inv] using mul_mem_centralizer ha (inv_mem_centralizer₀ hb)
+#align set.div_mem_centralizer₀ Set.div_mem_centralizer₀
+
+end GroupWithZero
 end Set
