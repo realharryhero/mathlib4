@@ -183,6 +183,7 @@ theorem centralizer_eq_top_iff_subset : centralizer S = Set.univ ↔ S ⊆ cente
 #align set.centralizer_eq_top_iff_subset Set.centralizer_eq_top_iff_subset
 #align set.add_centralizer_eq_top_iff_subset Set.addCentralizer_eq_top_iff_subset
 
+variable (M) in
 @[to_additive (attr := simp) addCentralizer_univ]
 lemma centralizer_univ : centralizer univ = center M :=
   Subset.antisymm (fun _ ha ↦ Semigroup.mem_center_iff.mpr fun b ↦ ha b (Set.mem_univ b))
