@@ -5,7 +5,7 @@ Authors: Yaël Dillies
 -/
 import Mathlib.Order.Interval.Finset.Nat
 
-#align_import Order.Interval.Finset.Fin from "leanprover-community/mathlib"@"1d29de43a5ba4662dd33b5cfeecfc2a27a5a8a29"
+#align_import data.fin.interval from "leanprover-community/mathlib"@"1d29de43a5ba4662dd33b5cfeecfc2a27a5a8a29"
 
 /-!
 # Finite intervals in `Fin n`
