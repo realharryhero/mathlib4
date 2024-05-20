@@ -7,6 +7,7 @@ import Mathlib.Data.Nat.Defs
 import Mathlib.Init.Data.Int.Basic
 import Mathlib.Init.ZeroOne
 import Mathlib.Logic.Nontrivial.Defs
+import Mathlib.Order.Nat
 import Mathlib.Tactic.Convert
 import Mathlib.Tactic.Lift
 

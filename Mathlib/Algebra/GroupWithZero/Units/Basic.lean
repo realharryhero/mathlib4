@@ -5,6 +5,7 @@ Authors: Johan Commelin
 -/
 import Mathlib.Algebra.GroupWithZero.Basic
 import Mathlib.Algebra.Group.Units
+import Mathlib.Order.Nat
 import Mathlib.Tactic.Nontriviality
 import Mathlib.Util.AssertExists
 import Mathlib.Tactic.Contrapose

@@ -11,6 +11,7 @@ import Mathlib.Init.Data.List.Instances
 import Mathlib.Init.Data.List.Lemmas
 import Mathlib.Logic.Unique
 import Mathlib.Order.Basic
+import Mathlib.Order.Nat
 import Batteries.Data.List.Lemmas
 import Mathlib.Tactic.Common
 
