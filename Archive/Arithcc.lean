@@ -5,6 +5,7 @@ Authors: Xi Wang
 -/
 import Mathlib.Init.Data.Nat.Lemmas
 import Mathlib.Order.Basic
+import Mathlib.Order.Nat
 import Mathlib.Tactic.Common
 
 #align_import arithcc from "leanprover-community/mathlib"@"eb3595ed8610db8107b75b75ab64ab6390684155"

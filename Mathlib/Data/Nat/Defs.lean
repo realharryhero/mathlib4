@@ -6,6 +6,7 @@ Authors: Floris van Doorn, Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 import Mathlib.Init.Data.Nat.Lemmas
 import Mathlib.Logic.Function.Basic
 import Mathlib.Logic.Nontrivial.Defs
+import Mathlib.Order.Nat
 import Mathlib.Tactic.Cases
 import Mathlib.Tactic.GCongr.Core
 import Mathlib.Tactic.PushNeg
