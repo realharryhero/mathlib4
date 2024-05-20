@@ -108,10 +108,10 @@ theorem inv_def (f : Perm α) : f⁻¹ = f.symm :=
 @[simp, norm_cast] lemma coe_mul (f g : Perm α) : ⇑(f * g) = f ∘ g := rfl
 #align equiv.perm.coe_mul Equiv.Perm.coe_mul
 
-@[norm_cast] lemma coe_pow (f : Perm α) (n : ℕ) : ⇑(f ^ n) = (f^[n]) := rfl
+@[norm_cast] lemma coe_pow (f : Perm α) (n : ℕ) : ⇑(f ^ n) = f^[n] := rfl
 #align equiv.perm.coe_pow Equiv.Perm.coe_pow
 
-@[simp] lemma iterate_eq_pow (f : Perm α) (n : ℕ) : (f^[n]) = ⇑(f ^ n) := rfl
+@[simp] lemma iterate_eq_pow (f : Perm α) (n : ℕ) : f^[n] = ⇑(f ^ n) := rfl
 #align equiv.perm.iterate_eq_pow Equiv.Perm.iterate_eq_pow
 
 theorem eq_inv_iff_eq {f : Perm α} {x y : α} : x = f⁻¹ y ↔ f x = y :=

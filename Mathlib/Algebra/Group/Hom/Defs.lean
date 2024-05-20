@@ -1110,7 +1110,7 @@ instance : Monoid (Monoid.End M) where
   mul_assoc _ _ _ := MonoidHom.comp_assoc _ _ _
   mul_one := MonoidHom.comp_id
   one_mul := MonoidHom.id_comp
-  npow n f := (npowRec n f).copy (Nat.iterate f n) $ by induction n <;> simp [npowRec, *] <;> rfl
+  npow n f := (npowRec n f).copy f^[n] $ by induction n <;> simp [npowRec, *] <;> rfl
   npow_succ n f := DFunLike.coe_injective $ Function.iterate_succ _ _
 
 instance : Inhabited (Monoid.End M) := ⟨1⟩
