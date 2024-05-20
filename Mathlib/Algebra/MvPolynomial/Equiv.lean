@@ -236,8 +236,7 @@ variable {σ}
 def mvPolynomialEquivMvPolynomial [CommSemiring S₃] (f : MvPolynomial S₁ R →+* MvPolynomial S₂ S₃)
     (g : MvPolynomial S₂ S₃ →+* MvPolynomial S₁ R) (hfgC : (f.comp g).comp C = C)
     (hfgX : ∀ n, f (g (X n)) = X n) (hgfC : (g.comp f).comp C = C) (hgfX : ∀ n, g (f (X n)) = X n) :
-    MvPolynomial S₁ R ≃+* MvPolynomial S₂ S₃
-    where
+    MvPolynomial S₁ R ≃+* MvPolynomial S₂ S₃ where
   toFun := f
   invFun := g
   left_inv := is_id (RingHom.comp _ _) hgfC hgfX
@@ -287,7 +286,7 @@ polynomials with coefficients in `MvPolynomial S₁ R`.
 def optionEquivLeft : MvPolynomial (Option S₁) R ≃ₐ[R] Polynomial (MvPolynomial S₁ R) :=
   AlgEquiv.ofAlgHom (MvPolynomial.aeval fun o => o.elim Polynomial.X fun s => Polynomial.C (X s))
     (Polynomial.aevalTower (MvPolynomial.rename some) (X none))
-    (by ext : 2 <;> simp [← Polynomial.C_eq_algebraMap]) (by ext i : 2; cases i <;> simp)
+    (by ext : 2 <;> simp) (by ext i : 2; cases i <;> simp)
 #align mv_polynomial.option_equiv_left MvPolynomial.optionEquivLeft
 
 end
@@ -478,16 +477,10 @@ theorem finSuccEquiv_support' {f : MvPolynomial (Fin (n + 1)) R} {i : ℕ} :
     simp [h.1]
 #align mv_polynomial.fin_succ_equiv_support' MvPolynomial.finSuccEquiv_support'
 
+-- TODO: generalize `finSuccEquiv R n` to an arbitrary ZeroHom
 theorem support_finSuccEquiv_nonempty {f : MvPolynomial (Fin (n + 1)) R} (h : f ≠ 0) :
     (finSuccEquiv R n f).support.Nonempty := by
-  simp only [Finset.nonempty_iff_ne_empty, Ne, Polynomial.support_eq_empty]
-  refine fun c => h ?_
-  let ii := (finSuccEquiv R n).symm
-  calc
-    f = ii (finSuccEquiv R n f) := by
-      simpa only [← AlgEquiv.invFun_eq_symm] using ((finSuccEquiv R n).left_inv f).symm
-    _ = ii 0 := by rw [c]
-    _ = 0 := by simp
+  rwa [Polynomial.support_nonempty, AddEquivClass.map_ne_zero_iff]
 #align mv_polynomial.support_fin_succ_equiv_nonempty MvPolynomial.support_finSuccEquiv_nonempty
 
 theorem degree_finSuccEquiv {f : MvPolynomial (Fin (n + 1)) R} (h : f ≠ 0) :
