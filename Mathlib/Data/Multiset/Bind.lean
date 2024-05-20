@@ -3,7 +3,7 @@ Copyright (c) 2017 Mario Carneiro. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Mario Carneiro
 -/
-import Mathlib.Algebra.BigOperators.Multiset.Basic
+import Mathlib.Algebra.BigOperators.Group.Multiset
 import Mathlib.GroupTheory.GroupAction.Defs
 import Mathlib.Data.Multiset.Dedup
 
@@ -22,8 +22,9 @@ This file defines a few basic operations on `Multiset`, notably the monadic bind
 * `Multiset.sigma`: Disjoint sum of multisets in a sigma type.
 -/
 
--- Make sure we haven't imported `Data.Nat.Order.Basic`
-assert_not_exists NeZero.one_le
+assert_not_exists Ring
+-- TODO: After #12974,
+-- assert_not_exists MonoidWithZero
 
 universe v
 

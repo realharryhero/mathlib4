@@ -164,14 +164,6 @@ open IsLocalization Submonoid
 variable {R S : Type*} [CommRing R] [CommRing S] {I : Ideal R}
 variable (y : R) [Algebra R S] [IsLocalization.Away y S]
 
-theorem disjoint_powers_iff_not_mem (hI : I.IsRadical) :
-    Disjoint (Submonoid.powers y : Set R) ↑I ↔ y ∉ I.1 := by
-  refine'
-    ⟨fun h => Set.disjoint_left.1 h (mem_powers _), fun h => disjoint_iff.mpr (eq_bot_iff.mpr _)⟩
-  rintro x ⟨⟨n, rfl⟩, hx'⟩
-  exact h (hI <| mem_radical_of_pow_mem <| le_radical hx')
-#align ideal.disjoint_powers_iff_not_mem Ideal.disjoint_powers_iff_not_mem
-
 variable (S)
 
 /-- If `R` is a Jacobson ring, then maximal ideals in the localization at `y`
@@ -499,7 +491,7 @@ theorem isMaximal_comap_C_of_isMaximal [Nontrivial R] (hP' : ∀ x : R, C x ∈ 
   suffices (⊥ : Ideal (Localization M)).IsMaximal by
     rw [← IsLocalization.comap_map_of_isPrime_disjoint M (Localization M) ⊥ bot_prime
       (disjoint_iff_inf_le.mpr fun x hx => hM (hx.2 ▸ hx.1))]
-    refine' ((isMaximal_iff_isMaximal_disjoint (Localization M) _ _).mp (by rwa [map_bot])).1
+    refine' ((isMaximal_iff_isMaximal_disjoint (Localization M) a _).mp (by rwa [map_bot])).1
   let M' : Submonoid (R[X] ⧸ P) := M.map φ
   have hM' : (0 : R[X] ⧸ P) ∉ M' := fun ⟨z, hz⟩ =>
     hM (quotientMap_injective (_root_.trans hz.2 φ.map_zero.symm) ▸ hz.1)

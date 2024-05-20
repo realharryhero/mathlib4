@@ -5,7 +5,7 @@ Authors: Johannes Hölzl
 -/
 import Mathlib.Algebra.Ring.Basic
 import Mathlib.Algebra.BigOperators.Basic
-import Mathlib.Algebra.BigOperators.Multiset.Lemmas
+import Mathlib.Algebra.BigOperators.Ring.Multiset
 import Mathlib.Algebra.Field.Defs
 import Mathlib.Data.Fintype.Powerset
 import Mathlib.Data.Int.Cast.Lemmas
