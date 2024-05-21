@@ -288,16 +288,10 @@ theorem prefix_take_le_iff {L : List (List (Option α))} (hm : m < L.length) :
     | cons l ls =>
       cases n with
       | zero =>
-        refine' iff_of_false _ (zero_lt_succ _).not_le
-        rw [take_zero, take_nil]
-        simp only [take, not_false_eq_true]
+        simp
       | succ n =>
-        simp only [length] at hm
-        have specializedIH := @IH n ls (Nat.lt_of_succ_lt_succ hm)
-        simp only [le_of_lt (Nat.lt_of_succ_lt_succ hm), min_eq_left] at specializedIH
-        simp only [take, length, ge_iff_le, le_of_lt hm, min_eq_left, take_cons_succ, cons.injEq,
-          specializedIH, true_and]
-        exact ⟨Nat.succ_le_succ, Nat.le_of_succ_le_succ⟩
+        simp only [length_cons, succ_eq_add_one, Nat.add_lt_add_iff_right] at hm
+        simp [← @IH n ls hm, Nat.min_eq_left, Nat.le_of_lt hm]
 #align list.prefix_take_le_iff List.prefix_take_le_iff
 
 theorem cons_prefix_iff : a :: l₁ <+: b :: l₂ ↔ a = b ∧ l₁ <+: l₂ := by
@@ -345,17 +339,17 @@ protected theorem IsPrefix.reduceOption {l₁ l₂ : List (Option α)} (h : l₁
 instance : IsPartialOrder (List α) (· <+: ·) where
   refl := prefix_refl
   trans _ _ _ := IsPrefix.trans
-  antisymm _ _ h₁ h₂ := eq_of_prefix_of_length_eq h₁ <| h₁.length_le.antisymm h₂.length_le
+  antisymm _ _ h₁ h₂ := eq_of_prefix_of_length_eq h₁ <| Nat.le_antisymm h₁.length_le h₂.length_le
 
 instance : IsPartialOrder (List α) (· <:+ ·) where
   refl := suffix_refl
   trans _ _ _ := IsSuffix.trans
-  antisymm _ _ h₁ h₂ := eq_of_suffix_of_length_eq h₁ <| h₁.length_le.antisymm h₂.length_le
+  antisymm _ _ h₁ h₂ := eq_of_suffix_of_length_eq h₁ <| Nat.le_antisymm h₁.length_le h₂.length_le
 
 instance : IsPartialOrder (List α) (· <:+: ·) where
   refl := infix_refl
   trans _ _ _ := IsInfix.trans
-  antisymm _ _ h₁ h₂ := eq_of_infix_of_length_eq h₁ <| h₁.length_le.antisymm h₂.length_le
+  antisymm _ _ h₁ h₂ := eq_of_infix_of_length_eq h₁ <| Nat.le_antisymm h₁.length_le h₂.length_le
 
 end Fix
 
@@ -556,7 +550,7 @@ theorem IsPrefix.ne_nil {x y : List α} (h : x <+: y) (hx : x ≠ []) : y ≠ []
   rintro rfl; exact hx <| List.prefix_nil.mp h
 
 theorem IsPrefix.get_eq {x y : List α} (h : x <+: y) {n} (hn : n < x.length) :
-    x.get ⟨n, hn⟩ = y.get ⟨n, hn.trans_le h.length_le⟩ := by
+    x.get ⟨n, hn⟩ = y.get ⟨n, Nat.lt_of_lt_of_le hn h.length_le⟩ := by
   obtain ⟨_, rfl⟩ := h
   exact (List.get_append n hn).symm
 

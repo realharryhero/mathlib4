@@ -7,7 +7,6 @@ import Mathlib.Data.Nat.Defs
 import Mathlib.Init.Data.Int.Basic
 import Mathlib.Init.ZeroOne
 import Mathlib.Logic.Nontrivial.Defs
-import Mathlib.Order.Nat
 import Mathlib.Tactic.Convert
 import Mathlib.Tactic.Lift
 
@@ -26,6 +25,9 @@ Split this file into:
 * `Data.Int.Init` (or maybe `Data.Int.Batteries`?) for lemmas that could go to Batteries
 * `Data.Int.Basic` for the lemmas that require mathlib definitions
 -/
+
+assert_not_exists Monoid
+assert_not_exists Preorder
 
 open Nat
 
@@ -553,7 +555,7 @@ lemma ofNat_add_negSucc_of_ge {m n : ℕ} (h : n.succ ≤ m) :
 #align int.of_nat_add_neg_succ_of_nat_of_ge Int.ofNat_add_negSucc_of_ge
 
 lemma natAbs_le_of_dvd_ne_zero (hmn : m ∣ n) (hn : n ≠ 0) : natAbs m ≤ natAbs n :=
-  not_lt.mp (mt (eq_zero_of_dvd_of_natAbs_lt_natAbs hmn) hn)
+  Nat.not_lt.mp (mt (eq_zero_of_dvd_of_natAbs_lt_natAbs hmn) hn)
 #align int.nat_abs_le_of_dvd_ne_zero Int.natAbs_le_of_dvd_ne_zero
 
 -- 2024-04-02

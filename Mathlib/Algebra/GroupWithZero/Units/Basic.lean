@@ -5,7 +5,6 @@ Authors: Johan Commelin
 -/
 import Mathlib.Algebra.GroupWithZero.Basic
 import Mathlib.Algebra.Group.Units
-import Mathlib.Order.Nat
 import Mathlib.Tactic.Nontriviality
 import Mathlib.Util.AssertExists
 import Mathlib.Tactic.Contrapose
@@ -412,8 +411,8 @@ lemma pow_sub₀ (a : G₀) (ha : a ≠ 0) (h : n ≤ m) : a ^ (m - n) = a ^ m *
 
 lemma pow_sub_of_lt (a : G₀) (h : n < m) : a ^ (m - n) = a ^ m * (a ^ n)⁻¹ := by
   obtain rfl | ha := eq_or_ne a 0
-  · rw [zero_pow (Nat.sub_pos_of_lt h).ne', zero_pow (by omega), zero_mul]
-  · exact pow_sub₀ _ ha h.le
+  · rw [zero_pow (Nat.ne_of_gt (Nat.sub_pos_of_lt h)), zero_pow (by omega), zero_mul]
+  · exact pow_sub₀ _ ha (Nat.le_of_lt h)
 #align pow_sub_of_lt pow_sub_of_lt
 
 lemma inv_pow_sub₀ (ha : a ≠ 0) (h : n ≤ m) : a⁻¹ ^ (m - n) = (a ^ m)⁻¹ * a ^ n := by

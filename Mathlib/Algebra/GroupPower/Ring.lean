@@ -5,7 +5,6 @@ Authors: Jeremy Avigad, Robert Y. Lewis
 -/
 import Mathlib.Algebra.GroupWithZero.Divisibility
 import Mathlib.Algebra.GroupWithZero.Hom
-import Mathlib.Order.Nat
 
 #align_import algebra.group_power.ring from "leanprover-community/mathlib"@"fc2ed6f838ce7c9b7c7171e58d78eaf7b438fb0e"
 
@@ -42,7 +41,7 @@ theorem pow_dvd_pow_iff [CancelCommMonoidWithZero R] {x : R} {n m : ℕ} (h0 : x
     (h1 : ¬IsUnit x) : x ^ n ∣ x ^ m ↔ n ≤ m := by
   constructor
   · intro h
-    rw [← not_lt]
+    rw [← Nat.not_lt]
     intro hmn
     apply h1
     have : x ^ m * x ∣ x ^ m * 1 := by
