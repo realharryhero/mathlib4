@@ -5,7 +5,10 @@ Authors: Mario Carneiro
 -/
 import Batteries.Data.Array.Lemmas
 import Mathlib.Init.Data.Nat.Notation
-import Mathlib.Init.Order.Defs
+import Mathlib.Tactic.TypeStar
+import Mathlib.Util.AssertExists
+
+assert_not_exists Preorder
 
 set_option autoImplicit true
 
@@ -141,7 +144,7 @@ theorem push {arr : Array (UFNode α)} {n} {m : UFModel n} (H : m.Models arr)
   apply H.imp <;>
   · intro H
     refine H.push _ hk _ _ (fun i h ↦ ?_) (fun h ↦ ?_) <;>
-    simp [UFModel.push, h, lt_irrefl]
+    simp [UFModel.push, h, Nat.lt_irrefl]
 
 theorem setParent {arr : Array (UFNode α)} {n} {m : UFModel n} (hm : m.Models arr)
     (i j H hi x) (hp : x.parent = j.1) (hrk : x.rank = arr[i].rank) :

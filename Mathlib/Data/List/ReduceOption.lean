@@ -7,12 +7,15 @@ import Batteries.Data.List.Lemmas
 import Mathlib.Init.Data.Bool.Lemmas
 import Mathlib.Tactic.Cases
 import Mathlib.Tactic.TypeStar
+import Mathlib.Util.AssertExists
 
 /-!
 # Properties of `List.reduceOption`
 
 In this file we prove basic lemmas about `List.reduceOption`.
 -/
+
+assert_not_exists Preorder
 
 namespace List
 

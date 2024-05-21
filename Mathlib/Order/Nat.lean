@@ -8,9 +8,11 @@ import Mathlib.Init.Data.Nat.Notation
 import Mathlib.Init.Order.Defs
 
 /-!
-# LinearOrder for ℕ
+# The naturals form a linear order
 
-This file shows that ℕ is a linear order.
+This file contains the linear order instance on the natural numbers.
+
+See note [foundational algebra order theory].
 -/
 
 namespace Nat
