@@ -294,7 +294,7 @@ end DivisionCommMonoid
 namespace Fin
 variable {k m n : ℕ}
 
-private lemma aux (hm : m ≠ 0) (hkmn : m * k ≤ n) : k < n.succ :=
+private lemma aux (hm : m ≠ 0) (hkmn : m * k ≤ n) : k < (n + 1) :=
   Nat.lt_succ_iff.2 $ le_trans (Nat.le_mul_of_pos_left _ hm.bot_lt) hkmn
 
 /-- **No wrap-around principle**.
@@ -302,27 +302,27 @@ private lemma aux (hm : m ≠ 0) (hkmn : m * k ≤ n) : k < n.succ :=
 The first `k + 1` elements of `Fin (n + 1)` are `m`-Freiman isomorphic to the first `k + 1` elements
 of `ℕ` assuming there is no wrap-around. -/
 lemma isAddFreimanIso_Iic (hm : m ≠ 0) (hkmn : m * k ≤ n) :
-    IsAddFreimanIso m (Iic (k : Fin n.succ)) (Iic k) val where
+    IsAddFreimanIso m (Iic (k : Fin (n + 1))) (Iic k) val where
   bijOn.left := by simp [MapsTo, Fin.le_iff_val_le_val, Nat.mod_eq_of_lt, aux hm hkmn]
   bijOn.right.left := val_injective.injOn _
   bijOn.right.right x (hx : x ≤ _) :=
     ⟨x, by simpa [le_iff_val_le_val, -val_fin_le, Nat.mod_eq_of_lt, aux hm hkmn, hx.trans_lt]⟩
   map_sum_eq_map_sum s t hsA htA hs ht := by
-    have (u : Multiset (Fin n.succ)) : Nat.castRingHom _ (u.map val).sum = u.sum := by simp
+    have (u : Multiset (Fin (n + 1))) : Nat.castRingHom _ (u.map val).sum = u.sum := by simp
     rw [← this, ← this]
-    have {u : Multiset (Fin n.succ)} (huk : ∀ x ∈ u, x ≤ k) (hu : card u = m) :
-        (u.map val).sum < n.succ := Nat.lt_succ_iff.2 $ hkmn.trans' $ by
+    have {u : Multiset (Fin (n + 1))} (huk : ∀ x ∈ u, x ≤ k) (hu : card u = m) :
+        (u.map val).sum < (n + 1) := Nat.lt_succ_iff.2 $ hkmn.trans' $ by
       rw [← hu, ← card_map]
       refine sum_le_card_nsmul (u.map val) k ?_
       simpa [le_iff_val_le_val, -val_fin_le, Nat.mod_eq_of_lt, aux hm hkmn] using huk
-    exact ⟨congr_arg _, CharP.natCast_injOn_Iio _ n.succ (this hsA hs) (this htA ht)⟩
+    exact ⟨congr_arg _, CharP.natCast_injOn_Iio _ (n + 1) (this hsA hs) (this htA ht)⟩
 
 /-- **No wrap-around principle**.
 
 The first `k` elements of `Fin (n + 1)` are `m`-Freiman isomorphic to the first `k` elements of `ℕ`
 assuming there is no wrap-around. -/
 lemma isAddFreimanIso_Iio (hm : m ≠ 0) (hkmn : m * k ≤ n) :
-    IsAddFreimanIso m (Iio (k : Fin n.succ)) (Iio k) val := by
+    IsAddFreimanIso m (Iio (k : Fin (n + 1))) (Iio k) val := by
   obtain _ | k := k
   · simp [← bot_eq_zero]; simp [← _root_.bot_eq_zero, -bot_eq_zero']
   have hkmn' : m * k ≤ n := (Nat.mul_le_mul_left _ k.le_succ).trans hkmn
